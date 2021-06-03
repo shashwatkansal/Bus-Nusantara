@@ -1,0 +1,190 @@
+# this is an auto generated file. This will be overwritten
+mutation CreateOrder(
+  $input: CreateOrderInput!
+  $condition: ModelOrderConditionInput
+) {
+  createOrder(input: $input, condition: $condition) {
+    id
+    route {
+      id
+      destination
+      stops
+      _version
+      _deleted
+      _lastChangedAt
+      createdAt
+      updatedAt
+    }
+    agent {
+      id
+      name
+      _version
+      _deleted
+      _lastChangedAt
+      createdAt
+      updatedAt
+    }
+    pickupLocation
+    price
+    _version
+    _deleted
+    _lastChangedAt
+    createdAt
+    updatedAt
+  }
+}
+mutation UpdateOrder(
+  $input: UpdateOrderInput!
+  $condition: ModelOrderConditionInput
+) {
+  updateOrder(input: $input, condition: $condition) {
+    id
+    route {
+      id
+      destination
+      stops
+      _version
+      _deleted
+      _lastChangedAt
+      createdAt
+      updatedAt
+    }
+    agent {
+      id
+      name
+      _version
+      _deleted
+      _lastChangedAt
+      createdAt
+      updatedAt
+    }
+    pickupLocation
+    price
+    _version
+    _deleted
+    _lastChangedAt
+    createdAt
+    updatedAt
+  }
+}
+mutation DeleteOrder(
+  $input: DeleteOrderInput!
+  $condition: ModelOrderConditionInput
+) {
+  deleteOrder(input: $input, condition: $condition) {
+    id
+    route {
+      id
+      destination
+      stops
+      _version
+      _deleted
+      _lastChangedAt
+      createdAt
+      updatedAt
+    }
+    agent {
+      id
+      name
+      _version
+      _deleted
+      _lastChangedAt
+      createdAt
+      updatedAt
+    }
+    pickupLocation
+    price
+    _version
+    _deleted
+    _lastChangedAt
+    createdAt
+    updatedAt
+  }
+}
+mutation CreateRoute(
+  $input: CreateRouteInput!
+  $condition: ModelRouteConditionInput
+) {
+  createRoute(input: $input, condition: $condition) {
+    id
+    destination
+    stops
+    _version
+    _deleted
+    _lastChangedAt
+    createdAt
+    updatedAt
+  }
+}
+mutation UpdateRoute(
+  $input: UpdateRouteInput!
+  $condition: ModelRouteConditionInput
+) {
+  updateRoute(input: $input, condition: $condition) {
+    id
+    destination
+    stops
+    _version
+    _deleted
+    _lastChangedAt
+    createdAt
+    updatedAt
+  }
+}
+mutation DeleteRoute(
+  $input: DeleteRouteInput!
+  $condition: ModelRouteConditionInput
+) {
+  deleteRoute(input: $input, condition: $condition) {
+    id
+    destination
+    stops
+    _version
+    _deleted
+    _lastChangedAt
+    createdAt
+    updatedAt
+  }
+}
+mutation CreateAgent(
+  $input: CreateAgentInput!
+  $condition: ModelAgentConditionInput
+) {
+  createAgent(input: $input, condition: $condition) {
+    id
+    name
+    _version
+    _deleted
+    _lastChangedAt
+    createdAt
+    updatedAt
+  }
+}
+mutation UpdateAgent(
+  $input: UpdateAgentInput!
+  $condition: ModelAgentConditionInput
+) {
+  updateAgent(input: $input, condition: $condition) {
+    id
+    name
+    _version
+    _deleted
+    _lastChangedAt
+    createdAt
+    updatedAt
+  }
+}
+mutation DeleteAgent(
+  $input: DeleteAgentInput!
+  $condition: ModelAgentConditionInput
+) {
+  deleteAgent(input: $input, condition: $condition) {
+    id
+    name
+    _version
+    _deleted
+    _lastChangedAt
+    createdAt
+    updatedAt
+  }
+}

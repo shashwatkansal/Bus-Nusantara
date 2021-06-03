@@ -1,0 +1,18 @@
+type Order @model {
+  id: ID!
+  route: Route! @connection
+  agent: Agent! @connection
+  pickupLocation: String!
+  price: Int!
+}
+
+type Route @model {
+  id: ID!
+  destination: String!
+  stops: [String!]
+}
+
+type Agent @model {
+  id: ID!
+  name: String!
+}
