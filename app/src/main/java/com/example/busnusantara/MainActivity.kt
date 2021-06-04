@@ -4,10 +4,12 @@ import android.content.ContentValues
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import com.example.busnusantara.database.*
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import java.lang.reflect.TypeVariable
 
 
 class MainActivity : AppCompatActivity() {
@@ -30,10 +32,16 @@ class MainActivity : AppCompatActivity() {
                             textView.text = "No route was found. Please try again"
                         }
                         for (document in documents) {
-                            textView.text =
-                                "There is a route going through: " + document.data.get("stops")
-                                    .toString()
-                            Log.d(ContentValues.TAG, "${document.id} => ${document.data}")
+                            val stopsData = document.data.get("stops")
+                            if (stopsData is List<*>) {
+                                var stops: List<String> = stopsData.filterIsInstance<String>()
+                                stops = listOf(startLocation) + stops + destination
+                                val stopsAdapter =
+                                    ArrayAdapter(this, android.R.layout.simple_list_item_1, stops)
+                                stopsList.setAdapter(stopsAdapter)
+                                textView.text = "Route found."
+                                Log.d(ContentValues.TAG, "${document.id} => ${document.data}")
+                            }
                         }
                     }
             }
