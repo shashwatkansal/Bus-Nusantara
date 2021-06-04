@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "222604072875",
+    "project_id": "busnusantaraindo",
+    "storage_bucket": "busnusantaraindo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222604072875:android:114ec02eb679cd966be4ee",
+        "android_client_info": {
+          "package_name": "com.example.busnusantara"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "222604072875-pcvbbm4qrdo4o7i4pe4d9tdhkkrgo2nn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGa31k1cjv-oFNkH8DmbnsZ3nKXZXUe4E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "222604072875-pcvbbm4qrdo4o7i4pe4d9tdhkkrgo2nn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
