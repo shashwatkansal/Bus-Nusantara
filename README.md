@@ -1,3 +1,4 @@
+[![BusNusantara Pull Request & Master CI](https://github.com/SenseiSoni/busnusantara-android/actions/workflows/android-master.yml/badge.svg)](https://github.com/SenseiSoni/busnusantara-android/actions/workflows/android-master.yml)
 # Bus Nusantara Docs
 Aiming to make Intercity bus travel across Indonesia faster and better by reducing travel times for passengers and bus drivers
 
