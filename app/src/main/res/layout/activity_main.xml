@@ -10,21 +10,35 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Find if there is a route:"
+        android:text="Find if there is a route"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/etStartLocationTitle"
+        android:id="@+id/etStartLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:hint="Enter your starting location"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
-        android:hint="Enter your starting location"/>
+        app:layout_constraintVertical_bias="0.231" />
+
+    <EditText
+        android:id="@+id/etDestination"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Enter your destination"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etStartLocation"
+        app:layout_constraintVertical_bias="0.036" />
 
     <Button
         android:id="@+id/btnSearchRoute"
@@ -34,6 +48,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etStartLocationTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/etDestination" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
