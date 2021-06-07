@@ -1,6 +1,7 @@
 package com.example.busnusantara
 
 import android.content.ContentValues
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -9,10 +10,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 import com.example.busnusantara.database.*
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import java.lang.reflect.TypeVariable
 
 
 class MainActivity : AppCompatActivity() {
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +46,11 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
             }
+        }
+
+        btnToQR.setOnClickListener {
+            val intent = Intent(this, QR_Code_Scanner::class.java)
+            startActivity(intent)
         }
     }
 }
