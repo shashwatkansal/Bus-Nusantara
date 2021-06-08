@@ -34,9 +34,12 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps"></activity>
         <activity
-            android:name=".QR_Code_Scanner"
-            android:parentActivityName=".MainActivity"></activity>
-        <activity android:name=".MainActivity">
+            android:name=".SearchRoute"
+            android:label="MainActivity"></activity>
+        <activity
+            android:name=".QRCodeScanner"
+            android:parentActivityName=".SearchRoute"></activity>
+        <activity android:name=".HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

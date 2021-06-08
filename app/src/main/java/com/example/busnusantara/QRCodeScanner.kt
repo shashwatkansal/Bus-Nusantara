@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.activity_qr_code_scanner.*
 
 private const val CAMERA_REQUEST_CODE = 101
 
-class QR_Code_Scanner : AppCompatActivity() {
+class QRCodeScanner : AppCompatActivity() {
 
     private lateinit var codeScanner: CodeScanner
 
@@ -88,6 +88,7 @@ class QR_Code_Scanner : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             CAMERA_REQUEST_CODE -> {
                 if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {

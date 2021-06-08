@@ -61,7 +61,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     if (stopsData is List<*>) {
                         var stops: List<String> = stopsData.filterIsInstance<String>()
                         stops = listOf(start) + stops + destination
-                        for(stop in stops) {
+                        for (stop in stops) {
                             addStopOnMap(stop)
                         }
                     }
@@ -79,7 +79,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
                 for (document in documents) {
                     val coordinate: GeoPoint? = document.getGeoPoint("coordinate")
-                    if(coordinate != null){
+                    if (coordinate != null) {
                         val lat = coordinate?.getLatitude()
                         val lng = coordinate?.getLongitude()
                         val agent = LatLng(lat, lng)
