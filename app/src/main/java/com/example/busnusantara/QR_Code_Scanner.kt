@@ -44,7 +44,7 @@ class QR_Code_Scanner : AppCompatActivity() {
             decodeCallback = DecodeCallback {
                 runOnUiThread {
                     val intent = Intent(this@QR_Code_Scanner, ConfirmJourneyActivity::class.java)
-                    intent.putExtra("JOURNEY_ID", it.text)
+                    intent.putExtra("BOOKING_ID", it.text)
                     startActivity(intent)
                 }
             }
