@@ -18,7 +18,7 @@
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="623dp"
-            tools:context=".MapsActivity" />
+            tools:context=".DriverMapsActivity" />
 
         <TextView
             android:id="@+id/textView"

@@ -58,7 +58,7 @@ class SearchRoute : AppCompatActivity() {
         }
 
         btnToMap.setOnClickListener {
-            val intent = Intent(this, MapsActivity::class.java)
+            val intent = Intent(this, DriverMapsActivity::class.java)
             startActivity(intent)
         }
     }
