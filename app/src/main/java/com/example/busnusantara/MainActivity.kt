@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnToQR.setOnClickListener {
-            val intent = Intent(this, QR_Code_Scanner::class.java)
+            val intent = Intent(this, ScanQRActivity::class.java)
             startActivity(intent)
         }
     }

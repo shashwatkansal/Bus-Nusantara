@@ -32,13 +32,13 @@
 
         <activity
             android:name=".ConfirmJourneyActivity"
-            android:parentActivityName=".QR_Code_Scanner" />
+            android:parentActivityName=".ScanQRActivity" />
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps"
-            android:parentActivityName=".QR_Code_Scanner" />
+            android:parentActivityName=".ScanQRActivity" />
         <activity
-            android:name=".QR_Code_Scanner"
+            android:name=".ScanQRActivity"
             android:parentActivityName=".MainActivity" />
 
         <activity android:name=".MainActivity">
