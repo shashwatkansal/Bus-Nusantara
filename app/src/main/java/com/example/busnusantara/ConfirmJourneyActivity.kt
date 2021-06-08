@@ -18,18 +18,7 @@ class ConfirmJourneyActivity : AppCompatActivity() {
         setContentView(R.layout.activity_confirm_journey_passenger)
 
         val bookingId = getIntent().getStringExtra("BOOKING_ID") ?: ""
-        val orders = Firebase.firestore.collection(Collections.ORDERS.toString())
         Firebase.firestore.document(bookingId).get()
-//            .addOnSuccessListener{document ->
-//                startPointField.text = document.get("pickupLocation").toString()
-//                //destinationPointField.text = document.get("destination").toString()
-//                //tripDateField.text = document.get("date").toString()
-//                numPassengersField.text = document.get("numPassengers").toString()
-//                //busNumField.text = document.get("busNum").toString()
-//            }
-//            .addOnFailureListener { exception ->
-//                Log.e("CJ", exception.message ?: "")
-//            }
             .continueWithTask {task ->
                 val document = task.getResult()
                 startPointField.text = document?.get("pickupLocation").toString()
