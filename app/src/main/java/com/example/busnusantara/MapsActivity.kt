@@ -1,7 +1,11 @@
 package com.example.busnusantara
 
+import android.content.ContentValues
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.widget.ArrayAdapter
+import com.example.busnusantara.database.Collections
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -10,6 +14,10 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.example.busnusantara.databinding.ActivityMapsBinding
+import com.google.firebase.firestore.GeoPoint
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -28,21 +36,58 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        // Add a marker in Jakarta and move the camera
-        val jakarta = LatLng(-6.196940, 106.831737)
-        mMap.addMarker(MarkerOptions().position(jakarta).title("Marker in Jakarta"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(jakarta))
+        val startLocation = "Jakarta"
+        val destination = "Yogyakarta"
+
+        addJourneyStops(startLocation, destination)
+
+        mMap.setMinZoomPreference(6.0f)
+        mMap.setMaxZoomPreference(14.0f)
+    }
+
+    private fun addJourneyStops(start: String, destination: String) {
+        Firebase.firestore.collection(Collections.ROUTES.toString())
+            .whereEqualTo("destination", destination)
+            .get().addOnSuccessListener { documents ->
+                Log.d(ContentValues.TAG, "Finding all routes with $destination dest")
+                if (documents.isEmpty) {
+                    textView.text = "No route was found. Please try again"
+                }
+                for (document in documents) {
+                    val stopsData = document.data.get("stops")
+                    if (stopsData is List<*>) {
+                        var stops: List<String> = stopsData.filterIsInstance<String>()
+                        stops = listOf(start) + stops + destination
+                        for(stop in stops) {
+                            addStopOnMap(stop)
+                        }
+                    }
+                }
+            }
+    }
+
+    private fun addStopOnMap(stop: String) {
+        Firebase.firestore.collection(Collections.AGENTS.toString())
+            .whereEqualTo("locationBased", stop)
+            .get().addOnSuccessListener { documents ->
+                Log.d(ContentValues.TAG, "Finding stop $stop agent")
+                if (documents.isEmpty) {
+                    textView.text = "No agent was found. Please try again"
+                }
+                for (document in documents) {
+                    val coordinate: GeoPoint? = document.getGeoPoint("coordinate")
+                    if(coordinate != null){
+                        val lat = coordinate?.getLatitude()
+                        val lng = coordinate?.getLongitude()
+                        val agent = LatLng(lat, lng)
+
+                        mMap.addMarker(MarkerOptions().position(agent).title(stop))
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(agent))
+                    }
+                }
+            }
     }
 }
