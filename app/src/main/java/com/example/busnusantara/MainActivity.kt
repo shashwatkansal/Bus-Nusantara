@@ -52,10 +52,5 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, QR_Code_Scanner::class.java)
             startActivity(intent)
         }
-
-        btnToMap.setOnClickListener {
-            val intent = Intent(this, MapsActivity::class.java)
-            startActivity(intent)
-        }
     }
 }

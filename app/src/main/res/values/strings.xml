@@ -7,4 +7,9 @@
     <string name="trip_date">Date</string>
     <string name="num_passengers">No. of Passengers</string>
     <string name="bus_num">Bus No.</string>
+    <string name="scan_qr">Scan QR</string>
+    <string name="search">Search</string>
+    <string name="enter_destination">Enter your destination</string>
+    <string name="enter_starting_location">Enter your starting location</string>
+    <string name="find_route">Find if there is a route</string>
 </resources>

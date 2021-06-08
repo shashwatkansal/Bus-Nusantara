@@ -4,7 +4,6 @@ import android.content.ContentValues
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.ArrayAdapter
 import com.example.busnusantara.database.Collections
 
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -23,12 +22,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
+    private var pickUp: String = ""
+    private var destination: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        pickUp = getIntent().getStringExtra("PICKUP") ?: ""
+        destination = getIntent().getStringExtra("DESTINATION") ?: ""
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -39,16 +43,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        val startLocation = "Jakarta"
-        val destination = "Yogyakarta"
-
-        addJourneyStops(startLocation, destination)
+        addJourneyStops()
 
         mMap.setMinZoomPreference(6.0f)
         mMap.setMaxZoomPreference(14.0f)
     }
 
-    private fun addJourneyStops(start: String, destination: String) {
+    private fun addJourneyStops() {
         Firebase.firestore.collection(Collections.ROUTES.toString())
             .whereEqualTo("destination", destination)
             .get().addOnSuccessListener { documents ->
@@ -60,7 +61,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     val stopsData = document.data.get("stops")
                     if (stopsData is List<*>) {
                         var stops: List<String> = stopsData.filterIsInstance<String>()
-                        stops = listOf(start) + stops + destination
+                        stops = listOf(pickUp) + stops + destination
                         for(stop in stops) {
                             addStopOnMap(stop)
                         }
@@ -80,8 +81,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 for (document in documents) {
                     val coordinate: GeoPoint? = document.getGeoPoint("coordinate")
                     if(coordinate != null){
-                        val lat = coordinate?.getLatitude()
-                        val lng = coordinate?.getLongitude()
+                        val lat = coordinate.getLatitude()
+                        val lng = coordinate.getLongitude()
                         val agent = LatLng(lat, lng)
 
                         mMap.addMarker(MarkerOptions().position(agent).title(stop))
