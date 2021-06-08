@@ -1,5 +1,6 @@
 package com.example.busnusantara
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -42,7 +43,9 @@ class QR_Code_Scanner : AppCompatActivity() {
 
             decodeCallback = DecodeCallback {
                 runOnUiThread {
-                    tvQRScan.text = it.text
+                    val intent = Intent(this@QR_Code_Scanner, ConfirmJourneyActivity::class.java)
+                    intent.putExtra("JOURNEY_ID", it.text)
+                    startActivity(intent)
                 }
             }
 
@@ -88,6 +91,7 @@ class QR_Code_Scanner : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             CAMERA_REQUEST_CODE -> {
                 if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
