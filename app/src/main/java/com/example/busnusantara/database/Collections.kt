@@ -17,4 +17,14 @@ enum class Collections {
             return "Agents"
         }
     },
+    TRIPS {
+        override fun toString(): String {
+            return "Trips"
+        }
+    },
+    DRIVER {
+        override fun toString(): String {
+            return "Driver"
+        }
+    },
 }
