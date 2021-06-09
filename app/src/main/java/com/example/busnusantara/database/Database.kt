@@ -1,9 +1,15 @@
 package com.example.busnusantara.database
 
+import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.util.Log
+import com.example.busnusantara.googleapi.DistanceMatrixRequest
+import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import java.io.IOException
+import java.util.*
+import kotlin.collections.HashMap
 
 // Create a new Order
 fun saveOrderToDB(
@@ -62,4 +68,23 @@ fun saveAgentToDB(
         "locationBased" to locationBased,
     )
     return saveToDB(agent, Collections.AGENTS)
+}
+
+// Save the driver
+fun saveTripToDB(
+    busNum: String, location: GeoPoint, routeID: String
+): String? {
+    val collection = Collections.ROUTES.toString()
+    val routeIDRef = Firebase.firestore.collection(collection)
+        .document(routeID)
+
+
+    val trip: HashMap<String, Any> = hashMapOf(
+        "busNum" to busNum,
+        "location" to location,
+        "routeID" to routeIDRef, // Needs to be a reference
+        "date" to Date()
+    )
+    return saveToDB(trip, Collections.TRIPS)
+
 }

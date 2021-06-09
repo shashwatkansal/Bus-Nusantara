@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".SearchRoute">
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Find if there is a route"
+        android:text="@string/find_route"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -20,7 +20,7 @@
         android:id="@+id/etStartLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Enter your starting location"
+        android:hint="@string/enter_starting_location"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -32,7 +32,7 @@
         android:id="@+id/etDestination"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Enter your destination"
+        android:hint="@string/enter_destination"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -44,13 +44,13 @@
         android:id="@+id/btnSearchRoute"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Search"
+        android:text="@string/search"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btnToQR"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etDestination"
-        app:layout_constraintVertical_bias="0.503" />
+        app:layout_constraintVertical_bias="0.158" />
 
     <ListView
         android:id="@+id/stopsList"
@@ -67,11 +67,12 @@
         android:id="@+id/btnToQR"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Scan QR"
+        android:text="@string/scan_qr"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/btnSearchRoute"
-        app:layout_constraintTop_toBottomOf="@+id/etDestination" />
+        app:layout_constraintTop_toBottomOf="@+id/etDestination"
+        app:layout_constraintVertical_bias="0.158" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

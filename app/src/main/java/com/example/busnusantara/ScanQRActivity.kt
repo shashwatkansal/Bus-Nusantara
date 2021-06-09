@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.activity_qr_code_scanner.*
 
 private const val CAMERA_REQUEST_CODE = 101
 
-class QR_Code_Scanner : AppCompatActivity() {
+class ScanQRActivity : AppCompatActivity() {
 
     private lateinit var codeScanner: CodeScanner
 
@@ -43,7 +43,7 @@ class QR_Code_Scanner : AppCompatActivity() {
 
             decodeCallback = DecodeCallback {
                 runOnUiThread {
-                    val intent = Intent(this@QR_Code_Scanner, ConfirmJourneyActivity::class.java)
+                    val intent = Intent(this@ScanQRActivity, ConfirmJourneyActivity::class.java)
                     intent.putExtra("BOOKING_ID", it.text)
                     startActivity(intent)
                 }

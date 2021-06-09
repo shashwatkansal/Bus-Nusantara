@@ -1,18 +1,22 @@
 package com.example.busnusantara
 
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
-import kotlinx.android.synthetic.main.activity_main.*
+import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
 import com.example.busnusantara.database.*
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.activity_main.*
+import java.security.AccessController.getContext
 
 
-class MainActivity : AppCompatActivity() {
+class SearchRoute : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +27,10 @@ class MainActivity : AppCompatActivity() {
         btnSearchRoute.setOnClickListener {
             val startLocation = etStartLocation.text.toString()
             val destination = etDestination.text.toString()
+
+            // Remove any whitespace from inputs
+            startLocation.replace("\\s".toRegex(), "")
+            destination.replace("\\s".toRegex(), "")
 
             if (startLocation.isNotEmpty() && destination.isNotEmpty()) {
                 Firebase.firestore.collection(Collections.ROUTES.toString())
@@ -49,7 +57,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnToQR.setOnClickListener {
-            val intent = Intent(this, QR_Code_Scanner::class.java)
+            val intent = Intent(this, ScanQRActivity::class.java)
             startActivity(intent)
         }
     }
