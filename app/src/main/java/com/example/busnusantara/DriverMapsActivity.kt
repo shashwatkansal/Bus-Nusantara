@@ -20,6 +20,8 @@ import com.example.busnusantara.services.TrackingService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.Marker
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -42,7 +44,8 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val lng: Double? = intent?.getDoubleExtra("longitude", 0.0)
                 if (lat != null && lng != null) {
                     val latLng = LatLng(lat, lng)
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14F))
+                    textView.text = "Your location is: ${latLng.toString()}"
+//                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14F))
 
                 }
             }
@@ -66,6 +69,10 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        Log.d("EZRA", "bottomSheet is null: ${bottomSheet == null}")
+        BottomSheetBehavior.from(bottomSheet).peekHeight = 200
+        BottomSheetBehavior.from(bottomSheet).state = STATE_COLLAPSED
     }
 
     private fun setupPermissions() {
@@ -136,7 +143,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     if (stopsData is List<*>) {
                         var stops: List<String> = stopsData.filterIsInstance<String>()
                         stops = listOf(start) + stops + destination
-                        for(stop in stops) {
+                        for (stop in stops) {
                             addStopOnMap(stop)
                         }
                     }
@@ -154,7 +161,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
                 for (document in documents) {
                     val coordinate: GeoPoint? = document.getGeoPoint("coordinate")
-                    if(coordinate != null){
+                    if (coordinate != null) {
                         val lat = coordinate.getLatitude()
                         val lng = coordinate.getLongitude()
                         val agent = LatLng(lat, lng)
