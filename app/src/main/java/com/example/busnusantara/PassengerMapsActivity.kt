@@ -43,7 +43,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         val routeID = "IT5cRoAVJjl16gy0bfGh"
-        val startBusStop = LatLng(6.2088, 106.8456)
+        val startBusStop = LatLng(-6.224854, 106.827)
 
         getDriverLocation(routeID)
         mMap.addMarker(
@@ -94,7 +94,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                     mMap.moveCamera(CameraUpdateFactory.newLatLng(driverLoc))
 
                                     GetPathFromLocation(
-                                        driverLoc, LatLng(6.2088, 106.8456)
+                                        driverLoc, LatLng(-6.224854, 106.827)
                                     ) { polyLine -> mMap.addPolyline(polyLine) }.execute()
 
                                 }

@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-android-extensions'
-    id 'com.google.secrets_gradle_plugin' version '0.5'
+    id 'com.google.secrets_gradle_plugin' version '0.4'
 }
 
 android {
@@ -15,14 +15,18 @@ android {
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+        debug {
+            buildConfigField 'String', "API_KEY", API_KEY
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField 'String', "API_KEY", API_KEY
+
         }
     }
     compileOptions {
@@ -39,6 +43,9 @@ android {
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
+
+Properties localProperties = new Properties()
+localProperties.load(project.rootProject.file('gradle.properties').newDataInputStream())
 
 dependencies {
     // Firebase

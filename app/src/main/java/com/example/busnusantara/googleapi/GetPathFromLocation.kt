@@ -3,6 +3,7 @@ package com.example.busnusantara.googleapi
 import android.graphics.Color
 import android.os.AsyncTask
 import android.util.Log
+import com.example.busnusantara.BuildConfig
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import org.json.JSONObject
@@ -22,7 +23,7 @@ class GetPathFromLocation(
     private val tag = "GetPathFromLocation"
 
     /* Please enter API KEY */
-    private val key = "AIzaSyD1zYs0nA_Et9Yj11ICVbDeMO-jczVu3hU"
+    private val key = BuildConfig.API_KEY
 
     private fun buildUrl(
         origin: LatLng,

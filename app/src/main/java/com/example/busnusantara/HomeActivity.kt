@@ -17,7 +17,7 @@ class HomeActivity : AppCompatActivity() {
         }
 
         btnPassenger.setOnClickListener {
-            val intent = Intent(this, SearchRoute::class.java)
+            val intent = Intent(this, PassengerMapsActivity::class.java)
             startActivity(intent)
         }
 
