@@ -1,7 +1,6 @@
 package com.example.busnusantara
 
-import android.content.ContentValues
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -18,7 +17,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.example.busnusantara.databinding.ActivityMapsBinding
 import com.example.busnusantara.services.TrackingService
-import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.maps.model.Marker
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -29,7 +28,22 @@ const val LOC_REQUEST_CODE = 1000
 class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
+    private lateinit var marker: Marker
     private lateinit var binding: ActivityMapsBinding
+
+    inner class LocationBroadcastReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action.equals("ACT_LOC")) {
+                val lat: Double? = intent?.getDoubleExtra("latitude", 0.0)
+                val lng: Double? = intent?.getDoubleExtra("longitude", 0.0)
+                if (lat != null && lng != null) {
+                    val latLng = LatLng(lat, lng)
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14F))
+
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +97,9 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun startLocationService() {
+        val receiver = LocationBroadcastReceiver()
+        val filter = IntentFilter("ACT_LOC")
+        registerReceiver(receiver, filter)
         val intent = Intent(this, TrackingService::class.java)
         startService(intent)
     }

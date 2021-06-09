@@ -28,6 +28,10 @@ class TrackingService : Service() {
                     "EZRA",
                     "Lat is: ${p0.lastLocation.latitude}, Lon is ${p0.lastLocation.longitude}"
                 )
+                val intent = Intent("ACT_LOC")
+                intent.putExtra("latitude", p0.lastLocation.latitude)
+                intent.putExtra("longitude", p0.lastLocation.longitude)
+                sendBroadcast(intent)
             }
         }
     }
@@ -40,7 +44,7 @@ class TrackingService : Service() {
     @SuppressLint("MissingPermission")
     fun requestLocation() {
         val locRequest = LocationRequest.create().apply {
-            interval = 2000
+            interval = 800
             priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
         }
         fusedLocationProviderClient?.requestLocationUpdates(
