@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">busnusantara</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_passenger_maps">Map</string>
     <string name="your_trip_info">Your Trip Information</string>
     <string name="start_point">Start</string>
     <string name="destination_point">destination</string>

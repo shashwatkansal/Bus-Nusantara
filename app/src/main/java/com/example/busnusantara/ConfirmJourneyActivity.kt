@@ -40,7 +40,7 @@ class ConfirmJourneyActivity : AppCompatActivity() {
             }
 
         btnToMap.setOnClickListener {
-            val intent = Intent(this, MapsActivity::class.java)
+            val intent = Intent(this, DriverMapsActivity::class.java)
 
             intent.putExtra("PICKUP", "Jakarta")
             intent.putExtra("DESTINATION", "Yogyakarta")
