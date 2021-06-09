@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">busnusantara</string>
+    <string name="your_trip_info">Informasi Perjalanan Anda</string>
+    <string name="start_point">Asal</string>
+    <string name="destination_point">Tujuan</string>
+    <string name="trip_date">Tanggal</string>
+    <string name="num_passengers">Jumlah Penumpang</string>
+    <string name="bus_num">Nomor Seri Bus</string>
+    <string name="scan_qr_ticket">Mohon memindai kode QR pada tiket anda...</string>
+    <string name="next">LANJUT</string>
+</resources>

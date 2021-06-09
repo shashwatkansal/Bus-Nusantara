@@ -6,4 +6,6 @@
     <string name="trip_date">Date</string>
     <string name="num_passengers">No. of Passengers</string>
     <string name="bus_num">Bus No.</string>
+    <string name="scan_qr_ticket">Scan QR Code on ticket...</string>
+    <string name="next">NEXT</string>
 </resources>
