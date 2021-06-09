@@ -1,23 +1,22 @@
 package com.example.busnusantara
 
 import android.content.ContentValues
-import android.content.Intent
-import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import com.example.busnusantara.database.Collections
-
+import com.example.busnusantara.databinding.ActivityPassengerMapsBinding
+import com.example.busnusantara.googleapi.GetPathFromLocation
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.example.busnusantara.databinding.ActivityPassengerMapsBinding
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+
 
 class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -44,12 +43,16 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         val routeID = "IT5cRoAVJjl16gy0bfGh"
-        val startBusStop = "Jakarta"
+        val startBusStop = LatLng(6.2088, 106.8456)
 
-        getDriverLocation(routeID, startBusStop)
+        getDriverLocation(routeID)
+        mMap.addMarker(
+            MarkerOptions().position(startBusStop)
+                .title("Your nearest bus stop")
+        )
     }
 
-    private fun getDriverLocation(routeID: String, startBusStop: String) {
+    private fun getDriverLocation(routeID: String) {
         /* TODO: Implement */
         val collection = Collections.ROUTES.toString()
         Firebase.firestore.collection(collection)
@@ -82,22 +85,23 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                     )
                                     val driverLoc =
                                         LatLng(driverLocation.latitude, driverLocation.longitude)
+
                                     // Add a marker for Bus Driver's Location and move the camera
                                     mMap.addMarker(
                                         MarkerOptions().position(driverLoc)
                                             .title("Bus Driver's Location")
                                     )
                                     mMap.moveCamera(CameraUpdateFactory.newLatLng(driverLoc))
-                                    val gmmIntentUri = Uri.parse("geo:37.7749,-122.4194")
-                                    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-                                    mapIntent.resolveActivity(packageManager)?.let {
-                                        startActivity(mapIntent)
-                                    }
+
+                                    GetPathFromLocation(
+                                        driverLoc, LatLng(6.2088, 106.8456)
+                                    ) { polyLine -> mMap.addPolyline(polyLine) }.execute()
+
                                 }
                             }
-
-
                         }
+
+
                 }
             }
     }
