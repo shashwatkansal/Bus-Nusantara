@@ -19,7 +19,7 @@ class HomeActivity : AppCompatActivity() {
         )
 
         btnBusDriver.setOnClickListener {
-            val intent = Intent(this, DriverMapsActivity::class.java)
+            val intent = Intent(this, ConfirmJourneyDriverActivity::class.java)
             startActivity(intent)
         }
 

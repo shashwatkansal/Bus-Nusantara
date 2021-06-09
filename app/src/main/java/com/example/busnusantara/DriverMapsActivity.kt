@@ -15,7 +15,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.example.busnusantara.databinding.ActivityMapsBinding
+import com.example.busnusantara.databinding.ActivityDriverMapsBinding
 import com.example.busnusantara.services.TrackingService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -23,16 +23,15 @@ import com.google.android.gms.maps.model.Marker
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.android.synthetic.main.activity_maps.*
+import kotlinx.android.synthetic.main.activity_driver_maps.*
 
 const val LOC_REQUEST_CODE = 1000
 
 class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
-    private lateinit var marker: Marker
-    private lateinit var binding: ActivityMapsBinding
-    private var pickUp: String = ""
+    private lateinit var binding: ActivityDriverMapsBinding
+    private var start: String = ""
     private var destination: String = ""
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
@@ -55,10 +54,10 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         setupPermissions()
 
-        binding = ActivityMapsBinding.inflate(layoutInflater)
+        binding = ActivityDriverMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        pickUp = getIntent().getStringExtra("PICKUP") ?: ""
+        start = getIntent().getStringExtra("START") ?: ""
         destination = getIntent().getStringExtra("DESTINATION") ?: ""
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -66,7 +65,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
     }
 
     private fun setupPermissions() {
@@ -126,8 +125,8 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun addJourneyStops() {
         Firebase.firestore.collection(Collections.ROUTES.toString())
-            .whereEqualTo("destination", destination)
-            .get().addOnSuccessListener { documents ->
+            .whereEqualTo("destination", destination).get()
+            .addOnSuccessListener { documents ->
                 Log.d(ContentValues.TAG, "Finding all routes with $destination dest")
                 if (documents.isEmpty) {
                     textView.text = "No route was found. Please try again"
@@ -136,7 +135,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     val stopsData = document.data.get("stops")
                     if (stopsData is List<*>) {
                         var stops: List<String> = stopsData.filterIsInstance<String>()
-                        stops = listOf(pickUp) + stops + destination
+                        stops = listOf(start) + stops + destination
                         for(stop in stops) {
                             addStopOnMap(stop)
                         }
