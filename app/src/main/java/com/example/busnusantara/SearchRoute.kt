@@ -1,15 +1,19 @@
 package com.example.busnusantara
 
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
-import kotlinx.android.synthetic.main.activity_main.*
+import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
 import com.example.busnusantara.database.*
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.activity_main.*
+import java.security.AccessController.getContext
 
 
 class SearchRoute : AppCompatActivity() {
@@ -58,7 +62,7 @@ class SearchRoute : AppCompatActivity() {
         }
 
         btnToMap.setOnClickListener {
-            val intent = Intent(this, DriverMapsActivity::class.java)
+            val intent = Intent(this, PassengerMapsActivity::class.java)
             startActivity(intent)
         }
     }
