@@ -22,4 +22,5 @@ jobs:
       - name: Unit tests
         run: |
           echo "sdk.dir=$HOME/Android/Sdk" > local.properties
+          echo "API_KEY=\"${{ secrets.API_KEY }}\""
           bash ./gradlew test --stacktrace
