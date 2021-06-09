@@ -1,6 +1,5 @@
 package com.example.busnusantara.googleapi
 
-import com.google.firebase.firestore.BuildConfig
 import com.google.firebase.firestore.GeoPoint
 import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.Request
@@ -18,7 +17,7 @@ class DistanceMatrixRequest {
         val origins = "${start.latitude},${start.longitude}"
         val url =
             "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$origins&" +
-                    "destinations=$destination&language=en-EN&key=$API_KEY"
+                    "destinations=$destination&language=en-EN&key=$KEY"
         val request = Request.Builder()
             .url(url)
             .build()
@@ -29,7 +28,7 @@ class DistanceMatrixRequest {
 
     companion object {
 
-        private const val API_KEY = "AIzaSyBC-nMzE8259-wDrKlHCyRwagkhcQFEfyU"
+        private const val KEY = API_KEY
 
         /* *
             For testing purposes only

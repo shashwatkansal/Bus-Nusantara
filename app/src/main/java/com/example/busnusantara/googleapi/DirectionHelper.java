@@ -59,7 +59,7 @@ public class DirectionHelper {
         return routes;
     }
 
-    //Method to decode polyline points
+    // Decode polyline points
     private List<LatLng> decodePoly(String encoded) {
 
         List<LatLng> poly = new ArrayList<>();

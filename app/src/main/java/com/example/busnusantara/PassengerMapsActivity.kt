@@ -68,17 +68,17 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 // Only one routeID, get DocumentReference to find the driver.
                 for (route in routes) {
-                    Firebase.firestore.collection(Collections.DRIVER.toString())
-                        .whereEqualTo("routeId", route.reference)
-                        .get().addOnSuccessListener { drivers ->
-                            if (drivers.isEmpty) {
+                    Firebase.firestore.collection(Collections.TRIPS.toString())
+                        .whereEqualTo("routeID", route.reference)
+                        .get().addOnSuccessListener { driversTrips ->
+                            if (driversTrips.isEmpty) {
                                 Log.d(
                                     ContentValues.TAG,
                                     "routeID $routeID doesn't have a driver!."
                                 )
                             } else {
-                                for (driver in drivers) {
-                                    driverLocation = driver.data["location"] as GeoPoint
+                                for (driverTrip in driversTrips) {
+                                    driverLocation = driverTrip.data["location"] as GeoPoint
                                     Log.d(
                                         ContentValues.TAG,
                                         "Updating map to new location of driver: $driverLocation."

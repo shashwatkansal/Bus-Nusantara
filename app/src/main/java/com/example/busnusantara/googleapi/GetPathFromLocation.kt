@@ -23,7 +23,7 @@ class GetPathFromLocation(
     private val tag = "GetPathFromLocation"
 
     /* Please enter API KEY */
-    private val key = BuildConfig.API_KEY
+    private val key = API_KEY
 
     private fun buildUrl(
         origin: LatLng,

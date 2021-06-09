@@ -21,10 +21,5 @@ enum class Collections {
         override fun toString(): String {
             return "Trips"
         }
-    },
-    DRIVER {
-        override fun toString(): String {
-            return "Driver"
-        }
-    },
+    }
 }
