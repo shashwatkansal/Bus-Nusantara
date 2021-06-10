@@ -43,7 +43,7 @@ class ScanQRActivity : AppCompatActivity() {
 
             decodeCallback = DecodeCallback {
                 runOnUiThread {
-                    val intent = Intent(this@ScanQRActivity, ConfirmJourneyActivity::class.java)
+                    val intent = Intent(this@ScanQRActivity, ConfirmJourneyPassengerActivity::class.java)
                     intent.putExtra("BOOKING_ID", it.text)
                     startActivity(intent)
                 }

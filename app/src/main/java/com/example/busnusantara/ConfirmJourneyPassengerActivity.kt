@@ -2,16 +2,14 @@ package com.example.busnusantara
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_confirm_journey_passenger.*
-import kotlinx.android.synthetic.main.activity_main.*
 
-class ConfirmJourneyActivity : AppCompatActivity() {
+class ConfirmJourneyPassengerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +25,6 @@ class ConfirmJourneyActivity : AppCompatActivity() {
                 tripId.get()
             }
             .continueWithTask {task ->
-                Log.d("DEBUGCONFIRM", "stage 1 success")
                 val document = task.getResult()
                 tripDateField.text = (document?.get("date") as Timestamp).toDate().toString()
                 busNumField.text = document.get("busNum").toString()
@@ -40,13 +37,11 @@ class ConfirmJourneyActivity : AppCompatActivity() {
             }
 
         btnToMap.setOnClickListener {
-            val intent = Intent(this, DriverMapsActivity::class.java)
+            val intent = Intent(this, PassengerMapsActivity::class.java)
 
-            intent.putExtra("PICKUP", "Jakarta")
-            intent.putExtra("DESTINATION", "Yogyakarta")
+            intent.putExtra("PICKUP", startPointField.text)
+            intent.putExtra("DESTINATION", destinationPointField.text)
             startActivity(intent)
-
-            TODO("pass actual pickup location and destination from the value above")
         }
     }
 }
