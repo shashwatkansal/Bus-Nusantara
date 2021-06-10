@@ -12,7 +12,8 @@
     <string name="enter_destination">Enter your destination</string>
     <string name="enter_starting_location">Enter your starting location</string>
     <string name="find_route">Find if there is a route</string>
-    <string name="scan_qr_ticket">Scan QR Code on ticket…</string>
+    <string name="scan_qr_passenger">Please scan the QR Code on your ticket…</string>
+    <string name="scan_qr_driver">Please scan the QR Code on the SPJ…</string>
     <string name="next">NEXT</string>
     <string name="time_of_departure">Time of Departure</string>
     <string name="not_found">Not found</string>

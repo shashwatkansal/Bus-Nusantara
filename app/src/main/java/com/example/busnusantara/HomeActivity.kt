@@ -18,13 +18,15 @@ class HomeActivity : AppCompatActivity() {
             GeoPoint(21.521, 12.214), "IT5cRoAVJjl16gy0bfGh"
         )
 
+        val intent = Intent(this, ScanQRActivity::class.java)
+
         btnBusDriver.setOnClickListener {
-            val intent = Intent(this, ConfirmJourneyDriverActivity::class.java)
+            intent.putExtra("SCAN_PASSENGER", false)
             startActivity(intent)
         }
 
         btnPassenger.setOnClickListener {
-            val intent = Intent(this, PassengerMapsActivity::class.java)
+            intent.putExtra("SCAN_PASSENGER", true)
             startActivity(intent)
         }
 

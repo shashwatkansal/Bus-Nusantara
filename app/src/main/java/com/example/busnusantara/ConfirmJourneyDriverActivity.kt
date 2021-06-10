@@ -16,9 +16,9 @@ class ConfirmJourneyDriverActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_confirm_journey_driver)
 
-//        val tripId = getIntent().getStringExtra("TRIP_ID") ?: ""
-        val tripId = "9c4hJnV6gc9FjlWCF6nH"
-        Firebase.firestore.collection(Collections.TRIPS.toString()).document(tripId).get()
+        val tripId = getIntent().getStringExtra("ID") ?: ""
+        //val tripId = "9c4hJnV6gc9FjlWCF6nH"
+        Firebase.firestore.document(tripId).get()
             .continueWithTask {task ->
                 val document = task.getResult()
                 tripDateField.text = (document?.get("date") as Timestamp).toDate().toString()

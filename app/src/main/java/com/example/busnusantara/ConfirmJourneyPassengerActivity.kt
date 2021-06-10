@@ -15,7 +15,7 @@ class ConfirmJourneyPassengerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_confirm_journey_passenger)
 
-        val bookingId = getIntent().getStringExtra("BOOKING_ID") ?: ""
+        val bookingId = getIntent().getStringExtra("ID") ?: ""
         Firebase.firestore.document(bookingId).get()
             .continueWithTask {task ->
                 val document = task.getResult()

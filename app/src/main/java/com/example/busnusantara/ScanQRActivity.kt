@@ -20,11 +20,18 @@ private const val CAMERA_REQUEST_CODE = 101
 class ScanQRActivity : AppCompatActivity() {
 
     private lateinit var codeScanner: CodeScanner
+    private var scanPassenger: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_qr_code_scanner)
 
+        scanPassenger = getIntent().getBooleanExtra("SCAN_PASSENGER", true)
+        tvQRScan.text = if (scanPassenger) {
+            resources.getString(R.string.scan_qr_passenger)
+        } else {
+            resources.getString(R.string.scan_qr_driver)
+        }
         setUpPermissions()
         codeScanner()
     }
@@ -41,10 +48,14 @@ class ScanQRActivity : AppCompatActivity() {
             isAutoFocusEnabled = true
             isFlashEnabled = false
 
+            // On a successful QR scan, pass the scanned ID to the confirmation activity
             decodeCallback = DecodeCallback {
                 runOnUiThread {
-                    val intent = Intent(this@ScanQRActivity, ConfirmJourneyPassengerActivity::class.java)
-                    intent.putExtra("BOOKING_ID", it.text)
+                    val intent = Intent(
+                        this@ScanQRActivity,
+                        if (scanPassenger) ConfirmJourneyPassengerActivity::class.java
+                                      else ConfirmJourneyDriverActivity::class.java)
+                    intent.putExtra("ID", it.text)
                     startActivity(intent)
                 }
             }
