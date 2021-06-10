@@ -8,6 +8,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.busnusantara.database.Collections
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -19,7 +20,8 @@ import com.example.busnusantara.databinding.ActivityDriverMapsBinding
 import com.example.busnusantara.services.TrackingService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.Marker
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -34,6 +36,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private var start: String = ""
     private var destination: String = ""
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationInfoAdapter: LocationInfoAdapter
 
     inner class LocationBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -42,7 +45,8 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val lng: Double? = intent?.getDoubleExtra("longitude", 0.0)
                 if (lat != null && lng != null) {
                     val latLng = LatLng(lat, lng)
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14F))
+                    textView.text = "Your location is: ${latLng.toString()}"
+//                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14F))
 
                 }
             }
@@ -66,6 +70,25 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        BottomSheetBehavior.from(bottomSheet).peekHeight = 150
+        BottomSheetBehavior.from(bottomSheet).state = STATE_COLLAPSED
+
+        locationInfoAdapter = LocationInfoAdapter(
+            listOf<LocationInfo>(
+                LocationInfo("Jakarta", 25),
+                LocationInfo("Stop A", 3),
+                LocationInfo("Stop B", 0),
+                LocationInfo("Stop C", 3),
+                LocationInfo("Stop D", 3),
+                LocationInfo("Stop E", 3),
+                LocationInfo("Stop F", 3),
+                LocationInfo("Stop G", 3),
+                LocationInfo("Yogyakarta", 0)
+            )
+        )
+        rvLocations.adapter = locationInfoAdapter
+        rvLocations.layoutManager = LinearLayoutManager(this)
     }
 
     private fun setupPermissions() {
@@ -136,7 +159,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     if (stopsData is List<*>) {
                         var stops: List<String> = stopsData.filterIsInstance<String>()
                         stops = listOf(start) + stops + destination
-                        for(stop in stops) {
+                        for (stop in stops) {
                             addStopOnMap(stop)
                         }
                     }
@@ -154,7 +177,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
                 for (document in documents) {
                     val coordinate: GeoPoint? = document.getGeoPoint("coordinate")
-                    if(coordinate != null){
+                    if (coordinate != null) {
                         val lat = coordinate.getLatitude()
                         val lng = coordinate.getLongitude()
                         val agent = LatLng(lat, lng)
