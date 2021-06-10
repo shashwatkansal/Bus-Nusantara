@@ -14,28 +14,12 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
 
-class GetPathFromLocation(
-    private val source: LatLng,
-    private val destination: LatLng,
+class CalculatePathFromLocation(
+    private val url: String,
     private val resultCallback: DirectionPointListener
 ) : AsyncTask<String?, Void?, PolylineOptions?>() {
 
     private val tag = "GetPathFromLocation"
-
-    /* Please enter API KEY */
-    private val key = API_KEY
-
-    private fun buildUrl(
-        origin: LatLng,
-        dest: LatLng
-    ): String {
-        val strOrigin = "origin=" + origin.latitude + "," + origin.longitude
-        val strDest = "destination=" + dest.latitude + "," + dest.longitude
-        val sensor = "sensor=false"
-        val parameters = "$strOrigin&$strDest&$sensor"
-        val output = "json"
-        return "https://maps.googleapis.com/maps/api/directions/$output?$parameters&key=$key"
-    }
 
     override fun doInBackground(vararg params: String?): PolylineOptions? {
         val data: String
@@ -43,7 +27,7 @@ class GetPathFromLocation(
             var inputStream: InputStream? = null
             var connection: HttpURLConnection? = null
             try {
-                val directionUrl = URL(buildUrl(source, destination))
+                val directionUrl = URL(url)
                 connection = directionUrl.openConnection() as HttpURLConnection
                 connection.connect()
                 inputStream = connection!!.inputStream
@@ -112,6 +96,8 @@ class GetPathFromLocation(
 
     override fun onPostExecute(polylineOptions: PolylineOptions?) {
         super.onPostExecute(polylineOptions)
-        if (resultCallback != null && polylineOptions != null) resultCallback.onPath(polylineOptions)
+        if (resultCallback != null && polylineOptions != null) {
+            resultCallback.onPath(polylineOptions)
+        }
     }
 }
