@@ -26,7 +26,10 @@ class LocationInfoAdapter(
     override fun onBindViewHolder(holder: LocationInfoViewHolder, position: Int) {
         holder.itemView.apply {
             tvLocation.text = locationInfo[position].locationName
-            tvPassengerCount.text = "Passenger count: " + locationInfo[position].passengerCount
+            tvPassengerCount.text = resources.getQuantityString(
+                R.plurals.passenger_count,
+                locationInfo[position].passengerCount,
+                locationInfo[position].passengerCount)
         }
     }
 

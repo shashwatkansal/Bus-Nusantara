@@ -40,12 +40,12 @@
             android:src="@drawable/ic_baseline_remove_24" />
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/remaining_stops"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingTop="50dp"
-            android:text="Hello"
+            android:text="@string/stops_remaining"
             android:textColor="@color/white"
             android:textSize="20sp" />
 

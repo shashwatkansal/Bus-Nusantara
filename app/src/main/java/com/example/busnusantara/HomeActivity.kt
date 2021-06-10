@@ -13,11 +13,6 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        saveTripToDB(
-            "Bus21XD",
-            GeoPoint(21.521, 12.214), "IT5cRoAVJjl16gy0bfGh"
-        )
-
         val intent = Intent(this, ScanQRActivity::class.java)
 
         btnBusDriver.setOnClickListener {

@@ -13,9 +13,19 @@
     <string name="enter_starting_location">Masukkan titik naik</string>
     <string name="search_route">cari rute</string>
     <string name="find_route">Mencari rute…</string>
-    <string name="time_of_departure">Jam Keberangkatan</string>
-
-    <string name="title_activity_passenger_maps">Peta</string>
+    <string name="time_of_departure">Waktu Keberangkatan</string>
+    <string name="title_activity_passenger_maps">Peta Perjalanan</string>
     <string name="scan_qr">Scan QR</string>
     <string name="not_found">Error</string>
+    <string name="i_am">Saya adalah…</string>
+    <string name="i_am_bus_driver">Pengemudi</string>
+    <string name="i_am_passenger">Penumpang</string>
+    <string name="stops_remaining">Sisa Perhentian</string>
+    <string name="need_location">Kami perlu menggunakan fungsi lokasi</string>
+    <string name="route_not_found">Rute tidak ditemukan. Mohon dicoba ulang</string>
+    <string name="stop_not_found">Perhentian tidak ditemukan. Mohon dicoba ulang</string>
+    <string name="need_camera">Kami perlu menggunakan fungsi camera</string>
+    <plurals name="passenger_count">
+        <item quantity="other">Jumlah Penumpang: %d</item>
+    </plurals>
 </resources>

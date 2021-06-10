@@ -45,7 +45,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val lng: Double? = intent?.getDoubleExtra("longitude", 0.0)
                 if (lat != null && lng != null) {
                     val latLng = LatLng(lat, lng)
-                    textView.text = "Your location is: ${latLng.toString()}"
+                    remaining_stops.text = "Your location is: $latLng"
 //                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14F))
 
                 }
@@ -113,7 +113,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     startLocationService()
                 } else {
-                    Toast.makeText(this, "You need the location permission", Toast.LENGTH_SHORT)
+                    Toast.makeText(this, resources.getString(R.string.need_location), Toast.LENGTH_SHORT)
                         .show()
                 }
             }
@@ -144,7 +144,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .addOnSuccessListener { documents ->
                 Log.d(ContentValues.TAG, "Finding all routes with $destination dest")
                 if (documents.isEmpty) {
-                    textView.text = "No route was found. Please try again"
+                    remaining_stops.text = resources.getString(R.string.route_not_found)
                 }
                 for (document in documents) {
                     val stopsData = document.data.get("stops")
@@ -167,7 +167,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .get().addOnSuccessListener { documents ->
                 Log.d(ContentValues.TAG, "Finding stop $stop agent")
                 if (documents.isEmpty) {
-                    textView.text = "No agent was found. Please try again"
+                    remaining_stops.text = resources.getString(R.string.stop_not_found)
                 }
                 for (document in documents) {
                     val coordinate: GeoPoint? = document.getGeoPoint("coordinate")

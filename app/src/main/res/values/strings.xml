@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">busnusantara</string>
-    <string name="title_activity_passenger_maps">Map</string>
+    <string name="title_activity_passenger_maps">Map of the Journey</string>
     <string name="your_trip_info">Your Trip Information</string>
     <string name="start_point">Start</string>
-    <string name="destination_point">destination</string>
+    <string name="destination_point">Destination</string>
     <string name="trip_date">Date</string>
     <string name="num_passengers">No. of Passengers</string>
     <string name="bus_num">Bus No.</string>
@@ -17,4 +17,15 @@
     <string name="next">NEXT</string>
     <string name="time_of_departure">Time of Departure</string>
     <string name="not_found">Not found</string>
+    <string name="i_am">I am a…</string>
+    <string name="i_am_bus_driver">Bus Driver</string>
+    <string name="i_am_passenger">Passenger</string>
+    <string name="stops_remaining">Stops Remaining</string>
+    <string name="need_location">We need the location permission</string>
+    <string name="route_not_found">No route was found. Please try again</string>
+    <string name="stop_not_found">No stop was found. Please try again</string>
+    <string name="need_camera">We need the camera permission</string>
+    <plurals name="passenger_count">
+        <item quantity="other">Passenger Count: %d</item>
+    </plurals>
 </resources>

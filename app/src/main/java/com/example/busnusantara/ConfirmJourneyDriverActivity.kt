@@ -17,7 +17,6 @@ class ConfirmJourneyDriverActivity : AppCompatActivity() {
         setContentView(R.layout.activity_confirm_journey_driver)
 
         val tripId = getIntent().getStringExtra("ID") ?: ""
-        //val tripId = "9c4hJnV6gc9FjlWCF6nH"
         Firebase.firestore.document(tripId).get()
             .continueWithTask {task ->
                 val document = task.getResult()

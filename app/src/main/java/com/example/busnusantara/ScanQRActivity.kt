@@ -106,7 +106,7 @@ class ScanQRActivity : AppCompatActivity() {
         when (requestCode) {
             CAMERA_REQUEST_CODE -> {
                 if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "You need the camera permission", Toast.LENGTH_SHORT)
+                    Toast.makeText(this, resources.getString(R.string.need_camera), Toast.LENGTH_SHORT)
                         .show()
                 }
             }
