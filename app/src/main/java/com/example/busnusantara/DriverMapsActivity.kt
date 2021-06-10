@@ -21,9 +21,12 @@ import com.example.busnusantara.services.TrackingService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.activity_confirm_journey_driver.*
 import kotlinx.android.synthetic.main.activity_driver_maps.*
 
 const val LOC_REQUEST_CODE = 1000
@@ -32,8 +35,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityDriverMapsBinding
-    private var start: String = ""
-    private var destination: String = ""
+    private lateinit var tripId: String
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationInfoAdapter: LocationInfoAdapter
     private val routeStops: MutableList<String> = mutableListOf()
@@ -61,8 +63,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivityDriverMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        start = getIntent().getStringExtra("START") ?: ""
-        destination = getIntent().getStringExtra("DESTINATION") ?: ""
+        tripId = getIntent().getStringExtra("TRIP_ID") ?: ""
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -70,17 +71,6 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-    }
-
-    private fun setupBottomSheet() {
-        from(bottomSheet).peekHeight = 150
-        from(bottomSheet).state = STATE_COLLAPSED
-
-        locationInfoAdapter = LocationInfoAdapter(routeStops.map { stop ->
-            LocationInfo(stop, 3)
-        })
-        rvLocations.adapter = locationInfoAdapter
-        rvLocations.layoutManager = LinearLayoutManager(this)
     }
 
     private fun setupPermissions() {
@@ -131,30 +121,34 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        addJourneyStops()
+        addRouteStops()
 
         mMap.setMinZoomPreference(6.0f)
         mMap.setMaxZoomPreference(14.0f)
-
+        mMap.animateCamera(CameraUpdateFactory.zoomTo( 8.0f ))
     }
 
-    private fun addJourneyStops() {
-        Firebase.firestore.collection(Collections.ROUTES.toString())
-            .whereEqualTo("destination", destination).get()
-            .addOnSuccessListener { documents ->
-                Log.d(ContentValues.TAG, "Finding all routes with $destination dest")
-                if (documents.isEmpty) {
+    private fun addRouteStops() {
+        Firebase.firestore.collection(Collections.TRIPS.toString())
+            .document(tripId).get()
+            .continueWithTask {task ->
+                val document = task.getResult()
+                val routeId = document.get("routeID") as DocumentReference
+                routeId.get()
+            }
+            .addOnSuccessListener { route ->
+                Log.d(ContentValues.TAG, "Finding route for trip ID $tripId")
+                if (route == null) {
                     remaining_stops.text = resources.getString(R.string.route_not_found)
                 }
-                for (document in documents) {
-                    val stopsData = document.data.get("stops")
-                    if (stopsData is List<*>) {
-                        var stops: List<String> = stopsData.filterIsInstance<String>()
-                        stops = listOf(start) + stops + destination
-                        for (stop in stops) {
-                            addStopOnMap(stop)
-                            routeStops.add(stop)
-                        }
+                else {
+                    val stopsData = route["stops"] as List<*>
+                    val start = route["start"] as String
+                    val destination = route["destination"] as String
+                    val stops: List<String> = listOf(start) + stopsData.filterIsInstance<String>() + destination
+                    for (stop in stops) {
+                        addStopOnMap(stop)
+                        routeStops.add(stop)
                     }
                 }
                 setupBottomSheet()
@@ -181,5 +175,16 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
                 }
             }
+    }
+
+    private fun setupBottomSheet() {
+        from(bottomSheet).peekHeight = 150
+        from(bottomSheet).state = STATE_COLLAPSED
+
+        locationInfoAdapter = LocationInfoAdapter(routeStops.map { stop ->
+            LocationInfo(stop, 3)
+        })
+        rvLocations.adapter = locationInfoAdapter
+        rvLocations.layoutManager = LinearLayoutManager(this)
     }
 }

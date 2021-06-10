@@ -25,6 +25,8 @@
     <string name="route_not_found">Rute tidak ditemukan. Mohon dicoba ulang</string>
     <string name="stop_not_found">Perhentian tidak ditemukan. Mohon dicoba ulang</string>
     <string name="need_camera">Kami perlu menggunakan fungsi camera</string>
+    <string name="baseline">baseline</string>
+    <string name="bus_nusantara">Bus Nusantara</string>
     <plurals name="passenger_count">
         <item quantity="other">Jumlah Penumpang: %d</item>
     </plurals>

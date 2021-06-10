@@ -25,6 +25,8 @@
     <string name="route_not_found">No route was found. Please try again</string>
     <string name="stop_not_found">No stop was found. Please try again</string>
     <string name="need_camera">We need the camera permission</string>
+    <string name="baseline">baseline</string>
+    <string name="bus_nusantara">Bus Nusantara</string>
     <plurals name="passenger_count">
         <item quantity="other">Passenger Count: %d</item>
     </plurals>

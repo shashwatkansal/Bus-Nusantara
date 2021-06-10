@@ -24,12 +24,15 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityPassengerMapsBinding
+    private lateinit var orderId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityPassengerMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        orderId = getIntent().getStringExtra("ORDER_ID") ?: ""
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -43,21 +46,21 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        val orderID = "oolO6KVivO3Z445xu5cW"
 
-        getPassengerBusStopAndMark(orderID)
+        getPassengerBusStopAndMark()
         mMap.setMinZoomPreference(6.0f)
         mMap.setMaxZoomPreference(14.0f)
 
     }
 
-    private fun getPassengerBusStopAndMark(orderId: String) {
+    private fun getPassengerBusStopAndMark() {
+        orderId = "oolO6KVivO3Z445xu5cW"
         Firebase.firestore.collection(Collections.ORDERS.toString())
             .document(orderId).get().addOnSuccessListener { order ->
                 if (order != null) {
                     val pickupLocation = order["pickupLocation"] as String
                     val tripDocRef = order["tripID"] as DocumentReference
-                    val tripRef = tripDocRef.id.toString()
+                    val tripRef = tripDocRef.id
                     Log.d(TAG, "tripRef is $tripRef")
                     Log.d(TAG, "pickupLocation is $pickupLocation")
 
@@ -88,11 +91,16 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             Log.d(TAG, "Getting trip $trip")
                             if (trip != null) {
                                 val incomingDriverLocation = trip.data?.get("location") as GeoPoint
+                                val incomingDriverLatLng = geoPointToLatLng(incomingDriverLocation)
 
                                 mMap.addMarker(
                                     MarkerOptions()
-                                        .position(geoPointToLatLng(incomingDriverLocation))
+                                        .position(incomingDriverLatLng)
                                         .title("Bus Driver")
+                                )
+                                mMap.animateCamera(
+                                    CameraUpdateFactory
+                                        .newLatLngZoom(incomingDriverLatLng, 10.0f)
                                 )
 
                                 // Mark all the stops on map
@@ -130,7 +138,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         Firebase.firestore.collection(Collections.AGENTS.toString())
             .whereEqualTo("locationBased", stop)
             .get().addOnSuccessListener { documents ->
-                Log.d(ContentValues.TAG, "Finding stop $stop agent")
+                Log.d(TAG, "Finding stop $stop agent")
                 if (!documents.isEmpty) {
                     for (document in documents) {
                         val coordinate: GeoPoint? = document.getGeoPoint("coordinate")

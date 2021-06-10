@@ -9,45 +9,53 @@
         android:id="@+id/logo"
         android:layout_width="311dp"
         android:layout_height="233dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="196dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/busnusantara_launcher_background" />
+        app:srcCompat="@drawable/busnusantara_logo"
+        android:contentDescription="@string/bus_nusantara" />
 
     <Button
         android:id="@+id/btnBusDriver"
-        android:layout_width="0dp"
-        android:layout_height="66dp"
+        android:layout_width="177dp"
+        android:layout_height="47dp"
         android:layout_marginStart="100dp"
         android:layout_marginEnd="100dp"
-        android:layout_marginBottom="48dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/button"
+        android:fontFamily="@font/montserrat_bold"
         android:text="@string/i_am_bus_driver"
+        app:backgroundTint="@color/softblue"
         app:layout_constraintBottom_toTopOf="@+id/btnPassenger"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/btnPassenger"
-        android:layout_width="0dp"
-        android:layout_height="66dp"
+        android:layout_width="177dp"
+        android:layout_height="47dp"
         android:layout_marginStart="100dp"
         android:layout_marginEnd="100dp"
-        android:layout_marginBottom="100dp"
+        android:layout_marginBottom="144dp"
+        android:background="@drawable/button"
+        android:fontFamily="@font/montserrat_bold"
         android:text="@string/i_am_passenger"
+        app:backgroundTint="@color/softblue"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="54dp"
+        android:layout_height="40dp"
+        android:fontFamily="@font/montserrat_bold"
         android:text="@string/i_am"
         app:layout_constraintBottom_toTopOf="@+id/btnBusDriver"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/logo" />
+        app:layout_constraintTop_toBottomOf="@+id/logo"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

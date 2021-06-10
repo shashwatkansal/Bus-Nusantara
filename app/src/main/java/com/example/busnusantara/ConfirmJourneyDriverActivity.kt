@@ -17,7 +17,9 @@ class ConfirmJourneyDriverActivity : AppCompatActivity() {
         setContentView(R.layout.activity_confirm_journey_driver)
 
         val tripId = getIntent().getStringExtra("ID") ?: ""
-        Firebase.firestore.document(tripId).get()
+
+        Firebase.firestore.collection(Collections.TRIPS.toString())
+            .document(tripId).get()
             .continueWithTask {task ->
                 val document = task.getResult()
                 tripDateField.text = (document?.get("date") as Timestamp).toDate().toString()
@@ -34,8 +36,7 @@ class ConfirmJourneyDriverActivity : AppCompatActivity() {
         btnToMap.setOnClickListener {
             val intent = Intent(this, DriverMapsActivity::class.java)
 
-            intent.putExtra("START", startPointField.text)
-            intent.putExtra("DESTINATION", destinationPointField.text)
+            intent.putExtra("TRIP_ID", tripId)
             startActivity(intent)
         }
     }

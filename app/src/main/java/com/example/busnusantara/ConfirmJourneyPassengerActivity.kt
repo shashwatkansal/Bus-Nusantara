@@ -3,6 +3,7 @@ package com.example.busnusantara
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.example.busnusantara.database.Collections
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.ktx.firestore
@@ -15,8 +16,9 @@ class ConfirmJourneyPassengerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_confirm_journey_passenger)
 
-        val bookingId = getIntent().getStringExtra("ID") ?: ""
-        Firebase.firestore.document(bookingId).get()
+        val orderId = getIntent().getStringExtra("ID") ?: ""
+        Firebase.firestore.collection(Collections.ORDERS.toString())
+            .document(orderId).get()
             .continueWithTask {task ->
                 val document = task.getResult()
                 startPointField.text = document?.get("pickupLocation").toString()
@@ -38,9 +40,7 @@ class ConfirmJourneyPassengerActivity : AppCompatActivity() {
 
         btnToMap.setOnClickListener {
             val intent = Intent(this, PassengerMapsActivity::class.java)
-
-            intent.putExtra("PICKUP", startPointField.text)
-            intent.putExtra("DESTINATION", destinationPointField.text)
+            intent.putExtra("ORDER_ID", orderId)
             startActivity(intent)
         }
     }
