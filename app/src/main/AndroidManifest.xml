@@ -45,14 +45,19 @@
             android:name=".ScanQRActivity"
             android:parentActivityName=".SearchRoute" />
         <activity
-            android:name=".ConfirmJourneyActivity"
+            android:name=".ConfirmJourneyPassengerActivity"
             android:parentActivityName=".ScanQRActivity" />
         <activity
+            android:name=".ConfirmJourneyDriverActivity"
+            android:parentActivityName=".HomeActivity" />
+        <activity
             android:name=".PassengerMapsActivity"
-            android:label="@string/title_activity_passenger_maps" />
+            android:label="@string/title_activity_passenger_maps"
+            android:parentActivityName=".ConfirmJourneyPassengerActivity" />
         <activity
             android:name=".DriverMapsActivity"
-            android:label="@string/title_activity_passenger_maps" />
+            android:label="@string/title_activity_passenger_maps"
+            android:parentActivityName=".ConfirmJourneyDriverActivity" />
 
         <service android:name=".services.TrackingService" />
     </application>

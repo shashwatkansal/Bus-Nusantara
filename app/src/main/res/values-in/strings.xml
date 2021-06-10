@@ -6,6 +6,15 @@
     <string name="trip_date">Tanggal</string>
     <string name="num_passengers">Jumlah Penumpang</string>
     <string name="bus_num">Nomor Seri Bus</string>
-    <string name="scan_qr_ticket">Mohon memindai kode QR pada tiket anda...</string>
+    <string name="scan_qr_ticket">Mohon memindai kode QR pada tiket anda…</string>
     <string name="next">LANJUT</string>
+    <string name="enter_destination">Masukkan titik turun</string>
+    <string name="enter_starting_location">Masukkan titik naik</string>
+    <string name="search_route">cari rute</string>
+    <string name="find_route">Mencari rute…</string>
+    <string name="time_of_departure">Jam Keberangkatan</string>
+
+    <string name="title_activity_passenger_maps">Peta</string>
+    <string name="scan_qr">Scan QR</string>
+    <string name="not_found">Error</string>
 </resources>
