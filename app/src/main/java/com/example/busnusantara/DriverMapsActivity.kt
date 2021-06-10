@@ -8,6 +8,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.busnusantara.database.Collections
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -19,7 +20,6 @@ import com.example.busnusantara.databinding.ActivityDriverMapsBinding
 import com.example.busnusantara.services.TrackingService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.Marker
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.google.firebase.firestore.GeoPoint
@@ -36,6 +36,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private var start: String = ""
     private var destination: String = ""
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationInfoAdapter: LocationInfoAdapter
 
     inner class LocationBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -70,9 +71,24 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        Log.d("EZRA", "bottomSheet is null: ${bottomSheet == null}")
-        BottomSheetBehavior.from(bottomSheet).peekHeight = 200
+        BottomSheetBehavior.from(bottomSheet).peekHeight = 150
         BottomSheetBehavior.from(bottomSheet).state = STATE_COLLAPSED
+
+        locationInfoAdapter = LocationInfoAdapter(
+            listOf<LocationInfo>(
+                LocationInfo("Jakarta", 25),
+                LocationInfo("Stop A", 3),
+                LocationInfo("Stop B", 0),
+                LocationInfo("Stop C", 3),
+                LocationInfo("Stop D", 3),
+                LocationInfo("Stop E", 3),
+                LocationInfo("Stop F", 3),
+                LocationInfo("Stop G", 3),
+                LocationInfo("Yogyakarta", 0)
+            )
+        )
+        rvLocations.adapter = locationInfoAdapter
+        rvLocations.layoutManager = LinearLayoutManager(this)
     }
 
     private fun setupPermissions() {

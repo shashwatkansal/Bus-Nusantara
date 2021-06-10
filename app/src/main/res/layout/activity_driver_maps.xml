@@ -21,18 +21,21 @@
             tools:context=".DriverMapsActivity" />
     </LinearLayout>
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/bottomSheet"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/rounded"
+        android:orientation="vertical"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
 
         <ImageView
+            android:id="@+id/imageView"
             android:layout_width="70dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|top"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop="10dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_baseline_remove_24" />
 
@@ -40,13 +43,19 @@
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:gravity="center"
+            android:paddingTop="50dp"
             android:text="Hello"
             android:textColor="@color/white"
-            android:textSize="40sp" />
+            android:textSize="20sp" />
 
-    </FrameLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvLocations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"/>
+
+    </LinearLayout>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
