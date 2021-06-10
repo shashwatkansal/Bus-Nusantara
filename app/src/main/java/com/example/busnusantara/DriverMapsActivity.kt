@@ -76,7 +76,9 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         from(bottomSheet).peekHeight = 150
         from(bottomSheet).state = STATE_COLLAPSED
 
-        locationInfoAdapter = LocationInfoAdapter(routeStops.map { stop -> LocationInfo(stop, 3) })
+        locationInfoAdapter = LocationInfoAdapter(routeStops.map { stop ->
+            LocationInfo(stop, 3)
+        })
         rvLocations.adapter = locationInfoAdapter
         rvLocations.layoutManager = LinearLayoutManager(this)
     }
