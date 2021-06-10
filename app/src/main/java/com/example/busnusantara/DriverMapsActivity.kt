@@ -20,7 +20,6 @@ import com.example.busnusantara.databinding.ActivityDriverMapsBinding
 import com.example.busnusantara.services.TrackingService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
@@ -37,6 +36,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private var destination: String = ""
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationInfoAdapter: LocationInfoAdapter
+    private val routeStops: MutableList<String> = mutableListOf()
 
     inner class LocationBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -70,23 +70,15 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+    }
 
-        BottomSheetBehavior.from(bottomSheet).peekHeight = 150
-        BottomSheetBehavior.from(bottomSheet).state = STATE_COLLAPSED
+    private fun setupBottomSheet() {
+        from(bottomSheet).peekHeight = 150
+        from(bottomSheet).state = STATE_COLLAPSED
 
-        locationInfoAdapter = LocationInfoAdapter(
-            listOf<LocationInfo>(
-                LocationInfo("Jakarta", 25),
-                LocationInfo("Stop A", 3),
-                LocationInfo("Stop B", 0),
-                LocationInfo("Stop C", 3),
-                LocationInfo("Stop D", 3),
-                LocationInfo("Stop E", 3),
-                LocationInfo("Stop F", 3),
-                LocationInfo("Stop G", 3),
-                LocationInfo("Yogyakarta", 0)
-            )
-        )
+        locationInfoAdapter = LocationInfoAdapter(routeStops.map { stop ->
+            LocationInfo(stop, 3)
+        })
         rvLocations.adapter = locationInfoAdapter
         rvLocations.layoutManager = LinearLayoutManager(this)
     }
@@ -161,9 +153,11 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         stops = listOf(start) + stops + destination
                         for (stop in stops) {
                             addStopOnMap(stop)
+                            routeStops.add(stop)
                         }
                     }
                 }
+                setupBottomSheet()
             }
     }
 
