@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/scanner_view"
         android:layout_alignParentBottom="true"
-        android:text="Scan something..."
+        android:text="@string/scan_qr_ticket"
         android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
