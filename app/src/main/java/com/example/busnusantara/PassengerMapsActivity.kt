@@ -12,6 +12,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.firestore.DocumentReference
@@ -78,7 +79,11 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                     }
                                     mMap.addMarker(
                                         MarkerOptions().position(passengerLoc)
-                                            .title("Your stop")
+                                            .title("Your stop").icon(
+                                                BitmapDescriptorFactory.defaultMarker(
+                                                    BitmapDescriptorFactory.HUE_ORANGE
+                                                )
+                                            )
                                     )
                                     mMap.moveCamera(CameraUpdateFactory.newLatLng(passengerLoc))
                                 }
@@ -96,6 +101,11 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                 mMap.addMarker(
                                     MarkerOptions()
                                         .position(incomingDriverLatLng)
+                                        .icon(
+                                            BitmapDescriptorFactory.defaultMarker(
+                                                BitmapDescriptorFactory.HUE_ORANGE
+                                            )
+                                        )
                                         .title("Bus Driver")
                                 )
                                 mMap.animateCamera(
@@ -122,6 +132,11 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                                 buildRoute(start, stop, mMap)
                                                 start = stop
                                             }
+                                            buildRoute(
+                                                geoPointToLatLng(incomingDriverLocation),
+                                                start,
+                                                mMap
+                                            )
                                         }
                                     }
                             }
