@@ -26,7 +26,6 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.android.synthetic.main.activity_confirm_journey_driver.*
 import kotlinx.android.synthetic.main.activity_driver_maps.*
 
 const val LOC_REQUEST_CODE = 1000
@@ -103,7 +102,11 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     startLocationService()
                 } else {
-                    Toast.makeText(this, resources.getString(R.string.need_location), Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        this,
+                        resources.getString(R.string.need_location),
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 }
             }
@@ -125,13 +128,12 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mMap.setMinZoomPreference(6.0f)
         mMap.setMaxZoomPreference(14.0f)
-        mMap.animateCamera(CameraUpdateFactory.zoomTo( 8.0f ))
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(8.0f))
     }
 
     private fun addRouteStops() {
-        Firebase.firestore.collection(Collections.TRIPS.toString())
-            .document(tripId).get()
-            .continueWithTask {task ->
+        Firebase.firestore.document(tripId).get()
+            .continueWithTask { task ->
                 val document = task.getResult()
                 val routeId = document.get("routeID") as DocumentReference
                 routeId.get()
@@ -140,12 +142,12 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 Log.d(ContentValues.TAG, "Finding route for trip ID $tripId")
                 if (route == null) {
                     remaining_stops.text = resources.getString(R.string.route_not_found)
-                }
-                else {
+                } else {
                     val stopsData = route["stops"] as List<*>
                     val start = route["start"] as String
                     val destination = route["destination"] as String
-                    val stops: List<String> = listOf(start) + stopsData.filterIsInstance<String>() + destination
+                    val stops: List<String> =
+                        listOf(start) + stopsData.filterIsInstance<String>() + destination
                     for (stop in stops) {
                         addStopOnMap(stop)
                         routeStops.add(stop)
