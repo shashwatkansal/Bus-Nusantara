@@ -47,8 +47,10 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (lat != null && lng != null) {
                     val latLng = LatLng(lat, lng)
                     remaining_stops.text = "Your location is: $latLng"
+//                    The following line can be commented to prevent unnecessary updates to the database
+                    Firebase.firestore.document(tripId)
+                        .update("location", GeoPoint(latLng.latitude, latLng.longitude))
 //                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14F))
-
                 }
             }
         }
