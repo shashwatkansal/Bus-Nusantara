@@ -2,26 +2,25 @@ package com.example.busnusantara
 
 import android.content.*
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.busnusantara.database.Collections
+import com.example.busnusantara.databinding.ActivityDriverMapsBinding
+import com.example.busnusantara.services.TrackingService
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.example.busnusantara.databinding.ActivityDriverMapsBinding
-import com.example.busnusantara.services.TrackingService
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
@@ -64,6 +63,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivityDriverMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // get trip ID from confirmation page
         tripId = getIntent().getStringExtra("TRIP_ID") ?: ""
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -187,10 +187,25 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         from(bottomSheet).peekHeight = 150
         from(bottomSheet).state = STATE_COLLAPSED
 
-        locationInfoAdapter = LocationInfoAdapter(routeStops.map { stop ->
-            LocationInfo(stop, 3)
-        })
-        rvLocations.adapter = locationInfoAdapter
+        val locationInfos = mutableListOf<LocationInfo>()
+        val tripIdRef = Firebase.firestore.document(tripId)
+
+        for(stop in routeStops) {
+            Firebase.firestore.collection(Collections.ORDERS.toString())
+                .whereEqualTo("tripID", tripIdRef)
+                .whereEqualTo("pickupLocation", stop)
+                .get().addOnSuccessListener { documents ->
+                    Log.d(ContentValues.TAG, "Finding orders for trip ID $tripId")
+
+                    var totalPassengers = 0
+                    for (document in documents) {
+                        totalPassengers += (document.getLong("numPassengers") ?: 0).toInt()
+                    }
+                    locationInfos.add(LocationInfo(stop, totalPassengers))
+                }
+        }
+
+        rvLocations.adapter = LocationInfoAdapter(locationInfos)
         rvLocations.layoutManager = LinearLayoutManager(this)
     }
 }
