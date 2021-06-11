@@ -3,20 +3,38 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:fontFamily="@font/montserrat_bold"
+        android:text="Scan QR Code"
+        android:textColor="@color/light_black"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.budiyev.android.codescanner.CodeScannerView
         android:id="@+id/scanner_view"
-        android:layout_width="match_parent"
-        android:layout_height="600dp"
+        android:layout_width="350dp"
+        android:layout_height="350dp"
+        android:layout_marginTop="20dp"
         app:autoFocusButtonColor="@color/white"
         app:autoFocusButtonVisible="true"
         app:flashButtonColor="@color/white"
         app:flashButtonVisible="true"
+        app:frameCornersRadius="15dp"
+        app:frameCornersSize="20dp"
+        app:frameThickness="6dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:maskColor="#88000000" />
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:maskColor="#9E424242" />
 
     <TextView
         android:id="@+id/tvQRScan"
@@ -24,8 +42,9 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/scanner_view"
         android:layout_alignParentBottom="true"
-        android:text="@string/scan_qr_passenger"
-        android:textColor="@color/black"
+        android:fontFamily="@font/montserrat_bold"
+        android:text=" "
+        android:textColor="@color/light_black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

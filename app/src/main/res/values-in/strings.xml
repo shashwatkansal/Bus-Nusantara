@@ -6,7 +6,7 @@
     <string name="trip_date">Tanggal</string>
     <string name="num_passengers">Jumlah Penumpang</string>
     <string name="bus_num">Nomor Seri Bus</string>
-    <string name="scan_qr_passenger">Mohon memindai kode QR pada tiket anda…</string>
+    <string name="scan_qr_code">Mohon memindai kode QR pada tiket anda…</string>
     <string name="scan_qr_driver">Mohon memindai kode QR pada SPJ…</string>
     <string name="next">LANJUT</string>
     <string name="enter_destination">Masukkan titik turun</string>
@@ -25,6 +25,8 @@
     <string name="route_not_found">Rute tidak ditemukan. Mohon dicoba ulang</string>
     <string name="stop_not_found">Perhentian tidak ditemukan. Mohon dicoba ulang</string>
     <string name="need_camera">Kami perlu menggunakan fungsi camera</string>
+    <string name="baseline">baseline</string>
+    <string name="bus_nusantara">Bus Nusantara</string>
     <plurals name="passenger_count">
         <item quantity="other">Jumlah Penumpang: %d</item>
     </plurals>

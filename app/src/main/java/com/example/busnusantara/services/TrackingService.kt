@@ -24,10 +24,6 @@ class TrackingService : Service() {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(p0: LocationResult) {
                 super.onLocationResult(p0)
-                Log.d(
-                    "EZRA",
-                    "Lat is: ${p0.lastLocation.latitude}, Lon is ${p0.lastLocation.longitude}"
-                )
                 val intent = Intent("ACT_LOC")
                 intent.putExtra("latitude", p0.lastLocation.latitude)
                 intent.putExtra("longitude", p0.lastLocation.longitude)
