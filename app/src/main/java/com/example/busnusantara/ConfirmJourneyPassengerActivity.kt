@@ -34,31 +34,35 @@ class ConfirmJourneyPassengerActivity : AppCompatActivity() {
     }
 
     private fun displayBusAmenities(orderId: String) {
-        Firebase.firestore.collection(Collections.ORDERS.toString())
+        Firebase.firestore
             .document(orderId)
-            .get().addOnSuccessListener { order ->
-                Firebase.firestore.collection(Collections.TRIPS.toString())
-                    .document(order.id).get().addOnSuccessListener { trip ->
-                        val busNum: String = trip.get("busNum") as String
-                        Firebase.firestore.collection(Collections.BUSES.toString())
-                            .whereEqualTo("busNum", busNum)
-                            .get().addOnSuccessListener { buses ->
-                                if (buses.isEmpty || buses.size() > 1) {
-                                    Log.e(TAG, "Duplicates of busNum exist in database!")
-                                }
-                                for (bus in buses) {
-                                    busTypePointField.text =
-                                        if (bus["executive"] as Boolean)
-                                            "Executive" else "Standard"
-                                    busWifiPointField.text =
-                                        if (bus["wifi"] as Boolean)
-                                            "Wifi Available" else "No Wifi"
-                                    busToiletsPointField.text =
-                                        if (bus["toilets"] as Boolean)
-                                            "Toilets on board" else "No onboard Toilet"
-                                }
-                            }
-                    }
+            .get()
+            .continueWithTask { task ->
+                val order = task.result
+                order.getDocumentReference("tripID")?.get()
+            }
+            .continueWithTask { task ->
+                val trip = task.result
+                val busNum: String? = trip.getString("busNum")
+                Firebase.firestore.collection(Collections.BUSES.toString())
+                    .whereEqualTo("busNum", busNum)
+                    .get()
+            }
+            .addOnSuccessListener { buses ->
+                if (buses.isEmpty || buses.size() > 1) {
+                    Log.e(TAG, "Duplicates of busNum exist in database!")
+                }
+                for (bus in buses) {
+                    busTypePointField.text =
+                        if (bus["executive"] as Boolean)
+                            "Executive" else "Standard"
+                    busWifiPointField.text =
+                        if (bus["wifi"] as Boolean)
+                            "Wifi Available" else "No Wifi"
+                    busToiletsPointField.text =
+                        if (bus["toilets"] as Boolean)
+                            "Toilets on board" else "No onboard Toilet"
+                }
             }
     }
 
