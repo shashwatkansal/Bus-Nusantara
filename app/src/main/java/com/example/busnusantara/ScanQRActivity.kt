@@ -28,7 +28,7 @@ class ScanQRActivity : AppCompatActivity() {
 
         scanPassenger = getIntent().getBooleanExtra("SCAN_PASSENGER", true)
         tvQRScan.text = if (scanPassenger) {
-            resources.getString(R.string.scan_qr_passenger)
+            resources.getString(R.string.scan_qr_code)
         } else {
             resources.getString(R.string.scan_qr_driver)
         }

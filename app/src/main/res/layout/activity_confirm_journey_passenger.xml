@@ -3,19 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/white">
 
     <TextView
         android:id="@+id/tripInformationView"
         android:layout_width="275dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="64dp"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="64dp"
         android:layout_marginEnd="64dp"
+        android:fontFamily="@font/montserrat_bold"
         android:text="@string/your_trip_info"
         android:textAlignment="center"
+        android:textColor="@color/light_black"
         android:textSize="34sp"
-        android:fontFamily="@font/montserrat_bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
@@ -25,15 +27,18 @@
         android:id="@+id/confirmation_info"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="64dp"
-        android:layout_marginTop="64dp"
-        android:layout_marginEnd="64dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="30dp"
         android:layout_marginBottom="64dp"
+        android:background="@drawable/confirm_card_bg"
+        android:elevation="25dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tripInformationView"
-        app:layout_constraintVertical_bias="0.463">
+        app:layout_constraintVertical_bias="0.0">
 
         <TextView
             android:id="@+id/textView8"
@@ -41,10 +46,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
+            android:fontFamily="@font/montserrat_bold"
             android:text="@string/num_passengers"
             android:textColor="@color/black"
             android:textSize="20sp"
-            android:fontFamily="@font/montserrat_bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/busNumField" />
 
@@ -54,10 +59,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
+            android:fontFamily="@font/montserrat_bold"
             android:text="@string/bus_num"
             android:textColor="@color/black"
             android:textSize="20sp"
-            android:fontFamily="@font/montserrat_bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tripDateField" />
 
@@ -67,10 +72,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
+            android:fontFamily="@font/montserrat_bold"
             android:text="@string/destination_point"
             android:textColor="@color/black"
             android:textSize="20sp"
-            android:fontFamily="@font/montserrat_bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/startPointField" />
 
@@ -80,10 +85,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
+            android:fontFamily="@font/montserrat_bold"
             android:text="@string/trip_date"
             android:textColor="@color/black"
             android:textSize="20sp"
-            android:fontFamily="@font/montserrat_bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/destinationPointField" />
 
@@ -93,10 +98,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
+            android:fontFamily="@font/montserrat_bold"
             android:text="@string/start_point"
             android:textColor="@color/black"
             android:textSize="20sp"
-            android:fontFamily="@font/montserrat_bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -105,21 +110,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="@string/not_found"
-            android:textAlignment="textStart"
-            android:textSize="16sp"
             android:fontFamily="@font/montserrat_bold"
+            android:text=" "
+            android:textAlignment="textStart"
+            android:textColor="@color/light_black"
+            android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
         <TextView
             android:id="@+id/destinationPointField"
-            android:layout_width="94dp"
-            android:layout_height="21dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:fontFamily="@font/montserrat_bold"
-            android:text="@string/not_found"
+            android:text=" "
             android:textAlignment="textStart"
+            android:textColor="@color/light_black"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView6" />
@@ -129,10 +136,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="@string/not_found"
-            android:textAlignment="textStart"
-            android:textSize="16sp"
             android:fontFamily="@font/montserrat_bold"
+            android:text=" "
+            android:textAlignment="textStart"
+            android:textColor="@color/light_black"
+            android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
@@ -141,10 +149,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="@string/not_found"
-            android:textAlignment="textEnd"
-            android:textSize="16sp"
             android:fontFamily="@font/montserrat_bold"
+            android:text=" "
+            android:textAlignment="textStart"
+            android:textColor="@color/light_black"
+            android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView8" />
 
@@ -153,9 +162,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="@string/not_found"
-            android:textSize="16sp"
             android:fontFamily="@font/montserrat_bold"
+            android:text=" "
+            android:textAlignment="textStart"
+            android:textColor="@color/light_black"
+            android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView7" />
 
@@ -163,15 +174,18 @@
             android:id="@+id/btnToMap"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            android:text="@string/next"
-            android:textSize="16sp"
             android:background="@drawable/button"
-            app:backgroundTint="@color/softblue"
             android:fontFamily="@font/montserrat_bold"
+            android:text="@string/next"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:backgroundTint="@color/light_orange"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/numPassengersField" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

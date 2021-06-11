@@ -6,7 +6,7 @@
     <string name="trip_date">Tanggal</string>
     <string name="num_passengers">Jumlah Penumpang</string>
     <string name="bus_num">Nomor Seri Bus</string>
-    <string name="scan_qr_passenger">Mohon memindai kode QR pada tiket anda…</string>
+    <string name="scan_qr_code">Mohon memindai kode QR pada tiket anda…</string>
     <string name="scan_qr_driver">Mohon memindai kode QR pada SPJ…</string>
     <string name="next">LANJUT</string>
     <string name="enter_destination">Masukkan titik turun</string>
