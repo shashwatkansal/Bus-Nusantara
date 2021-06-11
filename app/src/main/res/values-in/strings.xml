@@ -2,6 +2,7 @@
     <string name="app_name">busnusantara</string>
     <string name="your_trip_info">Informasi Perjalanan Anda</string>
     <string name="start_point">Asal</string>
+
     <string name="destination_point">Tujuan</string>
     <string name="trip_date">Tanggal</string>
     <string name="num_passengers">Jumlah Penumpang</string>
@@ -30,4 +31,7 @@
     <plurals name="passenger_count">
         <item quantity="other">Jumlah Penumpang: %d</item>
     </plurals>
+    <string name="bus_has_wifi">Bus Wifi</string>
+    <string name="bus_type">Bus Type</string>
+    <string name="bus_toilets">Restroom on board?</string>
 </resources>

@@ -3,6 +3,13 @@
     <string name="title_activity_passenger_maps">Map of the Journey</string>
     <string name="your_trip_info">Your Trip Information</string>
     <string name="start_point">Start</string>
+
+    <!--    To be translated -->
+    <string name="bus_has_wifi">Bus Wifi</string>
+    <string name="bus_type">Bus Type</string>
+    <string name="bus_toilets">Has Toilets?</string>
+    <!--    End of to be translated -->
+
     <string name="destination_point">Destination</string>
     <string name="trip_date">Date</string>
     <string name="num_passengers">No. of Passengers</string>
