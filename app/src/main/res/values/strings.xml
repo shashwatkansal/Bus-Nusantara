@@ -12,12 +12,12 @@
     <string name="enter_destination">Enter your destination</string>
     <string name="enter_starting_location">Enter your starting location</string>
     <string name="find_route">Find if there is a route</string>
-    <string name="scan_qr_passenger">Please scan the QR Code on your ticket…</string>
-    <string name="scan_qr_driver">Please scan the QR Code on the SPJ…</string>
-    <string name="next">NEXT</string>
+    <string name="scan_qr_code">Please scan the QR Code on your ticket</string>
+    <string name="scan_qr_driver">Please scan the QR Code on the SPJ</string>
+    <string name="next">Confirm</string>
     <string name="time_of_departure">Time of Departure</string>
     <string name="not_found">Not found</string>
-    <string name="i_am">I am a…</string>
+    <string name="i_am">I am a …</string>
     <string name="i_am_bus_driver">Bus Driver</string>
     <string name="i_am_passenger">Passenger</string>
     <string name="stops_remaining">Stops Remaining</string>
