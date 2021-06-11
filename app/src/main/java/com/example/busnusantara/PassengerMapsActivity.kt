@@ -5,6 +5,7 @@ import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.busnusantara.database.Collections
 import com.example.busnusantara.databinding.ActivityPassengerMapsBinding
 import com.example.busnusantara.googleapi.buildRoute
@@ -15,10 +16,12 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.activity_driver_maps.*
 
 
 class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -26,6 +29,8 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityPassengerMapsBinding
     private lateinit var orderId: String
+    private lateinit var locationInfoAdapter: LocationInfoAdapter
+    private val routeStops: MutableList<String> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -125,13 +130,18 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                             val stops = route.get("stops") as ArrayList<String>
                                             Log.d(TAG, "Found stops locations $stops")
                                             addStopOnMap(start)
+                                            routeStops.add(start)
 
                                             for (stop in stops) {
                                                 Log.d(TAG, "Adding stop $stop on map")
                                                 addStopOnMap(stop)
+                                                routeStops.add(stop)
                                                 buildRoute(start, stop, mMap)
                                                 start = stop
                                             }
+
+                                            routeStops.add(route.get("destination") as String)
+                                            setupBottomSheet()
                                             buildRoute(
                                                 geoPointToLatLng(incomingDriverLocation),
                                                 start,
@@ -171,6 +181,17 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun geoPointToLatLng(geoPoint: GeoPoint): LatLng {
         return LatLng(geoPoint.latitude, geoPoint.longitude)
+    }
+
+    private fun setupBottomSheet() {
+        BottomSheetBehavior.from(bottomSheet).peekHeight = 150
+        BottomSheetBehavior.from(bottomSheet).state = BottomSheetBehavior.STATE_COLLAPSED
+
+        locationInfoAdapter = LocationInfoAdapter(routeStops.map { stop ->
+            LocationInfo(stop, 3)
+        })
+        rvLocations.adapter = locationInfoAdapter
+        rvLocations.layoutManager = LinearLayoutManager(this)
     }
 
 
