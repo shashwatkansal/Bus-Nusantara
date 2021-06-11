@@ -82,6 +82,8 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         if (permission != PackageManager.PERMISSION_GRANTED) {
             makeRequest()
+        } else {
+            startLocationService()
         }
     }
 
