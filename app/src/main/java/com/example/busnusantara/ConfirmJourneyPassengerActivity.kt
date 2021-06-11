@@ -55,13 +55,13 @@ class ConfirmJourneyPassengerActivity : AppCompatActivity() {
                 for (bus in buses) {
                     busTypePointField.text =
                         if (bus["executive"] as Boolean)
-                            "Executive" else "Standard"
-                    busWifiPointField.text =
-                        if (bus["wifi"] as Boolean)
-                            "Wifi Available" else "No Wifi"
-                    busToiletsPointField.text =
-                        if (bus["toilets"] as Boolean)
-                            "Toilets on board" else "No onboard Toilet"
+                            "Executive Bus" else "Standard Bus"
+                    val wifiSymbol = if (bus["wifi"] as Boolean)
+                        R.drawable.wifi else R.drawable.no_wifi
+                    wifiIcon.setImageResource(wifiSymbol)
+                    val toiletSymbol = if (bus["toilets"] as Boolean)
+                        R.drawable.ic_toilet else R.drawable.ic_notoilet
+                    toiletIcon.setImageResource(toiletSymbol)
                 }
             }
     }
