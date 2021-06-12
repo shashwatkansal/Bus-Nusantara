@@ -18,10 +18,14 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_driver_maps.*
+import kotlinx.android.synthetic.main.activity_driver_maps.bottomSheet
+import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
+import kotlinx.android.synthetic.main.activity_passenger_maps.*
 
 
 class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -31,6 +35,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var orderId: String
     private lateinit var locationInfoAdapter: LocationInfoAdapter
     private val routeStops: MutableList<String> = mutableListOf()
+    private var stopRequested: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +49,22 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+        requestStopButton.setOnClickListener { _ -> toggleRequestButton() }
+    }
+
+    private fun toggleRequestButton() {
+        if (stopRequested) {
+            requestStopButton.backgroundTintList = resources.getColorStateList(R.color.softblue)
+            requestStopButton.text = resources.getString(R.string.request_stop)
+            Firebase.firestore.document("/Buses/s3COY5sKL9HX6JLdD90p")
+                .update("breakRequests", FieldValue.increment(-1))
+        } else {
+            requestStopButton.backgroundTintList = resources.getColorStateList(R.color.light_orange)
+            requestStopButton.text = resources.getString(R.string.requested)
+            Firebase.firestore.document("/Buses/s3COY5sKL9HX6JLdD90p")
+                .update("breakRequests", FieldValue.increment(1))
+        }
+        stopRequested = !stopRequested
     }
 
     /**
