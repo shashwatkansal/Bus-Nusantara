@@ -21,12 +21,20 @@ import com.example.busnusantara.services.TrackingService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
-import com.google.firebase.Timestamp
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_driver_maps.*
+import kotlinx.android.synthetic.main.activity_driver_maps.bottomSheet
+import kotlinx.android.synthetic.main.activity_driver_maps.remaining_stops
+import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
+import kotlinx.android.synthetic.main.activity_passenger_maps.*
 
 const val LOC_REQUEST_CODE = 1000
 
@@ -38,6 +46,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationInfoAdapter: LocationInfoAdapter
     private val routeStops: MutableList<String> = mutableListOf()
+    private var journeyPaused: Boolean = false
 
     inner class LocationBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -48,12 +57,28 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     val latLng = LatLng(lat, lng)
                     remaining_stops.text = "Your location is: $latLng"
 //                    The following line can be commented to prevent unnecessary updates to the database
-                    Firebase.firestore.document(tripId)
-                        .update("location", GeoPoint(latLng.latitude, latLng.longitude))
+//                    Firebase.firestore.document(tripId)
+//                        .update("location", GeoPoint(latLng.latitude, latLng.longitude))
 //                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14F))
                 }
             }
         }
+    }
+
+    private fun toggleRequestButton() {
+        if (journeyPaused) {
+            pauseJourneyButton.backgroundTintList = resources.getColorStateList(R.color.softblue)
+            pauseJourneyButton.text = resources.getString(R.string.pause_journey)
+            Firebase.firestore.document("/Buses/s3COY5sKL9HX6JLdD90p")
+                .update("impromptuStop", false)
+        } else {
+            pauseJourneyButton.backgroundTintList =
+                resources.getColorStateList(R.color.light_orange)
+            pauseJourneyButton.text = resources.getString(R.string.resume)
+            Firebase.firestore.document("/Buses/s3COY5sKL9HX6JLdD90p")
+                .update("impromptuStop", true)
+        }
+        journeyPaused = !journeyPaused
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,6 +97,26 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        pauseJourneyButton.setOnClickListener { _ -> toggleRequestButton() }
+
+
+//        TODO: get this to work
+        val postListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+//                When the data changes this function is called
+                val requests = snapshot.value as Int
+                Log.d("Get requests number", "onDataChange: $requests")
+//                requestsCount.text = "Stop requests: $requests"
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("Get requests number", "Failed for some reason", error.toException())
+            }
+        }
+
+        Firebase.database.getReference("Buses/s3COY5sKL9HX6JLdD90p/breakRequests")
+            .addValueEventListener(postListener)
+
     }
 
     private fun setupPermissions() {
