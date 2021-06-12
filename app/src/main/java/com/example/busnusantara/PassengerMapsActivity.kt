@@ -33,6 +33,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityPassengerMapsBinding
     private lateinit var orderId: String
+    private lateinit var tripId: String
     private lateinit var locationInfoAdapter: LocationInfoAdapter
     private val routeStops: MutableList<String> = mutableListOf()
     private var stopRequested: Boolean = false
@@ -56,12 +57,12 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         if (stopRequested) {
             requestStopButton.backgroundTintList = resources.getColorStateList(R.color.softblue)
             requestStopButton.text = resources.getString(R.string.request_stop)
-            Firebase.firestore.document("/Buses/s3COY5sKL9HX6JLdD90p")
+            Firebase.firestore.document(tripId)
                 .update("breakRequests", FieldValue.increment(-1))
         } else {
             requestStopButton.backgroundTintList = resources.getColorStateList(R.color.light_orange)
             requestStopButton.text = resources.getString(R.string.requested)
-            Firebase.firestore.document("/Buses/s3COY5sKL9HX6JLdD90p")
+            Firebase.firestore.document(tripId)
                 .update("breakRequests", FieldValue.increment(1))
         }
         stopRequested = !stopRequested
@@ -86,9 +87,8 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .document(orderId).get().addOnSuccessListener { order ->
                 if (order != null) {
                     val pickupLocation = order["pickupLocation"] as String
-                    val tripDocRef = order["tripID"] as DocumentReference
-                    val tripRef = tripDocRef.id
-                    Log.d(TAG, "tripRef is $tripRef")
+                    tripId = (order["tripID"] as DocumentReference).id
+                    Log.d(TAG, "tripRef is $tripId")
                     Log.d(TAG, "pickupLocation is $pickupLocation")
 
                     // Mark the passenger's location on map
@@ -103,22 +103,24 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                             it
                                         )
                                     }
-                                    mMap.addMarker(
-                                        MarkerOptions().position(passengerLoc)
-                                            .title("Your stop").icon(
-                                                BitmapDescriptorFactory.defaultMarker(
-                                                    BitmapDescriptorFactory.HUE_ORANGE
+                                    if (passengerLoc != null){
+                                        mMap.addMarker(
+                                            MarkerOptions().position(passengerLoc)
+                                                .title("Your stop").icon(
+                                                    BitmapDescriptorFactory.defaultMarker(
+                                                        BitmapDescriptorFactory.HUE_ORANGE
+                                                    )
                                                 )
-                                            )
-                                    )
-                                    mMap.moveCamera(CameraUpdateFactory.newLatLng(passengerLoc))
+                                        )
+                                        mMap.moveCamera(CameraUpdateFactory.newLatLng(passengerLoc))
+                                    }
                                 }
                             }
                         }
 
                     /* Get the driver's location and mark it */
                     Firebase.firestore.collection(Collections.TRIPS.toString())
-                        .document(tripRef).get().addOnSuccessListener { trip ->
+                        .document(tripId).get().addOnSuccessListener { trip ->
                             Log.d(TAG, "Getting trip $trip")
                             if (trip != null) {
                                 val incomingDriverLocation = trip.data?.get("location") as GeoPoint

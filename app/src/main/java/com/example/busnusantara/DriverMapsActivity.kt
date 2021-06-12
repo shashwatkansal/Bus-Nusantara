@@ -27,6 +27,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -34,7 +35,6 @@ import kotlinx.android.synthetic.main.activity_driver_maps.*
 import kotlinx.android.synthetic.main.activity_driver_maps.bottomSheet
 import kotlinx.android.synthetic.main.activity_driver_maps.remaining_stops
 import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
-import kotlinx.android.synthetic.main.activity_passenger_maps.*
 
 const val LOC_REQUEST_CODE = 1000
 
@@ -65,22 +65,6 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun toggleRequestButton() {
-        if (journeyPaused) {
-            pauseJourneyButton.backgroundTintList = resources.getColorStateList(R.color.softblue)
-            pauseJourneyButton.text = resources.getString(R.string.pause_journey)
-            Firebase.firestore.document("/Buses/s3COY5sKL9HX6JLdD90p")
-                .update("impromptuStop", false)
-        } else {
-            pauseJourneyButton.backgroundTintList =
-                resources.getColorStateList(R.color.light_orange)
-            pauseJourneyButton.text = resources.getString(R.string.resume)
-            Firebase.firestore.document("/Buses/s3COY5sKL9HX6JLdD90p")
-                .update("impromptuStop", true)
-        }
-        journeyPaused = !journeyPaused
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -99,24 +83,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         pauseJourneyButton.setOnClickListener { _ -> toggleRequestButton() }
 
-
-//        TODO: get this to work
-        val postListener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-//                When the data changes this function is called
-                val requests = snapshot.value as Int
-                Log.d("Get requests number", "onDataChange: $requests")
-//                requestsCount.text = "Stop requests: $requests"
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("Get requests number", "Failed for some reason", error.toException())
-            }
-        }
-
-        Firebase.database.getReference("Buses/s3COY5sKL9HX6JLdD90p/breakRequests")
-            .addValueEventListener(postListener)
-
+        setStopRequestsCount()
     }
 
     private fun setupPermissions() {
@@ -237,5 +204,57 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         })
         rvLocations.adapter = locationInfoAdapter
         rvLocations.layoutManager = LinearLayoutManager(this)
+    }
+
+    private fun toggleRequestButton() {
+        if (journeyPaused) {
+            pauseJourneyButton.backgroundTintList = resources.getColorStateList(R.color.softblue)
+            pauseJourneyButton.text = resources.getString(R.string.pause_journey)
+            Firebase.firestore.document(tripId)
+                .update("impromptuStop", false)
+
+        } else {
+            pauseJourneyButton.backgroundTintList =
+                resources.getColorStateList(R.color.light_orange)
+            pauseJourneyButton.text = resources.getString(R.string.resume)
+            Firebase.firestore.document(tripId)
+                .update("impromptuStop", true)
+
+            Firebase.firestore.document(tripId)
+                .update("breakRequests", 0)
+        }
+        journeyPaused = !journeyPaused
+    }
+
+    private fun setStopRequestsCount() {
+        val tripRef = Firebase.firestore.document(tripId)
+        tripRef.get().addOnSuccessListener { trip ->
+            Log.d(ContentValues.TAG, "Finding trip for trip ID $tripId")
+
+            val requests = if (trip == null) 0 else (trip["breakRequests"] as Long).toInt()
+            requestsCount.text = "stop requests: $requests"
+        }
+
+        // add listener to changes on trip to update stop request count
+        tripRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.d(ContentValues.TAG, "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            val source = if (snapshot != null && snapshot.metadata.hasPendingWrites())
+                "Local"
+            else
+                "Server"
+
+            if (snapshot != null && snapshot.exists()) {
+                val trip = snapshot.getData()
+                val requests = (trip?.get("breakRequests") as Long).toInt()
+                requestsCount.text = "stop requests: $requests"
+                Log.d("Get requests number", "break requests update: $requests")
+            } else {
+                Log.d("Get requests number", "$source data: null")
+            }
+        }
     }
 }
