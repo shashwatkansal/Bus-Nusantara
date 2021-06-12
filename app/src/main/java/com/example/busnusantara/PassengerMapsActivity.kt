@@ -5,6 +5,7 @@ import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.busnusantara.database.Collections
 import com.example.busnusantara.databinding.ActivityPassengerMapsBinding
 import com.example.busnusantara.googleapi.buildRoute
@@ -15,10 +16,16 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.activity_driver_maps.*
+import kotlinx.android.synthetic.main.activity_driver_maps.bottomSheet
+import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
+import kotlinx.android.synthetic.main.activity_passenger_maps.*
 
 
 class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -26,6 +33,9 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityPassengerMapsBinding
     private lateinit var orderId: String
+    private lateinit var locationInfoAdapter: LocationInfoAdapter
+    private val routeStops: MutableList<String> = mutableListOf()
+    private var stopRequested: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +49,22 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+        requestStopButton.setOnClickListener { _ -> toggleRequestButton() }
+    }
+
+    private fun toggleRequestButton() {
+        if (stopRequested) {
+            requestStopButton.backgroundTintList = resources.getColorStateList(R.color.softblue)
+            requestStopButton.text = resources.getString(R.string.request_stop)
+            Firebase.firestore.document("/Buses/s3COY5sKL9HX6JLdD90p")
+                .update("breakRequests", FieldValue.increment(-1))
+        } else {
+            requestStopButton.backgroundTintList = resources.getColorStateList(R.color.light_orange)
+            requestStopButton.text = resources.getString(R.string.requested)
+            Firebase.firestore.document("/Buses/s3COY5sKL9HX6JLdD90p")
+                .update("breakRequests", FieldValue.increment(1))
+        }
+        stopRequested = !stopRequested
     }
 
     /**
@@ -125,13 +151,18 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                             val stops = route.get("stops") as ArrayList<String>
                                             Log.d(TAG, "Found stops locations $stops")
                                             addStopOnMap(start)
+                                            routeStops.add(start)
 
                                             for (stop in stops) {
                                                 Log.d(TAG, "Adding stop $stop on map")
                                                 addStopOnMap(stop)
+                                                routeStops.add(stop)
                                                 buildRoute(start, stop, mMap)
                                                 start = stop
                                             }
+
+                                            routeStops.add(route.get("destination") as String)
+                                            setupBottomSheet()
                                             buildRoute(
                                                 geoPointToLatLng(incomingDriverLocation),
                                                 start,
@@ -171,6 +202,17 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun geoPointToLatLng(geoPoint: GeoPoint): LatLng {
         return LatLng(geoPoint.latitude, geoPoint.longitude)
+    }
+
+    private fun setupBottomSheet() {
+        BottomSheetBehavior.from(bottomSheet).peekHeight = 150
+        BottomSheetBehavior.from(bottomSheet).state = BottomSheetBehavior.STATE_COLLAPSED
+
+        locationInfoAdapter = LocationInfoAdapter(routeStops.map { stop ->
+            LocationInfo(stop, 3)
+        })
+        rvLocations.adapter = locationInfoAdapter
+        rvLocations.layoutManager = LinearLayoutManager(this)
     }
 
 

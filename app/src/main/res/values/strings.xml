@@ -34,6 +34,8 @@
     <string name="need_camera">We need the camera permission</string>
     <string name="baseline">baseline</string>
     <string name="bus_nusantara">Bus Nusantara</string>
+    <string name="request_stop">Request Stop</string>
+    <string name="requested">Requested</string>
     <plurals name="passenger_count">
         <item quantity="other">Passenger Count: %d</item>
     </plurals>
