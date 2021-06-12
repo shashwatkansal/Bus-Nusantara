@@ -21,13 +21,7 @@ import com.example.busnusantara.services.TrackingService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -242,18 +236,13 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 return@addSnapshotListener
             }
 
-            val source = if (snapshot != null && snapshot.metadata.hasPendingWrites())
-                "Local"
-            else
-                "Server"
-
             if (snapshot != null && snapshot.exists()) {
                 val trip = snapshot.getData()
                 val requests = (trip?.get("breakRequests") as Long).toInt()
                 requestsCount.text = "stop requests: $requests"
-                Log.d("Get requests number", "break requests update: $requests")
+                Log.d("Break Request", "break requests update: $requests")
             } else {
-                Log.d("Get requests number", "$source data: null")
+                Log.d("Break Request", "Failed getting request number of trip")
             }
         }
     }

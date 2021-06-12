@@ -41,12 +41,23 @@
             android:scaleType="centerCrop"
             android:src="@drawable/bottom_sheet_baseline" />
 
+
+        <TextView
+            android:id="@+id/stopSoonText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="50dp"
+            android:fontFamily="@font/montserrat_bold"
+            android:text=""
+            android:textColor="@color/light_black" />
+
         <Button
             android:id="@+id/requestStopButton"
-            android:layout_width="150dp"
+            android:layout_width="145dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/button"
             android:backgroundTint="@color/softblue"
             android:fontFamily="@font/montserrat_bold"

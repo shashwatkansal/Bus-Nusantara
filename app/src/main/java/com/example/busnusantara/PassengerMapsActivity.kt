@@ -32,11 +32,13 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityPassengerMapsBinding
+
     private lateinit var orderId: String
-    private lateinit var tripId: String
+    private lateinit var tripRef: DocumentReference
+    private var stopRequested: Boolean = false
+
     private lateinit var locationInfoAdapter: LocationInfoAdapter
     private val routeStops: MutableList<String> = mutableListOf()
-    private var stopRequested: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,26 +46,45 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivityPassengerMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // get order details
         orderId = getIntent().getStringExtra("ORDER_ID") ?: ""
+        Firebase.firestore.document(orderId).get()
+            .addOnSuccessListener { order ->
+                if (order != null) {
+                    tripRef = order["tripID"] as DocumentReference
+                    stopRequested = order["stopRequested"] as Boolean
+                    if(stopRequested){
+                        toggleRequestButton(false)
+                    }
+                    Log.d(TAG, "tripRef is $tripRef")
+
+                    setImpromptuStopInfo()
+                    requestStopButton.setOnClickListener { _ -> toggleRequestButton(true) }
+                }
+            }
+            .addOnFailureListener {
+                TODO( "add failure warning")
+            }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-        requestStopButton.setOnClickListener { _ -> toggleRequestButton() }
     }
 
-    private fun toggleRequestButton() {
+    private fun toggleRequestButton(updateValue: Boolean) {
         if (stopRequested) {
             requestStopButton.backgroundTintList = resources.getColorStateList(R.color.softblue)
             requestStopButton.text = resources.getString(R.string.request_stop)
-            Firebase.firestore.document(tripId)
-                .update("breakRequests", FieldValue.increment(-1))
+            if(updateValue) {
+                tripRef.update("breakRequests", FieldValue.increment(-1))
+            }
         } else {
             requestStopButton.backgroundTintList = resources.getColorStateList(R.color.light_orange)
             requestStopButton.text = resources.getString(R.string.requested)
-            Firebase.firestore.document(tripId)
-                .update("breakRequests", FieldValue.increment(1))
+            if(updateValue) {
+                tripRef.update("breakRequests", FieldValue.increment(1))
+            }
         }
         stopRequested = !stopRequested
     }
@@ -82,13 +103,12 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun getPassengerBusStopAndMark() {
-        orderId = "oolO6KVivO3Z445xu5cW"
-        Firebase.firestore.collection(Collections.ORDERS.toString())
-            .document(orderId).get().addOnSuccessListener { order ->
+        Firebase.firestore.document(orderId).get()
+            .addOnSuccessListener { order ->
                 if (order != null) {
                     val pickupLocation = order["pickupLocation"] as String
-                    tripId = (order["tripID"] as DocumentReference).id
-                    Log.d(TAG, "tripRef is $tripId")
+                    tripRef = order["tripID"] as DocumentReference
+                    Log.d(TAG, "tripRef is $tripRef")
                     Log.d(TAG, "pickupLocation is $pickupLocation")
 
                     // Mark the passenger's location on map
@@ -119,61 +139,60 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         }
 
                     /* Get the driver's location and mark it */
-                    Firebase.firestore.collection(Collections.TRIPS.toString())
-                        .document(tripId).get().addOnSuccessListener { trip ->
-                            Log.d(TAG, "Getting trip $trip")
-                            if (trip != null) {
-                                val incomingDriverLocation = trip.data?.get("location") as GeoPoint
-                                val incomingDriverLatLng = geoPointToLatLng(incomingDriverLocation)
+                    tripRef.get().addOnSuccessListener { trip ->
+                        Log.d(TAG, "Getting trip $trip")
+                        if (trip != null) {
+                            val incomingDriverLocation = trip.data?.get("location") as GeoPoint
+                            val incomingDriverLatLng = geoPointToLatLng(incomingDriverLocation)
 
-                                mMap.addMarker(
-                                    MarkerOptions()
-                                        .position(incomingDriverLatLng)
-                                        .icon(
-                                            BitmapDescriptorFactory.defaultMarker(
-                                                BitmapDescriptorFactory.HUE_ORANGE
-                                            )
+                            mMap.addMarker(
+                                MarkerOptions()
+                                    .position(incomingDriverLatLng)
+                                    .icon(
+                                        BitmapDescriptorFactory.defaultMarker(
+                                            BitmapDescriptorFactory.HUE_ORANGE
                                         )
-                                        .title("Bus Driver")
-                                )
-                                mMap.animateCamera(
-                                    CameraUpdateFactory
-                                        .newLatLngZoom(incomingDriverLatLng, 10.0f)
-                                )
+                                    )
+                                    .title("Bus Driver")
+                            )
+                            mMap.animateCamera(
+                                CameraUpdateFactory
+                                    .newLatLngZoom(incomingDriverLatLng, 10.0f)
+                            )
 
-                                // Mark all the stops on map
-                                val routeDocRef = trip.data!!["routeID"] as DocumentReference
-                                val routeID = routeDocRef.id
-                                Firebase.firestore.collection(Collections.ROUTES.toString())
-                                    .document(routeID).get().addOnSuccessListener { route ->
-                                        Log.d(TAG, "Getting route $route")
-                                        if (route != null) {
-                                            var start = route.get("start") as String
-                                            Log.d(TAG, "Found start location $start")
-                                            val stops = route.get("stops") as ArrayList<String>
-                                            Log.d(TAG, "Found stops locations $stops")
-                                            addStopOnMap(start)
-                                            routeStops.add(start)
+                            // Mark all the stops on map
+                            val routeDocRef = trip.data!!["routeID"] as DocumentReference
+                            val routeID = routeDocRef.id
+                            Firebase.firestore.collection(Collections.ROUTES.toString())
+                                .document(routeID).get().addOnSuccessListener { route ->
+                                    Log.d(TAG, "Getting route $route")
+                                    if (route != null) {
+                                        var start = route.get("start") as String
+                                        Log.d(TAG, "Found start location $start")
+                                        val stops = route.get("stops") as ArrayList<String>
+                                        Log.d(TAG, "Found stops locations $stops")
+                                        addStopOnMap(start)
+                                        routeStops.add(start)
 
-                                            for (stop in stops) {
-                                                Log.d(TAG, "Adding stop $stop on map")
-                                                addStopOnMap(stop)
-                                                routeStops.add(stop)
-                                                buildRoute(start, stop, mMap)
-                                                start = stop
-                                            }
-
-                                            routeStops.add(route.get("destination") as String)
-                                            setupBottomSheet()
-                                            buildRoute(
-                                                geoPointToLatLng(incomingDriverLocation),
-                                                start,
-                                                mMap
-                                            )
+                                        for (stop in stops) {
+                                            Log.d(TAG, "Adding stop $stop on map")
+                                            addStopOnMap(stop)
+                                            routeStops.add(stop)
+                                            buildRoute(start, stop, mMap)
+                                            start = stop
                                         }
+
+                                        routeStops.add(route.get("destination") as String)
+                                        setupBottomSheet()
+                                        buildRoute(
+                                            geoPointToLatLng(incomingDriverLocation),
+                                            start,
+                                            mMap
+                                        )
                                     }
-                            }
+                                }
                         }
+                    }
                 }
             }
     }
@@ -217,5 +236,26 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         rvLocations.layoutManager = LinearLayoutManager(this)
     }
 
+    private fun setImpromptuStopInfo() {
+        // add listener to changes on trip to update impromptu stop info
+        tripRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.d(TAG, "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                val trip = snapshot.getData()
+                val stoppingSoon = trip?.get("impromptuStop") as Boolean
+                if(stoppingSoon) {
+                    stopSoonText.text = "Bus stopping soon"
+                } else {
+                    stopSoonText.text = "Bus not stopping soon"
+                }
+            } else {
+                Log.d("Impromptu stop", "Failed in getting trip data on listener")
+            }
+        }
+    }
 
 }
