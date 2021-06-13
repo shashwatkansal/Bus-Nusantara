@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,7 +27,7 @@ import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_driver_maps.*
-import kotlinx.android.synthetic.main.activity_driver_maps.bottomSheet
+import kotlinx.android.synthetic.main.activity_driver_maps.infoSheet
 import kotlinx.android.synthetic.main.activity_driver_maps.remaining_stops
 import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
 
@@ -163,7 +164,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         routeStops.add(stop)
                     }
                 }
-                setupBottomSheet()
+                setupInfoSheet()
             }
     }
 
@@ -189,9 +190,13 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
     }
 
-    private fun setupBottomSheet() {
-        from(bottomSheet).peekHeight = 150
-        from(bottomSheet).state = STATE_COLLAPSED
+    private fun setupInfoSheet() {
+        // only do this if infoSheet is a bottomSheet
+        val params: CoordinatorLayout.LayoutParams = infoSheet.layoutParams as CoordinatorLayout.LayoutParams
+        if (params.behavior is com.google.android.material.bottomsheet.BottomSheetBehavior) {
+            from(infoSheet).peekHeight = 150
+            from(infoSheet).state = STATE_COLLAPSED
+        }
 
         locationInfoAdapter = LocationInfoAdapter(routeStops.map { stop ->
             LocationInfo(stop, 3)

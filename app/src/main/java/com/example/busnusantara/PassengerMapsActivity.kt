@@ -1,6 +1,5 @@
 package com.example.busnusantara
 
-import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
@@ -23,7 +22,7 @@ import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_driver_maps.*
-import kotlinx.android.synthetic.main.activity_driver_maps.bottomSheet
+import kotlinx.android.synthetic.main.activity_driver_maps.infoSheet
 import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
 import kotlinx.android.synthetic.main.activity_passenger_maps.*
 
@@ -183,7 +182,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                         }
 
                                         routeStops.add(route.get("destination") as String)
-                                        setupBottomSheet()
+                                        setupInfoSheet()
                                         buildRoute(
                                             geoPointToLatLng(incomingDriverLocation),
                                             start,
@@ -225,9 +224,9 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         return LatLng(geoPoint.latitude, geoPoint.longitude)
     }
 
-    private fun setupBottomSheet() {
-        BottomSheetBehavior.from(bottomSheet).peekHeight = 150
-        BottomSheetBehavior.from(bottomSheet).state = BottomSheetBehavior.STATE_COLLAPSED
+    private fun setupInfoSheet() {
+        BottomSheetBehavior.from(infoSheet).peekHeight = 150
+        BottomSheetBehavior.from(infoSheet).state = BottomSheetBehavior.STATE_COLLAPSED
 
         locationInfoAdapter = LocationInfoAdapter(routeStops.map { stop ->
             LocationInfo(stop, 3)
