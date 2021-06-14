@@ -11,6 +11,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_confirm_journey_driver.*
 import java.text.SimpleDateFormat
+import java.util.*
 
 class ConfirmJourneyDriverActivity : AppCompatActivity() {
 
@@ -23,8 +24,10 @@ class ConfirmJourneyDriverActivity : AppCompatActivity() {
             .continueWithTask { task ->
                 val document = task.getResult()
                 val date = (document?.get("date") as Timestamp).toDate()
-                tripDateField.text = SimpleDateFormat("E dd MMM yyyy").format(date)
-                tripDepartureTimeField.text = SimpleDateFormat("hh:mm z").format(date)
+                tripDateField.text =
+                    SimpleDateFormat("E dd MMM yyyy", Locale.getDefault()).format(date)
+                tripDepartureTimeField.text =
+                    SimpleDateFormat("hh:mm", Locale.getDefault()).format(date)
                 busNumField.text = document.get("busNum").toString()
                 val routeId = document.get("routeID") as DocumentReference
                 routeId.get()

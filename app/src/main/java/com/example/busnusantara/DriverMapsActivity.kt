@@ -26,6 +26,9 @@ import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_driver_maps.*
+import kotlinx.android.synthetic.main.activity_driver_maps.bottomSheet
+import kotlinx.android.synthetic.main.activity_driver_maps.remaining_stops
+import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
 
 const val LOC_REQUEST_CODE = 1000
 
@@ -37,6 +40,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationInfoAdapter: LocationInfoAdapter
     private val routeStops: MutableList<String> = mutableListOf()
+    private var journeyPaused: Boolean = false
 
     inner class LocationBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -47,8 +51,8 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     val latLng = LatLng(lat, lng)
                     remaining_stops.text = "Your location is: $latLng"
 //                    The following line can be commented to prevent unnecessary updates to the database
-                    Firebase.firestore.document(tripId)
-                        .update("location", GeoPoint(latLng.latitude, latLng.longitude))
+//                    Firebase.firestore.document(tripId)
+//                        .update("location", GeoPoint(latLng.latitude, latLng.longitude))
 //                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14F))
                 }
             }
@@ -72,6 +76,9 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        pauseJourneyButton.setOnClickListener { _ -> toggleRequestButton() }
+
+        setStopRequestsCount()
     }
 
     private fun setupPermissions() {
@@ -207,5 +214,52 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         rvLocations.adapter = LocationInfoAdapter(locationInfos)
         rvLocations.layoutManager = LinearLayoutManager(this)
+    }
+
+    private fun toggleRequestButton() {
+        if (journeyPaused) {
+            pauseJourneyButton.backgroundTintList = resources.getColorStateList(R.color.softblue)
+            pauseJourneyButton.text = resources.getString(R.string.pause_journey)
+            Firebase.firestore.document(tripId)
+                .update("impromptuStop", false)
+
+        } else {
+            pauseJourneyButton.backgroundTintList =
+                resources.getColorStateList(R.color.light_orange)
+            pauseJourneyButton.text = resources.getString(R.string.resume)
+            Firebase.firestore.document(tripId)
+                .update("impromptuStop", true)
+
+            Firebase.firestore.document(tripId)
+                .update("breakRequests", 0)
+        }
+        journeyPaused = !journeyPaused
+    }
+
+    private fun setStopRequestsCount() {
+        val tripRef = Firebase.firestore.document(tripId)
+        tripRef.get().addOnSuccessListener { trip ->
+            Log.d(ContentValues.TAG, "Finding trip for trip ID $tripId")
+
+            val requests = if (trip == null) 0 else (trip["breakRequests"] as Long).toInt()
+            requestsCount.text = "stop requests: $requests"
+        }
+
+        // add listener to changes on trip to update stop request count
+        tripRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.d(ContentValues.TAG, "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                val trip = snapshot.getData()
+                val requests = (trip?.get("breakRequests") as Long).toInt()
+                requestsCount.text = "stop requests: $requests"
+                Log.d("Break Request", "break requests update: $requests")
+            } else {
+                Log.d("Break Request", "Failed getting request number of trip")
+            }
+        }
     }
 }

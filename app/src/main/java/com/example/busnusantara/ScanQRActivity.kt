@@ -13,6 +13,7 @@ import com.budiyev.android.codescanner.CodeScanner
 import com.budiyev.android.codescanner.DecodeCallback
 import com.budiyev.android.codescanner.ErrorCallback
 import com.budiyev.android.codescanner.ScanMode
+import kotlinx.android.synthetic.main.activity_confirm_journey_driver.*
 import kotlinx.android.synthetic.main.activity_qr_code_scanner.*
 
 private const val CAMERA_REQUEST_CODE = 101
@@ -34,6 +35,17 @@ class ScanQRActivity : AppCompatActivity() {
         }
         setUpPermissions()
         codeScanner()
+
+        btnContinue.setOnClickListener {
+            val intent = Intent(
+                this@ScanQRActivity,
+                if (scanPassenger) ConfirmJourneyPassengerActivity::class.java
+                else ConfirmJourneyDriverActivity::class.java)
+            intent.putExtra("ID",
+                if (scanPassenger) "Orders/oolO6KVivO3Z445xu5cW"
+                else "Trips/9c4hJnV6gc9FjlWCF6nH")
+            startActivity(intent)
+        }
     }
 
     private fun codeScanner() {

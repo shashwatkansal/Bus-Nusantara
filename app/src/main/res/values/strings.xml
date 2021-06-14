@@ -36,6 +36,9 @@
     <string name="bus_nusantara">Bus Nusantara</string>
     <string name="request_stop">Request Stop</string>
     <string name="requested">Requested</string>
+    <string name="pause_journey">Pause journey</string>
+    <string name="resume">Resume</string>
+    <string name="time">Time</string>
     <plurals name="passenger_count">
         <item quantity="other">Passenger Count: %d</item>
     </plurals>

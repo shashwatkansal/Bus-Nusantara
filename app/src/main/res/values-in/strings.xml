@@ -31,7 +31,12 @@
     <plurals name="passenger_count">
         <item quantity="other">Jumlah Penumpang: %d</item>
     </plurals>
-    <string name="bus_has_wifi">Bus Wifi</string>
-    <string name="bus_type">Bus Type</string>
-    <string name="bus_toilets">Restroom on board?</string>
+    <string name="bus_has_wifi">Wifi Bus</string>
+    <string name="bus_type">Tipe Bus</string>
+    <string name="bus_toilets">Toilet Bus</string>
+    <string name="request_stop">permintaan stop</string>
+    <string name="requested">telah diminta</string>
+    <string name="pause_journey">stop perjalanan</string>
+    <string name="resume">lanjut perjalanan</string>
+    <string name="time"> Jam</string>
 </resources>
