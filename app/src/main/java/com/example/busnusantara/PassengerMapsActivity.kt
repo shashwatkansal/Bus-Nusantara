@@ -38,7 +38,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private var stopRequested: Boolean = false
 
     private lateinit var locationInfoAdapter: LocationInfoAdapter
-    private val routeStops: MutableList<String> = mutableListOf()
+    private var routeStops: MutableList<String> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,7 +53,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (order != null) {
                     tripRef = order["tripID"] as DocumentReference
                     stopRequested = order["stopRequested"] as Boolean
-                    if(stopRequested){
+                    if (stopRequested) {
                         toggleRequestButton(false)
                     }
                     Log.d(TAG, "tripRef is $tripRef")
@@ -63,7 +63,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
             .addOnFailureListener {
-                TODO( "add failure warning")
+                TODO("add failure warning")
             }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -76,13 +76,13 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         if (stopRequested) {
             requestStopButton.backgroundTintList = resources.getColorStateList(R.color.softblue)
             requestStopButton.text = resources.getString(R.string.request_stop)
-            if(updateValue) {
+            if (updateValue) {
                 tripRef.update("breakRequests", FieldValue.increment(-1))
             }
         } else {
             requestStopButton.backgroundTintList = resources.getColorStateList(R.color.light_orange)
             requestStopButton.text = resources.getString(R.string.requested)
-            if(updateValue) {
+            if (updateValue) {
                 tripRef.update("breakRequests", FieldValue.increment(1))
             }
         }
@@ -123,7 +123,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                             it
                                         )
                                     }
-                                    if (passengerLoc != null){
+                                    if (passengerLoc != null) {
                                         mMap.addMarker(
                                             MarkerOptions().position(passengerLoc)
                                                 .title("Your stop").icon(
@@ -150,7 +150,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                     .position(incomingDriverLatLng)
                                     .icon(
                                         BitmapDescriptorFactory.defaultMarker(
-                                            BitmapDescriptorFactory.HUE_ORANGE
+                                            BitmapDescriptorFactory.HUE_AZURE
                                         )
                                     )
                                     .title("Bus Driver")
@@ -167,12 +167,15 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                 .document(routeID).get().addOnSuccessListener { route ->
                                     Log.d(TAG, "Getting route $route")
                                     if (route != null) {
+                                        // Add start stop
+                                        routeStops = mutableListOf()
                                         var start = route.get("start") as String
+                                        routeStops.add(start)
+                                        addStopOnMap(start)
+
                                         Log.d(TAG, "Found start location $start")
                                         val stops = route.get("stops") as ArrayList<String>
                                         Log.d(TAG, "Found stops locations $stops")
-                                        addStopOnMap(start)
-                                        routeStops.add(start)
 
                                         for (stop in stops) {
                                             Log.d(TAG, "Adding stop $stop on map")
@@ -182,13 +185,11 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                             start = stop
                                         }
 
-                                        routeStops.add(route.get("destination") as String)
+                                        val destination = route.get("destination") as String
+                                        routeStops.add(destination)
+                                        buildRoute(start, destination, mMap)
+                                        addStopOnMap(destination)
                                         setupBottomSheet()
-                                        buildRoute(
-                                            geoPointToLatLng(incomingDriverLocation),
-                                            start,
-                                            mMap
-                                        )
                                     }
                                 }
                         }
@@ -247,7 +248,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if (snapshot != null && snapshot.exists()) {
                 val trip = snapshot.getData()
                 val stoppingSoon = trip?.get("impromptuStop") as Boolean
-                if(stoppingSoon) {
+                if (stoppingSoon) {
                     stopSoonText.text = "Bus stopping soon"
                 } else {
                     stopSoonText.text = "Bus not stopping soon"
