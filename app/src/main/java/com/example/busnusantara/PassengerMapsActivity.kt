@@ -1,6 +1,5 @@
 package com.example.busnusantara
 
-import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +14,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.firestore.DocumentReference
@@ -35,6 +35,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var orderId: String
     private lateinit var tripRef: DocumentReference
+    private lateinit var busMarker: Marker
     private var stopRequested: Boolean = false
 
     private lateinit var locationInfoAdapter: LocationInfoAdapter
@@ -47,7 +48,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(binding.root)
 
         // get order details
-        orderId = getIntent().getStringExtra("ORDER_ID") ?: ""
+        orderId = intent.getStringExtra("ORDER_ID") ?: ""
         Firebase.firestore.document(orderId).get()
             .addOnSuccessListener { order ->
                 if (order != null) {
@@ -102,6 +103,10 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     }
 
+    /**
+     * Marks the Passenger's bus stop (agent location)
+     * Camera focuses in to display the stop.
+     */
     private fun getPassengerBusStopAndMark() {
         Firebase.firestore.document(orderId).get()
             .addOnSuccessListener { order ->
@@ -125,12 +130,13 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                     }
                                     if (passengerLoc != null) {
                                         mMap.addMarker(
-                                            MarkerOptions().position(passengerLoc)
-                                                .title("Your stop").icon(
+                                            MarkerOptions()
+                                                .position(passengerLoc)
+                                                .icon(
                                                     BitmapDescriptorFactory.defaultMarker(
-                                                        BitmapDescriptorFactory.HUE_ORANGE
+                                                        BitmapDescriptorFactory.HUE_VIOLET
                                                     )
-                                                )
+                                                ).title("Your stop")
                                         )
                                         mMap.moveCamera(CameraUpdateFactory.newLatLng(passengerLoc))
                                     }
@@ -145,7 +151,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             val incomingDriverLocation = trip.data?.get("location") as GeoPoint
                             val incomingDriverLatLng = geoPointToLatLng(incomingDriverLocation)
 
-                            mMap.addMarker(
+                            busMarker = mMap.addMarker(
                                 MarkerOptions()
                                     .position(incomingDriverLatLng)
                                     .icon(
@@ -246,13 +252,23 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
             if (snapshot != null && snapshot.exists()) {
-                val trip = snapshot.getData()
+                val trip = snapshot.data
+
+                // Handle Impromptu Stop Update
                 val stoppingSoon = trip?.get("impromptuStop") as Boolean
                 if (stoppingSoon) {
                     stopSoonText.text = "Bus stopping soon"
                 } else {
                     stopSoonText.text = "Bus not stopping soon"
                 }
+
+                // Handle Bus Location update
+                if (this::busMarker.isInitialized) {
+                    val busLocationGeoPoint = trip?.get("location") as GeoPoint
+                    val busLocationLatLng = geoPointToLatLng(busLocationGeoPoint)
+                    busMarker.position = busLocationLatLng
+                }
+
             } else {
                 Log.d("Impromptu stop", "Failed in getting trip data on listener")
             }
