@@ -8,11 +8,40 @@
     tools:context=".SearchRoute">
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         tools:layout_editor_absoluteX="112dp"
         tools:layout_editor_absoluteY="0dp">
+
+        <TextView
+            android:id="@+id/busDistanceString"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat_bold"
+            android:text="@string/bus_distance" />
+
+        <TextView
+            android:id="@+id/busDistanceValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat_bold"
+            android:textColor="#F44336" />
+
+        <TextView
+            android:id="@+id/busDurationString"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat_bold"
+            android:text="@string/bus_duration" />
+
+        <TextView
+            android:id="@+id/busDurationValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat_bold"
+            android:textColor="#F44336" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/map"
@@ -20,6 +49,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:context=".PassengerMapsActivity" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -86,6 +116,13 @@
 
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_anchor="@+id/linearLayout"
+        app:layout_anchorGravity="top|center" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

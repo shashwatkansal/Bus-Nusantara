@@ -53,6 +53,7 @@ dependencies {
     // Google Maps
     implementation 'com.google.android.gms:play-services-location:18.0.0'
     implementation 'com.google.android.gms:play-services-maps:17.0.1'
+    implementation 'com.google.code.gson:gson:2.8.5'
 
     // Google Play Services (comes with map SDK)
     implementation 'com.google.android.gms:play-services-location:18.0.0'

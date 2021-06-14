@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.busnusantara.database.Collections
 import com.example.busnusantara.databinding.ActivityPassengerMapsBinding
+import com.example.busnusantara.googleapi.DistanceMatrixRequest
 import com.example.busnusantara.googleapi.buildRoute
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -22,6 +23,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_driver_maps.*
 import kotlinx.android.synthetic.main.activity_driver_maps.bottomSheet
 import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
@@ -32,12 +34,12 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityPassengerMapsBinding
-
+    private val distanceMatrixRequest = DistanceMatrixRequest()
     private lateinit var orderId: String
     private lateinit var tripRef: DocumentReference
     private lateinit var busMarker: Marker
     private var stopRequested: Boolean = false
-
+    private lateinit var passengerGeoLoc: GeoPoint
     private lateinit var locationInfoAdapter: LocationInfoAdapter
     private var routeStops: MutableList<String> = mutableListOf()
 
@@ -66,6 +68,9 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .addOnFailureListener {
                 TODO("add failure warning")
             }
+
+        busDistanceValue.text = "Loading..."
+        busDurationValue.text = "Loading..."
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -96,11 +101,9 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-
         getPassengerBusStopAndMark()
         mMap.setMinZoomPreference(6.0f)
         mMap.setMaxZoomPreference(14.0f)
-
     }
 
     /**
@@ -123,11 +126,9 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             if (!agents.isEmpty) {
                                 for (agent in agents) {
                                     Log.d(TAG, "Getting Agent $agent")
-                                    val passengerLoc = agent?.getGeoPoint("coordinate")?.let {
-                                        geoPointToLatLng(
-                                            it
-                                        )
-                                    }
+                                    passengerGeoLoc =
+                                        agent?.getGeoPoint("coordinate") as GeoPoint
+                                    val passengerLoc = geoPointToLatLng(passengerGeoLoc)
                                     if (passengerLoc != null) {
                                         mMap.addMarker(
                                             MarkerOptions()
@@ -165,6 +166,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                 CameraUpdateFactory
                                     .newLatLngZoom(incomingDriverLatLng, 10.0f)
                             )
+
 
                             // Mark all the stops on map
                             val routeDocRef = trip.data!!["routeID"] as DocumentReference
@@ -204,8 +206,15 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
     }
 
-    private fun getBusETA() {
+    private fun updateBusETA() {
+        val geoPointBusMarker = GeoPoint(busMarker.position.latitude, busMarker.position.longitude)
         /* TODO: Implement */
+        val (distance, duration) = distanceMatrixRequest.getDistanceAndDuration(
+            geoPointBusMarker,
+            passengerGeoLoc
+        )
+        busDistanceValue.text = distance
+        busDurationValue.text = duration
     }
 
     private fun addStopOnMap(stop: String) {
@@ -267,12 +276,17 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     val busLocationGeoPoint = trip?.get("location") as GeoPoint
                     val busLocationLatLng = geoPointToLatLng(busLocationGeoPoint)
                     busMarker.position = busLocationLatLng
+                    if (this::passengerGeoLoc.isInitialized && busLocationLatLng != null) {
+                        updateBusETA()
+                    }
                 }
+
 
             } else {
                 Log.d("Impromptu stop", "Failed in getting trip data on listener")
             }
         }
     }
+
 
 }
