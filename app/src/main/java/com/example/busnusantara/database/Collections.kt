@@ -21,5 +21,10 @@ enum class Collections {
         override fun toString(): String {
             return "Trips"
         }
+    },
+    BUSES {
+        override fun toString(): String {
+            return "Buses"
+        }
     }
 }
