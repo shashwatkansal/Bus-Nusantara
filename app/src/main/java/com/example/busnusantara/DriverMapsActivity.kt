@@ -2,10 +2,12 @@ package com.example.busnusantara
 
 import android.content.*
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -205,17 +207,19 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         rvLocations.layoutManager = LinearLayoutManager(this)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun toggleRequestButton() {
         if (journeyPaused) {
             pauseJourneyButton.backgroundTintList = resources.getColorStateList(R.color.softblue)
             pauseJourneyButton.text = resources.getString(R.string.pause_journey)
+            pauseJourneyButton.tooltipText = "Press if bus is stopping in less than 10 mins"
             Firebase.firestore.document(tripId)
                 .update("impromptuStop", false)
-
         } else {
             pauseJourneyButton.backgroundTintList =
                 resources.getColorStateList(R.color.light_orange)
             pauseJourneyButton.text = resources.getString(R.string.resume)
+            pauseJourneyButton.tooltipText = "Press if bus is continuing the journey"
             Firebase.firestore.document(tripId)
                 .update("impromptuStop", true)
 

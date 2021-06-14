@@ -7,16 +7,16 @@
     <string name="trip_date">Tanggal</string>
     <string name="num_passengers">Jumlah Penumpang</string>
     <string name="bus_num">Nomor Seri Bus</string>
-    <string name="scan_qr_code">Mohon memindai kode QR pada tiket anda…</string>
-    <string name="scan_qr_driver">Mohon memindai kode QR pada SPJ…</string>
-    <string name="next">LANJUT</string>
+    <string name="scan_qr_passenger">Silahkan memindai kode QR pada tiket perjalanan anda</string>
+    <string name="scan_qr_driver">Silahkan memindai kode QR pada SPJ</string>
+    <string name="next">Lanjut</string>
     <string name="enter_destination">Masukkan titik turun</string>
     <string name="enter_starting_location">Masukkan titik naik</string>
     <string name="search_route">cari rute</string>
     <string name="find_route">Mencari rute…</string>
     <string name="time_of_departure">Waktu Keberangkatan</string>
     <string name="title_activity_passenger_maps">Peta Perjalanan</string>
-    <string name="scan_qr">Scan QR</string>
+    <string name="scan_qr">Scan kode QR</string>
     <string name="not_found">Error</string>
     <string name="i_am">Saya adalah…</string>
     <string name="i_am_bus_driver">Pengemudi</string>
@@ -39,4 +39,18 @@
     <string name="pause_journey">stop perjalanan</string>
     <string name="resume">lanjut perjalanan</string>
     <string name="time"> Jam</string>
+    <string name="welcome">Selamat Datang di Bus Nusantara</string>
+    <string name="confirm">konfirmasi</string>
+    <string name="app_desc">Lacak lokasi bus secara mudah dengan scan QR code pada tiket perjalanan.
+        Temukan juga informasi lengkap mengenai perhentian bus dan perkiraan waktu tiba,
+        selamat menikmati perjalanan anda!</string>
+    <string name="enter_as">Masuk sebagai</string>
+    <string name="pick_one_option">Pilih salah satu</string>
+    <string name="next_tooltip">Klik tombol untuk lanjut ke halaman selanjutnya</string>
+    <string name="request_stop_tooltip">Klik tombol apabila anda ingin bus berhenti sejenak,
+        misalya untuk ke toilet</string>
+    <string name="requested_tooltip" translatable="false">Klik tombol apabila anda ingin
+        membatalkan permintaan untuk berhenti</string>
+    <string name="confirm_journey_tooltip">Silahkan mengecek informasi perjalanan anda
+        dan klik tombol untuk mengonfirmasi</string>
 </resources>

@@ -19,7 +19,7 @@
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context=".DriverMapsActivity" />
+            tools:context=".PassengerMapsActivity" />
     </LinearLayout>
 
     <LinearLayout
@@ -41,35 +41,30 @@
             android:scaleType="centerCrop"
             android:src="@drawable/bottom_sheet_baseline" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+
+        <TextView
+            android:id="@+id/stopSoonText"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="50dp"
+            android:fontFamily="@font/montserrat_bold"
+            android:text=""
+            android:textColor="@color/light_black" />
 
-            <TextView
-                android:id="@+id/requestsCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="40dp"
-                android:layout_marginTop="50dp"
-                android:fontFamily="@font/montserrat_bold"
-                android:text="Stop requests: 0"
-                android:textColor="@color/light_black" />
-
-            <Button
-                android:id="@+id/pauseJourneyButton"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/button"
-                android:backgroundTint="@color/softblue"
-                android:fontFamily="@font/montserrat_bold"
-                android:text="@string/pause_journey"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:tooltipText="Press if bus is stopping in less than 10 mins" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/requestStopButton"
+            android:layout_width="145dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/button"
+            android:backgroundTint="@color/softblue"
+            android:fontFamily="@font/montserrat_bold"
+            android:text="@string/request_stop"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:tooltipText="@string/request_stop_tooltip"/>
 
         <TextView
             android:id="@+id/remaining_stops"
@@ -88,6 +83,7 @@
             android:layout_height="match_parent"
             android:background="@color/white"
             android:paddingTop="10dp" />
+
 
     </LinearLayout>
 

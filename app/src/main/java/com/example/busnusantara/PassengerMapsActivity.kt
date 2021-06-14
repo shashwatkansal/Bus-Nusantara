@@ -1,8 +1,10 @@
 package com.example.busnusantara
 
 import android.content.ContentValues.TAG
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.busnusantara.database.Collections
@@ -71,16 +73,19 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun toggleRequestButton(updateValue: Boolean) {
         if (stopRequested) {
             requestStopButton.backgroundTintList = resources.getColorStateList(R.color.softblue)
             requestStopButton.text = resources.getString(R.string.request_stop)
+            requestStopButton.tooltipText = "@string/stop_request_tooltip"
             if(updateValue) {
                 tripRef.update("breakRequests", FieldValue.increment(-1))
             }
         } else {
             requestStopButton.backgroundTintList = resources.getColorStateList(R.color.light_orange)
             requestStopButton.text = resources.getString(R.string.requested)
+            requestStopButton.tooltipText = "@string/requested_tooltip"
             if(updateValue) {
                 tripRef.update("breakRequests", FieldValue.increment(1))
             }
