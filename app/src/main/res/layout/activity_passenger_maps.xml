@@ -46,7 +46,7 @@
             android:id="@+id/stopSoonText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="50dp"
             android:fontFamily="@font/montserrat_bold"
             android:text=""

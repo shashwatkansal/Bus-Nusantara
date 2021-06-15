@@ -242,7 +242,8 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             Log.d(ContentValues.TAG, "Finding trip for trip ID $tripId")
 
             val requests = if (trip == null) 0 else (trip["breakRequests"] as Long).toInt()
-            requestsCount.text = "stop requests: $requests"
+            requestsCount.text =
+                resources.getQuantityString(R.plurals.num_stop_requests, requests, requests)
         }
 
         // add listener to changes on trip to update stop request count
@@ -255,7 +256,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if (snapshot != null && snapshot.exists()) {
                 val trip = snapshot.getData()
                 val requests = (trip?.get("breakRequests") as Long).toInt()
-                requestsCount.text = "stop requests: $requests"
+                requestsCount.text = resources.getQuantityString(R.plurals.num_stop_requests, requests, requests)
                 Log.d("Break Request", "break requests update: $requests")
             } else {
                 Log.d("Break Request", "Failed getting request number of trip")

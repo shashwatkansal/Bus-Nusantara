@@ -136,7 +136,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                                     BitmapDescriptorFactory.defaultMarker(
                                                         BitmapDescriptorFactory.HUE_VIOLET
                                                     )
-                                                ).title("Your stop")
+                                                ).title(resources.getString(R.string.your_stop))
                                         )
                                         mMap.moveCamera(CameraUpdateFactory.newLatLng(passengerLoc))
                                     }
@@ -159,7 +159,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                             BitmapDescriptorFactory.HUE_AZURE
                                         )
                                     )
-                                    .title("Bus Driver")
+                                    .title(resources.getString(R.string.bus_location))
                             )
                             mMap.animateCamera(
                                 CameraUpdateFactory
@@ -257,9 +257,9 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 // Handle Impromptu Stop Update
                 val stoppingSoon = trip?.get("impromptuStop") as Boolean
                 if (stoppingSoon) {
-                    stopSoonText.text = "Bus stopping soon"
+                    stopSoonText.text = getString(R.string.bus_stopping_soon)
                 } else {
-                    stopSoonText.text = "Bus not stopping soon"
+                    stopSoonText.text = getString(R.string.bus_not_stopping_soon)
                 }
 
                 // Handle Bus Location update
