@@ -17,6 +17,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.GeoPoint
@@ -26,6 +27,8 @@ import kotlinx.android.synthetic.main.activity_driver_maps.*
 import kotlinx.android.synthetic.main.activity_driver_maps.bottomSheet
 import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
 import kotlinx.android.synthetic.main.activity_passenger_maps.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -38,7 +41,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var busMarker: Marker
     private var stopRequested: Boolean = false
 
-    private lateinit var locationInfoAdapter: LocationInfoAdapter
+    private lateinit var locationInfoAdapter: LocationInfoEtaAdapter
     private var routeStops: MutableList<String> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -236,8 +239,14 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         BottomSheetBehavior.from(bottomSheet).peekHeight = 150
         BottomSheetBehavior.from(bottomSheet).state = BottomSheetBehavior.STATE_COLLAPSED
 
-        locationInfoAdapter = LocationInfoAdapter(routeStops.map { stop ->
-            LocationInfo(stop, 3)
+        var hoursEta = 1
+        locationInfoAdapter = LocationInfoEtaAdapter(routeStops.map { stop ->
+            // HARDCODE current time + hoursEta
+            val cal = Calendar.getInstance()
+            cal.add(Calendar.HOUR_OF_DAY, hoursEta)
+            val date = cal.time
+            hoursEta++
+            LocationInfo(stop, 3, date)
         })
         rvLocations.adapter = locationInfoAdapter
         rvLocations.layoutManager = LinearLayoutManager(this)

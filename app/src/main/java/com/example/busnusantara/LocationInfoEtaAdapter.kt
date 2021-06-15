@@ -5,11 +5,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.location_info.view.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 
-class LocationInfoAdapter(
+class LocationInfoEtaAdapter(
     private val locationInfo: List<LocationInfo>
-) : RecyclerView.Adapter<LocationInfoAdapter.LocationInfoViewHolder>() {
+) : RecyclerView.Adapter<LocationInfoEtaAdapter.LocationInfoViewHolder>() {
     class LocationInfoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationInfoViewHolder {
@@ -27,7 +29,7 @@ class LocationInfoAdapter(
             val loc = locationInfo[position]
             tvLocation.text = loc.locationName
             tvPassengerCount.text =
-                resources.getQuantityString(R.plurals.passenger_count, loc.passengerCount, loc.passengerCount)
+                SimpleDateFormat("hh:mm", Locale.getDefault()).format(loc.eta)
         }
     }
 

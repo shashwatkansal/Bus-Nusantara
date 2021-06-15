@@ -29,6 +29,7 @@ import kotlinx.android.synthetic.main.activity_driver_maps.*
 import kotlinx.android.synthetic.main.activity_driver_maps.bottomSheet
 import kotlinx.android.synthetic.main.activity_driver_maps.remaining_stops
 import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
+import java.util.*
 
 const val LOC_REQUEST_CODE = 1000
 
@@ -208,7 +209,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     for (document in documents) {
                         totalPassengers += (document.getLong("numPassengers") ?: 0).toInt()
                     }
-                    locationInfos.add(LocationInfo(stop, totalPassengers))
+                    locationInfos.add(LocationInfo(stop, totalPassengers, Date()))
                 }
         }
 
