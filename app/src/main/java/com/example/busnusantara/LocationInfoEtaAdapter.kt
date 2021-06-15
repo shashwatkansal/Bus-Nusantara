@@ -29,7 +29,7 @@ class LocationInfoEtaAdapter(
             val loc = locationInfo[position]
             tvLocation.text = loc.locationName
             tvPassengerCount.text =
-                SimpleDateFormat("hh:mm", Locale.getDefault()).format(loc.eta)
+                SimpleDateFormat("hh:mm a", Locale.getDefault()).format(loc.eta)
         }
     }
 
