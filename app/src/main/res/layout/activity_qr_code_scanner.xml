@@ -44,7 +44,7 @@
         android:layout_below="@+id/scanner_view"
         android:layout_alignParentBottom="true"
         android:fontFamily="@font/montserrat_bold"
-        android:text="@string/scan_qr_code"
+        android:text=" "
         android:textColor="@color/light_black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
