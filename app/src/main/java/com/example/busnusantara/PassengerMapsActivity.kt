@@ -4,6 +4,8 @@ import android.content.ContentValues.TAG
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,6 +19,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.firestore.DocumentReference
@@ -24,9 +27,6 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.android.synthetic.main.activity_driver_maps.*
-import kotlinx.android.synthetic.main.activity_driver_maps.bottomSheet
-import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
 import kotlinx.android.synthetic.main.activity_passenger_maps.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -42,6 +42,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var orderId: String
     private lateinit var tripRef: DocumentReference
+    private lateinit var busMarker: Marker
 
     private val distanceMatrixRequest = DistanceMatrixRequest()
     private var passengerLoc: LatLng? = null
@@ -173,7 +174,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                 )
                             }
 
-                            mMap.addMarker(
+                            busMarker = mMap.addMarker(
                                 MarkerOptions()
                                     .position(incomingDriverLatLng)
                                     .icon(
@@ -214,11 +215,6 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                                         routeStops.add(route.get("destination") as String)
                                         setupBottomSheet()
-                                        buildRoute(
-                                            geoPointToLatLng(incomingDriverLocation),
-                                            start,
-                                            mMap
-                                        )
                                     }
                                 }
                         }
@@ -260,6 +256,10 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         })
         rvLocations.adapter = locationInfoAdapter
         rvLocations.layoutManager = LinearLayoutManager(this)
+
+        progress_circular.visibility = GONE
+        linearLayout.visibility = VISIBLE
+        bottomSheet.visibility = VISIBLE
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -281,9 +281,11 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
 
                 val newLocation = trip?.get("location") as GeoPoint
+                if (this::busMarker.isInitialized) {
+                    busMarker.position = geoPointToLatLng(newLocation)
+                }
                 val currPassengerLoc = passengerLoc
                 if (currPassengerLoc != null) {
-
                     CoroutineScope(IO).launch {
                         getETA(
                             newLocation,

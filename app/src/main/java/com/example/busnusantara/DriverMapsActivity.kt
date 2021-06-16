@@ -4,6 +4,8 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -26,9 +28,6 @@ import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_driver_maps.*
-import kotlinx.android.synthetic.main.activity_driver_maps.bottomSheet
-import kotlinx.android.synthetic.main.activity_driver_maps.remaining_stops
-import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
 
 const val LOC_REQUEST_CODE = 1000
 
@@ -214,6 +213,10 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         rvLocations.adapter = LocationInfoAdapter(locationInfos)
         rvLocations.layoutManager = LinearLayoutManager(this)
+
+        progress_circular.visibility = GONE
+        linearLayout.visibility = VISIBLE
+        bottomSheet.visibility = VISIBLE
     }
 
     private fun toggleRequestButton() {
