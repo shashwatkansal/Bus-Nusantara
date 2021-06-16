@@ -67,11 +67,7 @@
                 android:id="@+id/requestsCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-<<<<<<< HEAD
                 android:layout_marginStart="20dp"
-=======
-                android:layout_gravity="center"
->>>>>>> origin/bus_eta
                 android:layout_marginTop="50dp"
                 android:fontFamily="@font/montserrat_bold"
                 android:text="Stop requests: 0"
@@ -88,8 +84,7 @@
                 android:fontFamily="@font/montserrat_bold"
                 android:text="@string/pause_journey"
                 android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:tooltipText="Press if bus is stopping in less than 10 mins" />
+                android:textColor="@color/white"/>
         </LinearLayout>
 
         <TextView

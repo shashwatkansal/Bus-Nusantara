@@ -3,11 +3,13 @@ package com.example.busnusantara
 import android.content.*
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
@@ -231,6 +233,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         infoSheet.visibility = VISIBLE
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun toggleRequestButton() {
         if (journeyPaused) {
             pauseJourneyButton.backgroundTintList = resources.getColorStateList(R.color.softblue)

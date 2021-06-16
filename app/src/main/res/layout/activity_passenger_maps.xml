@@ -7,7 +7,6 @@
     android:background="@color/white"
     tools:context=".SearchRoute">
 
-
     <LinearLayout
         android:id="@+id/progress_circular"
         android:layout_width="match_parent"
@@ -37,7 +36,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:context=".PassengerMapsActivity" />
-
     </LinearLayout>
 
     <LinearLayout
@@ -59,8 +57,6 @@
             android:scaleType="centerCrop"
             android:src="@drawable/bottom_sheet_baseline" />
 
-<<<<<<< HEAD
-=======
         <TextView
             android:id="@+id/busDurationString"
             android:layout_width="match_parent"
@@ -80,18 +76,12 @@
             android:textColor="@color/light_black"
             android:textSize="30sp" />
 
->>>>>>> origin/bus_eta
         <TextView
             android:id="@+id/stopSoonText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-<<<<<<< HEAD
             android:layout_marginStart="20dp"
             android:layout_marginTop="50dp"
-=======
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
->>>>>>> origin/bus_eta
             android:fontFamily="@font/montserrat_bold"
             android:text=""
             android:textColor="@color/light_black" />
@@ -107,9 +97,7 @@
             android:fontFamily="@font/montserrat_bold"
             android:text="@string/request_stop"
             android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:tooltipText="Press if you would like for the bus to stop for a bit"/>
-
+            android:textColor="@color/white"/>
 
         <TextView
             android:id="@+id/remaining_stops"

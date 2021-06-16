@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.busnusantara.database.Collections
@@ -83,6 +84,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun toggleRequestButton(updateValue: Boolean) {
         if (stopRequested) {
             requestStopButton.backgroundTintList = resources.getColorStateList(R.color.softblue)
