@@ -60,5 +60,4 @@
     <string name="bus_location">Bus saya</string>
     <string name="bus_stopping_soon">Bus akan segera berhenti</string>
     <string name="bus_not_stopping_soon">Bus tidak akan segera berhenti</string>
-    <string name="next">Lanjut</string>
 </resources>
