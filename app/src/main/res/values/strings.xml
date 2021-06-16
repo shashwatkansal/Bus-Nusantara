@@ -53,7 +53,16 @@
         e.g. for toilet break</string>
     <string name="confirm_journey_tooltip">Please check if your bus trip information is correct
         and press confirm to go to the next page</string>
+    <string name="your_stop">Your Stop</string>
+    <string name="bus_location">Bus Location</string>
+    <string name="bus_stopping_soon">Bus Stopping Soon</string>
+    <string name="bus_not_stopping_soon">Bus not stopping soon</string>
     <plurals name="passenger_count">
-        <item quantity="other">Passenger Count: %d</item>
+        <item quantity="zero">no passengers</item>
+        <item quantity="one">1 passenger</item>
+        <item quantity="other">%d passengers</item>
+    </plurals>
+    <plurals name="num_stop_requests">
+        <item quantity="other">number of stop requests: %d</item>
     </plurals>
 </resources>

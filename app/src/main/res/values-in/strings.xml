@@ -29,14 +29,17 @@
     <string name="baseline">baseline</string>
     <string name="bus_nusantara">Bus Nusantara</string>
     <plurals name="passenger_count">
-        <item quantity="other">Jumlah Penumpang: %d</item>
+        <item quantity="other">%d penumpang</item>
+    </plurals>
+    <plurals name="num_stop_requests">
+        <item quantity="other">permintaan berhenti dari penumpang: %d</item>
     </plurals>
     <string name="bus_has_wifi">Wifi Bus</string>
     <string name="bus_type">Tipe Bus</string>
     <string name="bus_toilets">Toilet Bus</string>
-    <string name="request_stop">permintaan stop</string>
+    <string name="request_stop">minta berhenti sebentar</string>
     <string name="requested">telah diminta</string>
-    <string name="pause_journey">stop perjalanan</string>
+    <string name="pause_journey">berhenti sebentar</string>
     <string name="resume">lanjut perjalanan</string>
     <string name="time"> Jam</string>
     <string name="welcome">Selamat Datang di Bus Nusantara</string>
@@ -53,4 +56,9 @@
         membatalkan permintaan untuk berhenti</string>
     <string name="confirm_journey_tooltip">Silahkan mengecek informasi perjalanan anda
         dan klik tombol untuk mengonfirmasi</string>
+    <string name="your_stop">Perhentian saya</string>
+    <string name="bus_location">Bus saya</string>
+    <string name="bus_stopping_soon">Bus akan segera berhenti</string>
+    <string name="bus_not_stopping_soon">Bus tidak akan segera berhenti</string>
+    <string name="next">Lanjut</string>
 </resources>

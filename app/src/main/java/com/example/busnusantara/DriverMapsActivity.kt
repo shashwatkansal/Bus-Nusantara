@@ -3,26 +3,26 @@ package com.example.busnusantara
 import android.content.*
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.annotation.RequiresApi
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.busnusantara.database.Collections
+import com.example.busnusantara.databinding.ActivityDriverMapsBinding
+import com.example.busnusantara.services.TrackingService
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.example.busnusantara.databinding.ActivityDriverMapsBinding
-import com.example.busnusantara.services.TrackingService
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.GeoPoint
@@ -32,6 +32,7 @@ import kotlinx.android.synthetic.main.activity_driver_maps.*
 import kotlinx.android.synthetic.main.activity_driver_maps.infoSheet
 import kotlinx.android.synthetic.main.activity_driver_maps.remaining_stops
 import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
+import java.util.*
 
 const val LOC_REQUEST_CODE = 1000
 
@@ -70,6 +71,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivityDriverMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // get trip ID from confirmation page
         tripId = getIntent().getStringExtra("TRIP_ID") ?: ""
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -200,10 +202,25 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             from(infoSheet).state = STATE_COLLAPSED
         }
 
-        locationInfoAdapter = LocationInfoAdapter(routeStops.map { stop ->
-            LocationInfo(stop, 3)
-        })
-        rvLocations.adapter = locationInfoAdapter
+        val locationInfos = mutableListOf<LocationInfo>()
+        val tripIdRef = Firebase.firestore.document(tripId)
+
+        for(stop in routeStops) {
+            Firebase.firestore.collection(Collections.ORDERS.toString())
+                .whereEqualTo("tripID", tripIdRef)
+                .whereEqualTo("pickupLocation", stop)
+                .get().addOnSuccessListener { documents ->
+                    Log.d(ContentValues.TAG, "Finding orders for trip ID $tripId")
+
+                    var totalPassengers = 0
+                    for (document in documents) {
+                        totalPassengers += (document.getLong("numPassengers") ?: 0).toInt()
+                    }
+                    locationInfos.add(LocationInfo(stop, totalPassengers, Date()))
+                }
+        }
+
+        rvLocations.adapter = LocationInfoAdapter(locationInfos)
         rvLocations.layoutManager = LinearLayoutManager(this)
     }
 
@@ -235,7 +252,8 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             Log.d(ContentValues.TAG, "Finding trip for trip ID $tripId")
 
             val requests = if (trip == null) 0 else (trip["breakRequests"] as Long).toInt()
-            requestsCount.text = "stop requests: $requests"
+            requestsCount.text =
+                resources.getQuantityString(R.plurals.num_stop_requests, requests, requests)
         }
 
         // add listener to changes on trip to update stop request count
@@ -248,7 +266,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if (snapshot != null && snapshot.exists()) {
                 val trip = snapshot.getData()
                 val requests = (trip?.get("breakRequests") as Long).toInt()
-                requestsCount.text = "stop requests: $requests"
+                requestsCount.text = resources.getQuantityString(R.plurals.num_stop_requests, requests, requests)
                 Log.d("Break Request", "break requests update: $requests")
             } else {
                 Log.d("Break Request", "Failed getting request number of trip")
