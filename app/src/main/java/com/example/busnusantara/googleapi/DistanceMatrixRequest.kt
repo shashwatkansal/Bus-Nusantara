@@ -29,10 +29,8 @@ class DistanceMatrixRequest {
 
     fun getDistanceAndDuration(start: GeoPoint, end: GeoPoint): Pair<String, String> {
         val request = DistanceMatrixRequest()
-        val response = request.run(GeoPoint(-7.5, 110.23), GeoPoint(-7.9, 111.23))
-//        val response = request.run(start, end)
+        val response = request.run(start, end)
         val gson = Gson()
-
         val directionResponse: DirectionResponse =
             gson.fromJson(response, DirectionResponse::class.java)
         var directionResponseElements = directionResponse.rows[0].elements[0]
