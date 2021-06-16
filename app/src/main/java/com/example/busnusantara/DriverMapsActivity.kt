@@ -2,8 +2,11 @@ package com.example.busnusantara
 
 import android.content.*
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -26,9 +29,6 @@ import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_driver_maps.*
-import kotlinx.android.synthetic.main.activity_driver_maps.bottomSheet
-import kotlinx.android.synthetic.main.activity_driver_maps.remaining_stops
-import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
 
 const val LOC_REQUEST_CODE = 1000
 
@@ -38,7 +38,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityDriverMapsBinding
     private lateinit var tripId: String
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var locationInfoAdapter: LocationInfoAdapter
+    private lateinit var mediaPlayer: MediaPlayer
     private val routeStops: MutableList<String> = mutableListOf()
     private var journeyPaused: Boolean = false
 
@@ -62,6 +62,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        mediaPlayer = MediaPlayer.create(this, R.raw.alarm_sound)
         setupPermissions()
 
         binding = ActivityDriverMapsBinding.inflate(layoutInflater)
@@ -214,6 +215,10 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         rvLocations.adapter = LocationInfoAdapter(locationInfos)
         rvLocations.layoutManager = LinearLayoutManager(this)
+
+        progress_circular.visibility = GONE
+        linearLayout.visibility = VISIBLE
+        bottomSheet.visibility = VISIBLE
     }
 
     private fun toggleRequestButton() {
@@ -256,6 +261,9 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val trip = snapshot.getData()
                 val requests = (trip?.get("breakRequests") as Long).toInt()
                 requestsCount.text = "stop requests: $requests"
+                if (requests > 0) {
+                    mediaPlayer.start()
+                }
                 Log.d("Break Request", "break requests update: $requests")
             } else {
                 Log.d("Break Request", "Failed getting request number of trip")
