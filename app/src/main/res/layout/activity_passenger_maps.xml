@@ -7,10 +7,27 @@
     android:background="@color/white"
     tools:context=".SearchRoute">
 
+
     <LinearLayout
+        android:id="@+id/progress_circular"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="50dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:visibility="gone"
         tools:layout_editor_absoluteX="112dp"
         tools:layout_editor_absoluteY="0dp">
 
@@ -20,6 +37,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:context=".PassengerMapsActivity" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -28,6 +46,7 @@
         android:layout_height="match_parent"
         android:background="@drawable/rounded"
         android:orientation="vertical"
+        android:visibility="gone"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <ImageView
@@ -40,12 +59,39 @@
             android:scaleType="centerCrop"
             android:src="@drawable/bottom_sheet_baseline" />
 
+<<<<<<< HEAD
+=======
+        <TextView
+            android:id="@+id/busDurationString"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat_bold"
+            android:gravity="center"
+            android:text="Your bus will arrive in"
+            android:textColor="@color/light_black"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/busDurationValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat_bold"
+            android:gravity="center"
+            android:textColor="@color/light_black"
+            android:textSize="30sp" />
+
+>>>>>>> origin/bus_eta
         <TextView
             android:id="@+id/stopSoonText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+<<<<<<< HEAD
             android:layout_marginStart="20dp"
             android:layout_marginTop="50dp"
+=======
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+>>>>>>> origin/bus_eta
             android:fontFamily="@font/montserrat_bold"
             android:text=""
             android:textColor="@color/light_black" />
@@ -54,7 +100,7 @@
             android:id="@+id/requestStopButton"
             android:layout_width="145dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
+            android:layout_gravity="center"
             android:layout_marginTop="10dp"
             android:background="@drawable/button"
             android:backgroundTint="@color/softblue"
@@ -69,9 +115,9 @@
             android:id="@+id/remaining_stops"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:fontFamily="@font/montserrat_bold"
             android:gravity="center"
-            android:paddingTop="50dp"
             android:text="@string/stops_remaining"
             android:textColor="@color/black"
             android:textSize="20sp" />
@@ -85,6 +131,13 @@
 
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_anchor="@+id/linearLayout"
+        app:layout_anchorGravity="top|center" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

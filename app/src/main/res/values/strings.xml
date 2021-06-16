@@ -8,6 +8,8 @@
     <string name="bus_has_wifi">Bus Wifi</string>
     <string name="bus_type">Bus Type</string>
     <string name="bus_toilets">Has Toilets?</string>
+    <string name="bus_distance">Bus distance from you: </string>
+    <string name="bus_duration">Bus ETA: </string>
     <!--    End of to be translated -->
 
     <string name="destination_point">Destination</string>

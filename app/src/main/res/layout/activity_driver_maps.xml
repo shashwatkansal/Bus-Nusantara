@@ -8,9 +8,25 @@
     tools:context=".SearchRoute">
 
     <LinearLayout
+        android:id="@+id/progress_circular"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="50dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:visibility="gone"
         tools:layout_editor_absoluteX="112dp"
         tools:layout_editor_absoluteY="0dp">
 
@@ -28,6 +44,7 @@
         android:layout_height="match_parent"
         android:background="@drawable/rounded"
         android:orientation="vertical"
+        android:visibility="gone"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
 
@@ -50,7 +67,11 @@
                 android:id="@+id/requestsCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+<<<<<<< HEAD
                 android:layout_marginStart="20dp"
+=======
+                android:layout_gravity="center"
+>>>>>>> origin/bus_eta
                 android:layout_marginTop="50dp"
                 android:fontFamily="@font/montserrat_bold"
                 android:text="Stop requests: 0"
@@ -60,7 +81,7 @@
                 android:id="@+id/pauseJourneyButton"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
+                android:layout_gravity="center"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/button"
                 android:backgroundTint="@color/softblue"
@@ -75,9 +96,9 @@
             android:id="@+id/remaining_stops"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:fontFamily="@font/montserrat_bold"
             android:gravity="center"
-            android:paddingTop="50dp"
             android:text="@string/stops_remaining"
             android:textColor="@color/black"
             android:textSize="20sp" />
