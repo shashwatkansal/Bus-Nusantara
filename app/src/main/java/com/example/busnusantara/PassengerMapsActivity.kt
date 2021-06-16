@@ -51,6 +51,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var locationInfoAdapter: LocationInfoAdapter
     private val routeStops: MutableList<String> = mutableListOf()
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -58,7 +59,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(binding.root)
 
         // get order details
-        orderId = getIntent().getStringExtra("ORDER_ID") ?: ""
+        orderId = intent.getStringExtra("ORDER_ID") ?: ""
         Firebase.firestore.document(orderId).get()
             .addOnSuccessListener { order ->
                 if (order != null) {
@@ -126,31 +127,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     Log.d(TAG, "pickupLocation is $pickupLocation")
 
                     // Mark the passenger's location on map
-                    Firebase.firestore.collection(Collections.AGENTS.toString())
-                        .whereEqualTo("locationBased", pickupLocation)
-                        .get().addOnSuccessListener { agents ->
-                            if (!agents.isEmpty) {
-                                for (agent in agents) {
-                                    Log.d(TAG, "Getting Agent $agent")
-                                    passengerLoc = agent?.getGeoPoint("coordinate")?.let {
-                                        geoPointToLatLng(
-                                            it
-                                        )
-                                    }
-                                    if (passengerLoc != null) {
-                                        mMap.addMarker(
-                                            MarkerOptions().position(passengerLoc)
-                                                .title("Your start").icon(
-                                                    BitmapDescriptorFactory.defaultMarker(
-                                                        BitmapDescriptorFactory.HUE_ORANGE
-                                                    )
-                                                )
-                                        )
-                                        mMap.moveCamera(CameraUpdateFactory.newLatLng(passengerLoc))
-                                    }
-                                }
-                            }
-                        }
+                    markPassengerLocationOnMap(pickupLocation)
 
                     /* Get the driver's location and mark it */
                     tripRef.get().addOnSuccessListener { trip ->
@@ -172,18 +149,10 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                     )
                                 )
                             }
-
-                            mMap.addMarker(
-                                MarkerOptions()
-                                    .position(incomingDriverLatLng)
-                                    .icon(
-                                        BitmapDescriptorFactory.defaultMarker(
-                                            BitmapDescriptorFactory.HUE_ORANGE
-                                        )
-                                    )
-                                    .title("Bus Driver")
-
-
+                            addMarkerOnMap(
+                                "Bus Driver",
+                                incomingDriverLatLng,
+                                BitmapDescriptorFactory.HUE_AZURE
                             )
                             mMap.animateCamera(
                                 CameraUpdateFactory
@@ -227,6 +196,49 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
     }
 
+    private fun addMarkerOnMap(
+        title: String,
+        incomingDriverLatLng: LatLng,
+        color: Float = BitmapDescriptorFactory.HUE_RED
+    ) {
+        mMap.addMarker(
+            MarkerOptions()
+                .position(incomingDriverLatLng)
+                .icon(
+                    BitmapDescriptorFactory.defaultMarker(
+                        color
+                    )
+                )
+                .title(title)
+        )
+    }
+
+    // Mark Passenger Location On Map
+    private fun PassengerMapsActivity.markPassengerLocationOnMap(pickupLocation: String) {
+        Firebase.firestore.collection(Collections.AGENTS.toString())
+            .whereEqualTo("locationBased", pickupLocation)
+            .get().addOnSuccessListener { agents ->
+                if (!agents.isEmpty) {
+                    for (agent in agents) {
+                        Log.d(TAG, "Getting Agent $agent")
+                        passengerLoc = agent?.getGeoPoint("coordinate")?.let {
+                            geoPointToLatLng(
+                                it
+                            )
+                        }
+                        if (passengerLoc != null) {
+                            addMarkerOnMap(
+                                "Your Start",
+                                passengerLoc!!,
+                                BitmapDescriptorFactory.HUE_ORANGE
+                            )
+                            mMap.moveCamera(CameraUpdateFactory.newLatLng(passengerLoc))
+                        }
+                    }
+                }
+            }
+    }
+
     private fun addStopOnMap(stop: String) {
         Firebase.firestore.collection(Collections.AGENTS.toString())
             .whereEqualTo("locationBased", stop)
@@ -239,8 +251,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             val lat = coordinate.latitude
                             val lng = coordinate.longitude
                             val agent = LatLng(lat, lng)
-
-                            mMap.addMarker(MarkerOptions().position(agent).title(stop))
+                            addMarkerOnMap(stop, agent)
                         }
                     }
                 }
@@ -272,7 +283,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
             if (snapshot != null && snapshot.exists()) {
-                val trip = snapshot.getData()
+                val trip = snapshot.data
                 val stoppingSoon = trip?.get("impromptuStop") as Boolean
                 if (stoppingSoon) {
                     stopSoonText.text = "Bus stopping soon"
@@ -297,7 +308,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private suspend fun updateETA(distance: String, duration: String) {
+    private fun updateETA(distance: String, duration: String) {
         busDurationValue.text = duration
     }
 
