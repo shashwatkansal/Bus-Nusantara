@@ -14,14 +14,14 @@
     <string name="trip_date">Date</string>
     <string name="num_passengers">No. of Passengers</string>
     <string name="bus_num">Bus No.</string>
-    <string name="scan_qr">Scan QR</string>
+    <string name="scan_qr">Scan QR code</string>
     <string name="search_route">Search Route</string>
     <string name="enter_destination">Enter your destination</string>
     <string name="enter_starting_location">Enter your starting location</string>
     <string name="find_route">Find if there is a route</string>
-    <string name="scan_qr_code">Please scan the QR Code on your ticket</string>
+    <string name="scan_qr_passenger">Please scan the QR Code on your ticket</string>
     <string name="scan_qr_driver">Please scan the QR Code on the SPJ</string>
-    <string name="next">Confirm</string>
+    <string name="next">Next</string>
     <string name="time_of_departure">Time of Departure</string>
     <string name="not_found">Not found</string>
     <string name="i_am">I am a …</string>
@@ -39,6 +39,20 @@
     <string name="pause_journey">Pause journey</string>
     <string name="resume">Resume</string>
     <string name="time">Time</string>
+    <string name="welcome">Welcome to Bus Nusantara</string>
+    <string name="confirm">Confirm</string>
+    <string name="app_desc">Easily track your bus with us by scanning your ticket QR code.
+        You can also easily see the details and the ETA of the bus stops.
+        Enjoy your trip! </string>
+    <string name="enter_as">Enter as</string>
+    <string name="pick_one_option">Pick one option</string>
+    <string name="next_tooltip">Tap to continue to the next page</string>
+    <string name="request_stop_tooltip">Press if you would like for the bus to stop for a bit,
+        e.g. for toilet break</string>
+    <string name="requested_tooltip" translatable="false">Press if you would like for the bus to stop for a bit,
+        e.g. for toilet break</string>
+    <string name="confirm_journey_tooltip">Please check if your bus trip information is correct
+        and press confirm to go to the next page</string>
     <string name="your_stop">Your Stop</string>
     <string name="bus_location">Bus Location</string>
     <string name="bus_stopping_soon">Bus Stopping Soon</string>

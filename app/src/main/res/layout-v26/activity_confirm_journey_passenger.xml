@@ -243,7 +243,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:tooltipText="@string/confirm_journey_tooltip"/>
+            android:tooltipText="Please check if your bus trip information is correct and press confirm to go to the next page "/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

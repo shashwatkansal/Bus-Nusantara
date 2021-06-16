@@ -8,8 +8,8 @@
 
     <ImageView
         android:id="@+id/logo"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_width="290dp"
+        android:layout_height="312dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="76dp"
         android:contentDescription="@string/bus_nusantara"
@@ -22,66 +22,49 @@
         app:srcCompat="@drawable/busnusantara_logo" />
 
     <Button
-        android:id="@+id/btnBusDriver"
+        android:id="@+id/btnNxt"
         android:layout_width="250dp"
         android:layout_height="50dp"
-        android:layout_marginTop="68dp"
+        android:layout_marginTop="40dp"
         android:background="@drawable/button"
         android:fontFamily="@font/montserrat_bold"
-        android:text="@string/i_am_bus_driver"
+        android:text="@string/next"
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="20sp"
-        android:tooltipText="Choose if you are a bus driver"
         app:backgroundTint="@color/softblue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
-
-    <Button
-        android:id="@+id/btnPassenger"
-        android:layout_width="250dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="10dp"
-
-        android:background="@drawable/button"
-        android:fontFamily="@font/montserrat_bold"
-        android:text="@string/i_am_passenger"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:textSize="20sp"
-        app:backgroundTint="@color/softblue"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnBusDriver"
-        android:tooltipText="Choose if you are a passenger"/>
+        app:layout_constraintTop_toBottomOf="@+id/description"
+        android:tooltipText="Tap to continue to the next page" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/welcome"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="32dp"
         android:fontFamily="@font/montserrat_bold"
-        android:text="@string/enter_as"
+        android:text="@string/welcome"
         android:textColor="@color/light_black"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/logo" />
 
     <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_marginTop="76dp"
+        android:id="@+id/description"
+        android:layout_width="302dp"
+        android:layout_height="90dp"
+        android:layout_marginTop="108dp"
         android:fontFamily="@font/montserrat"
-        android:text="@string/pick_one_option"
+        android:text="@string/app_desc"
+        android:textAlignment="center"
         android:textColor="@color/light_black"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/logo" />
 

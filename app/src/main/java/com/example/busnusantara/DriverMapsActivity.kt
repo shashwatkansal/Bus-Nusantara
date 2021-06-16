@@ -2,10 +2,13 @@ package com.example.busnusantara
 
 import android.content.*
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.annotation.RequiresApi
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,7 +29,7 @@ import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_driver_maps.*
-import kotlinx.android.synthetic.main.activity_driver_maps.bottomSheet
+import kotlinx.android.synthetic.main.activity_driver_maps.infoSheet
 import kotlinx.android.synthetic.main.activity_driver_maps.remaining_stops
 import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
 import java.util.*
@@ -165,7 +168,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         routeStops.add(stop)
                     }
                 }
-                setupBottomSheet()
+                setupInfoSheet()
             }
     }
 
@@ -191,9 +194,13 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
     }
 
-    private fun setupBottomSheet() {
-        from(bottomSheet).peekHeight = 150
-        from(bottomSheet).state = STATE_COLLAPSED
+    private fun setupInfoSheet() {
+        // only do this if infoSheet is a bottomSheet
+        val params: CoordinatorLayout.LayoutParams = infoSheet.layoutParams as CoordinatorLayout.LayoutParams
+        if (params.behavior is com.google.android.material.bottomsheet.BottomSheetBehavior) {
+            from(infoSheet).peekHeight = 150
+            from(infoSheet).state = STATE_COLLAPSED
+        }
 
         val locationInfos = mutableListOf<LocationInfo>()
         val tripIdRef = Firebase.firestore.document(tripId)
@@ -217,17 +224,19 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         rvLocations.layoutManager = LinearLayoutManager(this)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun toggleRequestButton() {
         if (journeyPaused) {
             pauseJourneyButton.backgroundTintList = resources.getColorStateList(R.color.softblue)
             pauseJourneyButton.text = resources.getString(R.string.pause_journey)
+            pauseJourneyButton.tooltipText = "Press if bus is stopping in less than 10 mins"
             Firebase.firestore.document(tripId)
                 .update("impromptuStop", false)
-
         } else {
             pauseJourneyButton.backgroundTintList =
                 resources.getColorStateList(R.color.light_orange)
             pauseJourneyButton.text = resources.getString(R.string.resume)
+            pauseJourneyButton.tooltipText = "Press if bus is continuing the journey"
             Firebase.firestore.document(tripId)
                 .update("impromptuStop", true)
 

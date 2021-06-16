@@ -1,8 +1,10 @@
 package com.example.busnusantara
 
 import android.content.ContentValues.TAG
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.busnusantara.database.Collections
@@ -24,7 +26,7 @@ import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_driver_maps.*
-import kotlinx.android.synthetic.main.activity_driver_maps.bottomSheet
+import kotlinx.android.synthetic.main.activity_driver_maps.infoSheet
 import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
 import kotlinx.android.synthetic.main.activity_passenger_maps.*
 import java.text.SimpleDateFormat
@@ -76,16 +78,19 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun toggleRequestButton(updateValue: Boolean) {
         if (stopRequested) {
             requestStopButton.backgroundTintList = resources.getColorStateList(R.color.softblue)
             requestStopButton.text = resources.getString(R.string.request_stop)
+            requestStopButton.tooltipText = "@string/stop_request_tooltip"
             if (updateValue) {
                 tripRef.update("breakRequests", FieldValue.increment(-1))
             }
         } else {
             requestStopButton.backgroundTintList = resources.getColorStateList(R.color.light_orange)
             requestStopButton.text = resources.getString(R.string.requested)
+            requestStopButton.tooltipText = "@string/requested_tooltip"
             if (updateValue) {
                 tripRef.update("breakRequests", FieldValue.increment(1))
             }
@@ -198,7 +203,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                         routeStops.add(destination)
                                         buildRoute(start, destination, mMap)
                                         addStopOnMap(destination)
-                                        setupBottomSheet()
+                                        setupInfoSheet()
                                     }
                                 }
                         }
@@ -235,9 +240,9 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         return LatLng(geoPoint.latitude, geoPoint.longitude)
     }
 
-    private fun setupBottomSheet() {
-        BottomSheetBehavior.from(bottomSheet).peekHeight = 150
-        BottomSheetBehavior.from(bottomSheet).state = BottomSheetBehavior.STATE_COLLAPSED
+    private fun setupInfoSheet() {
+        BottomSheetBehavior.from(infoSheet).peekHeight = 150
+        BottomSheetBehavior.from(infoSheet).state = BottomSheetBehavior.STATE_COLLAPSED
 
         var hoursEta = 1
         locationInfoAdapter = LocationInfoEtaAdapter(routeStops.map { stop ->
