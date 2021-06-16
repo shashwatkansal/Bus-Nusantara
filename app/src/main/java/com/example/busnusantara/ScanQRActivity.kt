@@ -45,12 +45,13 @@ class ScanQRActivity : AppCompatActivity() {
 
         // get persistent app-specific file which stores ID from previous QR code scan
         val context: Context = this
-        val idFilename = if (scanPassenger) "passengerID" else "driverID"
-        var idFile = File(context.filesDir, idFilename)
+        val idFilename = if (scanPassenger) "cachepPassengerID" else "cachedDriverID"
+        var idFile = File(context.cacheDir, idFilename)
         if(!idFile.exists()) {
             btnJourney.setVisibility(View.GONE)
-            idFile = File.createTempFile(idFilename, null, context.filesDir)
+            idFile = File.createTempFile(idFilename, null, context.cacheDir)
         } else {
+            btnJourney.setVisibility(View.VISIBLE)
             val id = idFile.readText()
             btnJourney.setOnClickListener {
                 val intent = Intent(this@ScanQRActivity, nextActivity)
@@ -63,10 +64,10 @@ class ScanQRActivity : AppCompatActivity() {
         codeScanner(idFile)
 
         btnContinue.setOnClickListener {
+            val id = if (scanPassenger) "Orders/oolO6KVivO3Z445xu5cW" else "Trips/9c4hJnV6gc9FjlWCF6nH"
+            idFile.writeText(id)
             val intent = Intent(this@ScanQRActivity, nextActivity)
-            intent.putExtra("ID",
-                if (scanPassenger) "Orders/oolO6KVivO3Z445xu5cW"
-                else "Trips/9c4hJnV6gc9FjlWCF6nH")
+            intent.putExtra("ID", id)
             startActivity(intent)
         }
     }

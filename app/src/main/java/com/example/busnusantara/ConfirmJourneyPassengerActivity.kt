@@ -8,23 +8,26 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.busnusantara.database.Collections
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_confirm_journey_passenger.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 class ConfirmJourneyPassengerActivity : AppCompatActivity() {
 
+    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private lateinit var orderRef: DocumentReference
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_confirm_journey_passenger)
 
         val orderId = intent.getStringExtra("ID") ?: ""
+        orderRef = db.document(orderId)
 
         // Display required information
-        displayTripInformation(orderId)
-        displayBusAmenities(orderId)
+        displayTripInformation()
+        displayBusAmenities()
 
 
         btnToMap.setOnClickListener {
@@ -34,10 +37,8 @@ class ConfirmJourneyPassengerActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayBusAmenities(orderId: String) {
-        Firebase.firestore
-            .document(orderId)
-            .get()
+    private fun displayBusAmenities() {
+        orderRef.get()
             .continueWithTask { task ->
                 val order = task.result
                 order.getDocumentReference("tripID")?.get()
@@ -45,7 +46,7 @@ class ConfirmJourneyPassengerActivity : AppCompatActivity() {
             .continueWithTask { task ->
                 val trip = task.result
                 val busNum: String? = trip.getString("busNum")
-                Firebase.firestore.collection(Collections.BUSES.toString())
+                db.collection(Collections.BUSES.toString())
                     .whereEqualTo("busNum", busNum)
                     .get()
             }
@@ -67,8 +68,8 @@ class ConfirmJourneyPassengerActivity : AppCompatActivity() {
             }
     }
 
-    private fun displayTripInformation(orderId: String) {
-        Firebase.firestore.document(orderId).get()
+    private fun displayTripInformation() {
+        orderRef.get()
             .continueWithTask { task ->
                 val document = task.result
                 startPointField.text = document?.get("pickupLocation").toString()
