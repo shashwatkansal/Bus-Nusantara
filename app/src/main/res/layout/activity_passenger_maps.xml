@@ -15,34 +15,6 @@
         tools:layout_editor_absoluteX="112dp"
         tools:layout_editor_absoluteY="0dp">
 
-        <TextView
-            android:id="@+id/busDistanceString"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/montserrat_bold"
-            android:text="@string/bus_distance" />
-
-        <TextView
-            android:id="@+id/busDistanceValue"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/montserrat_bold"
-            android:textColor="#F44336" />
-
-        <TextView
-            android:id="@+id/busDurationString"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/montserrat_bold"
-            android:text="@string/bus_duration" />
-
-        <TextView
-            android:id="@+id/busDurationValue"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/montserrat_bold"
-            android:textColor="#F44336" />
-
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
@@ -71,13 +43,32 @@
             android:scaleType="centerCrop"
             android:src="@drawable/bottom_sheet_baseline" />
 
+        <TextView
+            android:id="@+id/busDurationString"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat_bold"
+            android:gravity="center"
+            android:text="Your bus will arrive in"
+            android:textColor="@color/light_black"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/busDurationValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat_bold"
+            android:gravity="center"
+            android:textColor="@color/light_black"
+            android:textSize="30sp" />
+
 
         <TextView
             android:id="@+id/stopSoonText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="40dp"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="10dp"
             android:fontFamily="@font/montserrat_bold"
             android:text=""
             android:textColor="@color/light_black" />

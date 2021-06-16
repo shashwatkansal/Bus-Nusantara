@@ -252,7 +252,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun setupBottomSheet() {
-        BottomSheetBehavior.from(bottomSheet).peekHeight = 150
+        BottomSheetBehavior.from(bottomSheet).peekHeight = 300
         BottomSheetBehavior.from(bottomSheet).state = BottomSheetBehavior.STATE_COLLAPSED
 
         locationInfoAdapter = LocationInfoAdapter(routeStops.map { stop ->
@@ -298,8 +298,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private suspend fun updateETA(distance: String, duration: String) {
-        busDistanceValue.text = "Distance: $distance"
-        busDurationValue.text = "ETA: $duration"
+        busDurationValue.text = duration
     }
 
     private suspend fun getETA(newLocation: GeoPoint, currPassengerLoc: GeoPoint) {
