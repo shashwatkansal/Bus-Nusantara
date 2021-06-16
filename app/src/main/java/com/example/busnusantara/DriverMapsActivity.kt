@@ -197,7 +197,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val locationInfos = mutableListOf<LocationInfo>()
         val tripIdRef = Firebase.firestore.document(tripId)
 
-        for(stop in routeStops) {
+        for (stop in routeStops) {
             Firebase.firestore.collection(Collections.ORDERS.toString())
                 .whereEqualTo("tripID", tripIdRef)
                 .whereEqualTo("pickupLocation", stop)
