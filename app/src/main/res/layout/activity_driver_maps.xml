@@ -26,7 +26,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:visibility="gone"
         tools:layout_editor_absoluteX="112dp"
         tools:layout_editor_absoluteY="0dp">
 
@@ -44,7 +43,6 @@
         android:layout_height="match_parent"
         android:background="@drawable/rounded"
         android:orientation="vertical"
-        android:visibility="gone"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
 

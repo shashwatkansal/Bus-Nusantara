@@ -35,6 +35,7 @@ import kotlinx.android.synthetic.main.activity_driver_maps.*
 import kotlinx.android.synthetic.main.activity_driver_maps.infoSheet
 import kotlinx.android.synthetic.main.activity_driver_maps.remaining_stops
 import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
+import kotlinx.android.synthetic.main.location_info.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -53,6 +54,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private val distanceMatrixRequest = DistanceMatrixRequest()
     private lateinit var tripId: String
     private lateinit var tripRef: DocumentReference
+    private lateinit var adapter: LocationInfoAdapter
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var mediaPlayer: MediaPlayer
     private var routeStops: MutableList<String> = mutableListOf()
@@ -67,6 +69,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private val passengersAtStop: HashMap<String, Int> = HashMap()
 
     inner class LocationBroadcastReceiver : BroadcastReceiver() {
+        @RequiresApi(Build.VERSION_CODES.O)
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action.equals("ACT_LOC")) {
                 val lat: Double? = intent?.getDoubleExtra("latitude", 0.0)
@@ -86,6 +89,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             CoroutineScope(IO).launch {
                                 if (stopLocations.get(0).longitude != 0.0) {
                                     getNextLocationETA(location)
+                                    getAllLocationsETA(location)
                                 }
                             }
                         }
@@ -98,8 +102,25 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val locationETAs =
                 distanceMatrixRequest.convertFromTimeLengthsToETAs(mutableListOf(currLocation) + stopLocations)
 
+            Log.d("EZRA", "getAllLocationsETA: $locationETAs")
+
+            withContext(Main) {
+                updateETAs(locationETAs)
+            }
 
         }
+
+
+        private suspend fun updateETAs(etas: MutableList<String>) {
+
+            Log.d("EZRA", "updateETAs: $etas")
+
+            for (i in 0 until etas.size) {
+                (rvLocations.findViewHolderForAdapterPosition(i) as LocationInfoAdapter.LocationInfoViewHolder).itemView.tvETA.text =
+                    etas[i]
+            }
+        }
+
 
         private suspend fun getNextLocationETA(currLocation: GeoPoint) {
             val (distance, duration) = distanceMatrixRequest.getDistanceAndDuration(
@@ -304,9 +325,12 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 // Construct Location Info from the mapping
                 val locationInfos = routeStops.map { stop ->
-                    LocationInfo(stop, passengersAtStop.getOrDefault(stop, 0), Date())
+                    LocationInfo(stop, passengersAtStop.getOrDefault(stop, 0), "Calculating")
                 }
-                rvLocations.adapter = LocationInfoAdapter(locationInfos)
+
+                adapter = LocationInfoAdapter(locationInfos)
+
+                rvLocations.adapter = adapter
                 rvLocations.layoutManager = LinearLayoutManager(this)
 
                 progress_circular_d.visibility = GONE

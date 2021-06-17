@@ -277,7 +277,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             cal.add(Calendar.HOUR_OF_DAY, hoursEta)
             val date = cal.time
             hoursEta++
-            LocationInfo(stop, 3, date)
+            LocationInfo(stop, 3, "Calculating")
 
         })
         rvLocations.adapter = locationInfoAdapter
