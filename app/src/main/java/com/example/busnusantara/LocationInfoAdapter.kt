@@ -35,10 +35,6 @@ class LocationInfoAdapter(
         }
     }
 
-    fun updateETAs(etas: List<String>) {
-
-    }
-
     override fun getItemCount(): Int {
         return locationInfo.size
     }
