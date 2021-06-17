@@ -1,10 +1,13 @@
 package com.example.busnusantara
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -15,6 +18,7 @@ import com.budiyev.android.codescanner.ErrorCallback
 import com.budiyev.android.codescanner.ScanMode
 import kotlinx.android.synthetic.main.activity_confirm_journey_driver.*
 import kotlinx.android.synthetic.main.activity_qr_code_scanner.*
+import java.io.File
 
 private const val CAMERA_REQUEST_CODE = 101
 
@@ -22,25 +26,44 @@ class ScanQRActivity : AppCompatActivity() {
 
     private lateinit var codeScanner: CodeScanner
     private var scanPassenger: Boolean = true
+    private lateinit var nextActivity: Class<out AppCompatActivity>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_qr_code_scanner)
 
         scanPassenger = getIntent().getBooleanExtra("SCAN_PASSENGER", true)
+
         tvQRScan.text = if (scanPassenger) {
             resources.getString(R.string.scan_qr_passenger)
         } else {
             resources.getString(R.string.scan_qr_driver)
         }
+
+        nextActivity = if (scanPassenger) ConfirmJourneyPassengerActivity::class.java
+            else ConfirmJourneyDriverActivity::class.java
+
+        // get persistent app-specific file which stores ID from previous QR code scan
+        val context: Context = this
+        val idFilename = if (scanPassenger) "passengerID" else "driverID"
+        var idFile = File(context.filesDir, idFilename)
+        if(!idFile.exists()) {
+            btnJourney.setVisibility(View.GONE)
+            idFile = File.createTempFile(idFilename, null, context.filesDir)
+        } else {
+            val id = idFile.readText()
+            btnJourney.setOnClickListener {
+                val intent = Intent(this@ScanQRActivity, nextActivity)
+                intent.putExtra("ID", id)
+                startActivity(intent)
+            }
+        }
+
         setUpPermissions()
-        codeScanner()
+        codeScanner(idFile)
 
         btnContinue.setOnClickListener {
-            val intent = Intent(
-                this@ScanQRActivity,
-                if (scanPassenger) ConfirmJourneyPassengerActivity::class.java
-                else ConfirmJourneyDriverActivity::class.java)
+            val intent = Intent(this@ScanQRActivity, nextActivity)
             intent.putExtra("ID",
                 if (scanPassenger) "Orders/oolO6KVivO3Z445xu5cW"
                 else "Trips/9c4hJnV6gc9FjlWCF6nH")
@@ -48,7 +71,7 @@ class ScanQRActivity : AppCompatActivity() {
         }
     }
 
-    private fun codeScanner() {
+    private fun codeScanner(idFile: File) {
         codeScanner = CodeScanner(this, scanner_view)
 
         codeScanner.apply {
@@ -64,9 +87,8 @@ class ScanQRActivity : AppCompatActivity() {
             decodeCallback = DecodeCallback {
                 runOnUiThread {
                     val intent = Intent(
-                        this@ScanQRActivity,
-                        if (scanPassenger) ConfirmJourneyPassengerActivity::class.java
-                                      else ConfirmJourneyDriverActivity::class.java)
+                        this@ScanQRActivity, nextActivity)
+                    idFile.writeText(it.text)
                     intent.putExtra("ID", it.text)
                     startActivity(intent)
                 }

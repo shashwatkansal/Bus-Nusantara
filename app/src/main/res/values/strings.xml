@@ -21,8 +21,10 @@
     <string name="enter_destination">Enter your destination</string>
     <string name="enter_starting_location">Enter your starting location</string>
     <string name="find_route">Find if there is a route</string>
-    <string name="scan_qr_passenger">Please scan the QR Code on your ticket</string>
-    <string name="scan_qr_driver">Please scan the QR Code on the SPJ</string>
+    <string name="scan_qr_passenger">Please choose previous journey (if available) or
+        scan the QR Code on your ticket to input new journey</string>
+    <string name="scan_qr_driver">Please choose previous journey (if available) or
+        scan the QR Code on your SPJ to input new journey</string>
     <string name="next">Next</string>
     <string name="time_of_departure">Time of Departure</string>
     <string name="not_found">Not found</string>
@@ -59,6 +61,8 @@
     <string name="bus_location">Bus Location</string>
     <string name="bus_stopping_soon">Bus Stopping Soon</string>
     <string name="bus_not_stopping_soon">Bus not stopping soon</string>
+    <string name="choose_bus_trip">Choose Bus Trip</string>
+    <string name="previous_journey">Previous journey</string>
     <plurals name="passenger_count">
         <item quantity="zero">no passengers</item>
         <item quantity="one">1 passenger</item>
