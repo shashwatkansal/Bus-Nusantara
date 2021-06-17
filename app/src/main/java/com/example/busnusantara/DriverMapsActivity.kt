@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.busnusantara.database.Collections
 import com.example.busnusantara.databinding.ActivityDriverMapsBinding
+import com.example.busnusantara.googleapi.DistanceMatrixRequest
 import com.example.busnusantara.services.TrackingService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -34,6 +35,11 @@ import kotlinx.android.synthetic.main.activity_driver_maps.*
 import kotlinx.android.synthetic.main.activity_driver_maps.infoSheet
 import kotlinx.android.synthetic.main.activity_driver_maps.remaining_stops
 import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -44,12 +50,21 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityDriverMapsBinding
+    private val distanceMatrixRequest = DistanceMatrixRequest()
     private lateinit var tripId: String
     private lateinit var tripRef: DocumentReference
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var mediaPlayer: MediaPlayer
-    private val routeStops: MutableList<String> = mutableListOf()
+    private var routeStops: MutableList<String> = mutableListOf()
+    private var stopLocations: MutableList<GeoPoint> = mutableListOf(
+        GeoPoint(0.0, 0.0),
+        GeoPoint(0.0, 0.0),
+        GeoPoint(0.0, 0.0),
+        GeoPoint(0.0, 0.0),
+        GeoPoint(0.0, 0.0)
+    )
     private var journeyPaused: Boolean = false
+    private val passengersAtStop: HashMap<String, Int> = HashMap()
 
     inner class LocationBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -63,7 +78,61 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 //                    Firebase.firestore.document(tripId)
 //                        .update("location", GeoPoint(latLng.latitude, latLng.longitude))
 //                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14F))
+
+                    tripRef.get()
+                        .addOnSuccessListener { trip ->
+                            val location = trip["location"] as GeoPoint
+                            Log.d("EZRA", "onReceive: location is $location")
+                            CoroutineScope(IO).launch {
+                                if (stopLocations.get(0).longitude != 0.0) {
+                                    getNextLocationETA(location)
+                                }
+                            }
+                        }
                 }
+            }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        private suspend fun getAllLocationsETA(currLocation: GeoPoint) {
+            val locationETAs =
+                distanceMatrixRequest.convertFromTimeLengthsToETAs(mutableListOf(currLocation) + stopLocations)
+
+
+        }
+
+        private suspend fun getNextLocationETA(currLocation: GeoPoint) {
+            val (distance, duration) = distanceMatrixRequest.getDistanceAndDuration(
+                currLocation,
+                stopLocations.get(0)
+            )
+
+            withContext(Main) {
+                updateDriverETA(distance, duration)
+            }
+        }
+
+        private suspend fun updateDriverETA(distance: String, duration: String) {
+            val numDistance = (distance.split(" ")[0]).toDouble()
+            Log.d("EZRA", "updateDriverETA: ${routeStops[0]}: ${stopLocations[0]} $numDistance")
+            if (numDistance <= 1.5) {
+                Log.d("EZRA", "updateDriverETA: Arrived at destination ${routeStops.get(0)}")
+                stopLocations = stopLocations.drop(1).toMutableList()
+                routeStops = routeStops.drop(1).toMutableList()
+                Log.d("EZRA", "updateDriverETA: ${routeStops}")
+                busLocationAnnouncement.text =
+                    if (routeStops.size > 1) resources.getString(R.string.the_next_stop_is) else resources.getString(
+                        R.string.the_final_destination_is
+                    )
+
+                val nextStop = routeStops.get(0)
+                val nextNumPassengers = passengersAtStop.getOrDefault(nextStop, 0)
+                busNextStopString.text = nextStop + ": " +
+                        resources.getQuantityString(
+                            R.plurals.passenger_count,
+                            nextNumPassengers,
+                            nextNumPassengers
+                        )
             }
         }
     }
@@ -85,6 +154,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         pauseJourneyButton.setOnClickListener { _ -> toggleRequestButton() }
@@ -150,7 +220,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mMap.setMinZoomPreference(6.0f)
         mMap.setMaxZoomPreference(14.0f)
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(8.0f))
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(12.0f))
     }
 
     private fun addRouteStops() {
@@ -175,6 +245,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         routeStops.add(stop)
                     }
                 }
+
                 setupInfoSheet()
             }
     }
@@ -193,6 +264,8 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         val lat = coordinate.latitude
                         val lng = coordinate.longitude
                         val agent = LatLng(lat, lng)
+                        val index = routeStops.indexOf(stop)
+                        stopLocations[index] = GeoPoint(lat, lng)
 
                         mMap.addMarker(MarkerOptions().position(agent).title(stop))
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(agent))
@@ -201,12 +274,13 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun setupInfoSheet() {
         // only do this if infoSheet is a bottomSheet
         val params: CoordinatorLayout.LayoutParams =
             infoSheet.layoutParams as CoordinatorLayout.LayoutParams
         if (params.behavior is com.google.android.material.bottomsheet.BottomSheetBehavior) {
-            from(infoSheet).peekHeight = 150
+            from(infoSheet).peekHeight = 400
             from(infoSheet).state = STATE_COLLAPSED
         }
 
@@ -216,26 +290,37 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 Log.d(ContentValues.TAG, "Finding orders for trip ID $tripId")
 
                 // Get the mapping from stop to the number of passengers waiting there
-                val passengersAtStop: HashMap<String, Int> = HashMap()
                 for (document in documents) {
                     val stop = document.get("pickupLocation") as String
                     val curPassengers = passengersAtStop.getOrDefault(stop, 0)
                     val morePassengers = (document.getLong("numPassengers") ?: 0).toInt()
 
-                    Log.d(ContentValues.TAG, "Processing order for pickup location $stop " +
-                            "with $morePassengers passengers")
+                    Log.d(
+                        ContentValues.TAG, "Processing order for pickup location $stop " +
+                                "with $morePassengers passengers"
+                    )
                     passengersAtStop.put(stop, curPassengers + morePassengers)
                 }
 
                 // Construct Location Info from the mapping
-                val locationInfos = routeStops.map {stop ->
-                    LocationInfo(stop, passengersAtStop.getOrDefault(stop, 0), Date()) }
+                val locationInfos = routeStops.map { stop ->
+                    LocationInfo(stop, passengersAtStop.getOrDefault(stop, 0), Date())
+                }
                 rvLocations.adapter = LocationInfoAdapter(locationInfos)
                 rvLocations.layoutManager = LinearLayoutManager(this)
 
                 progress_circular_d.visibility = GONE
                 linearLayout_d.visibility = VISIBLE
                 infoSheet.visibility = VISIBLE
+
+                val nextStop = routeStops.get(0)
+                val nextNumPassengers = passengersAtStop.getOrDefault(nextStop, 0)
+                busNextStopString.text = nextStop + ": " +
+                        resources.getQuantityString(
+                            R.plurals.passenger_count,
+                            nextNumPassengers,
+                            nextNumPassengers
+                        )
             }
     }
 

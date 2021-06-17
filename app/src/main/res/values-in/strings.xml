@@ -64,4 +64,9 @@
     <string name="bus_not_stopping_soon">Bus tidak akan segera berhenti</string>
     <string name="choose_bus_trip">Pilih Perjalanan</string>
     <string name="previous_journey">Perjalanan sebelumnya</string>
+    <string name="bus_distance">Jarak bus dari posisi anda: </string>
+    <string name="bus_duration">Waktu hingga bus tiba: </string>
+    <string name="the_next_stop_is">Pemberhentian selanjutnya:</string>
+    <string name="the_final_destination_is">Tujuan turun:</string>
+    <string name="the_starting_location_is">TItik naik:</string>
 </resources>

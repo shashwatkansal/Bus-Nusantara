@@ -1,10 +1,18 @@
 package com.example.busnusantara.googleapi
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.google.firebase.firestore.GeoPoint
 import com.google.gson.Gson
 import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.Request
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 class DistanceMatrixRequest {
     var client = OkHttpClient()
@@ -37,6 +45,101 @@ class DistanceMatrixRequest {
         val distanceText = directionResponseElements.distance.text
         val durationText = directionResponseElements.duration.text
         return Pair(distanceText, durationText)
+    }
+
+    private fun sumDistanceAndDurationStrings(
+        prevDurDist: Pair<String, String>,
+        nextDurDist: Pair<String, String>? = null
+    ): Pair<String, String> {
+
+        val MINS_IN_HOUR = 60
+
+        if (nextDurDist == null) {
+            return prevDurDist
+        }
+
+        var prevDist = (prevDurDist.first.split(" ")[0]).toDouble()
+        var nextDist = (nextDurDist.first.split(" ")[0]).toDouble()
+
+        // Get Time from bus to previous stop.
+        val prevDurations = (prevDurDist.second.split(" "))
+
+
+        // No hours, only minutes
+        var prevHrs = 0.0
+        var prevMins = prevDurations[0].toDouble()
+        if (prevDurations.size >= 3) {
+            prevHrs = prevDurations[0].toDouble()
+            prevMins = prevDurations[2].toDouble()
+        }
+        val prevTime = prevHrs * MINS_IN_HOUR + prevMins
+
+        // Get Time from previous stop to next stop.
+        val nextDurations = (nextDurDist.second.split(" "))
+
+        // No hours, only minutes
+        var nextHrs = 0.0
+        var nextMins = prevDurations[0].toDouble()
+        if (nextDurations.size >= 3) {
+            nextHrs = nextDurations[0].toDouble()
+            nextMins = nextDurations[2].toDouble()
+        }
+        val nextTime = nextHrs * MINS_IN_HOUR + nextMins + prevTime
+
+        val (hrs, mins) = Pair(nextTime.toInt() / MINS_IN_HOUR, nextTime % MINS_IN_HOUR)
+
+
+        return Pair("${(prevDist + nextDist)} km", "${hrs} hours $mins mins")
+    }
+
+    fun getAllDistanceAndDurations(stops: List<GeoPoint>): MutableList<Pair<String, String>> {
+        var stopDistanceDurations: MutableList<Pair<String, String>> = mutableListOf()
+        var summedStopDistanceDurations: MutableList<Pair<String, String>> = mutableListOf()
+        for (i in 1 until stops.size) {
+            val prevDurDist = DistanceMatrixRequest().getDistanceAndDuration(
+                stops[i - 1],
+                stops[i]
+            )
+            stopDistanceDurations.add(sumDistanceAndDurationStrings(prevDurDist))
+        }
+//        println("stop distance durations:\n$stopDistanceDurations")
+        summedStopDistanceDurations.add(stopDistanceDurations[0])
+        for (i in 1 until stopDistanceDurations.size) {
+            summedStopDistanceDurations.add(
+                sumDistanceAndDurationStrings(
+                    summedStopDistanceDurations[i - 1],
+                    stopDistanceDurations[i]
+                )
+            )
+        }
+        return summedStopDistanceDurations
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun convertFromTimeLengthsToETAs(stops: List<GeoPoint>): MutableList<String> {
+        val stopDurations: MutableList<Pair<String, String>> = getAllDistanceAndDurations(stops)
+        var stopETAs: MutableList<String> = mutableListOf()
+        var myTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
+        val df = SimpleDateFormat("HH:mm")
+        val d = df.parse(myTime)
+        val cal = Calendar.getInstance()
+
+        for ((_, time) in stopDurations) {
+            val tokens = time.split(" ")
+            var hrs = 0
+            var mins = tokens[0].toInt()
+            if (tokens.size >= 3) {
+                hrs = mins
+                mins = tokens[2].toDouble().toInt()
+            }
+
+            cal.time = d
+            cal.add(Calendar.HOUR, hrs)
+            cal.add(Calendar.MINUTE, mins)
+            stopETAs.add(df.format(cal.time))
+        }
+
+        return stopETAs
     }
 
     private class DirectionResponse(
@@ -94,12 +197,34 @@ class DistanceMatrixRequest {
         @Throws(IOException::class)
         @JvmStatic
         fun main(args: Array<String>) {
-            val (distance, duration) = DistanceMatrixRequest().getDistanceAndDuration(
-                GeoPoint(-7.5, 110.23),
-                GeoPoint(-7.9, 111.23)
+            val dmr = DistanceMatrixRequest()
+
+//            val durDist1 = dmr.getDistanceAndDuration(
+//                GeoPoint(-7.5, 110.23),
+//                GeoPoint(-7.9, 111.23)
+//            )
+
+//            val durDist2 = dmr.getDistanceAndDuration(
+//                GeoPoint(-7.5, 110.23),
+//                GeoPoint(-7.9, 111.23)
+//            )
+
+            val list: List<GeoPoint> = mutableListOf(
+                GeoPoint(-7.5, 111.23),
+                GeoPoint(-7.6, 111.33),
+                GeoPoint(-7.7, 111.43),
+                GeoPoint(-7.8, 111.53),
             )
-            println("> From JSON String - distance:\n${distance}")
-            println("> From JSON String - duration:\n${duration}")
+
+            val times = dmr.convertFromTimeLengthsToETAs(list)
+            println(times)
+
+//            val diff = dmr.getAllDistanceAndDurations(list)
+//            val diff = dmr.sumDistanceAndDurationStrings(durDist1, durDist2)
+//            println("> From JSON String:\n${durDist1}")
+//            println("> From JSON String:\n${durDist2}")
+//            println("> From JSON String:\n${diff}")
+
         }
     }
 }
