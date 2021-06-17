@@ -82,32 +82,31 @@ class DistanceMatrixRequest {
         val (hrs, mins) = Pair(nextTime.toInt() / MINS_IN_HOUR, nextTime % MINS_IN_HOUR)
 
 
-        return Pair("${prevDist + nextDist} km", "$hrs hours $mins mins")
+        return Pair("${(prevDist + nextDist)} km", "${hrs} hours $mins mins")
     }
 
     fun getAllDistanceAndDurations(stops: List<GeoPoint>): MutableList<Pair<String, String>> {
         var stopDistanceDurations: MutableList<Pair<String, String>> = mutableListOf()
         var summedStopDistanceDurations: MutableList<Pair<String, String>> = mutableListOf()
-        var prevLoc = stops[0]
-        for (i in stops.indices) {
+        for (i in 1 until stops.size) {
             val prevDurDist = DistanceMatrixRequest().getDistanceAndDuration(
-                prevLoc,
+                stops[i - 1],
                 stops[i]
             )
             stopDistanceDurations.add(sumDistanceAndDurationStrings(prevDurDist))
         }
-        println("stop distance durations:\n$stopDistanceDurations")
+//        println("stop distance durations:\n$stopDistanceDurations")
         summedStopDistanceDurations.add(stopDistanceDurations[0])
         for (i in 1 until stopDistanceDurations.size) {
             summedStopDistanceDurations.add(
                 sumDistanceAndDurationStrings(
-                    stopDistanceDurations[i - 1],
+                    summedStopDistanceDurations[i - 1],
                     stopDistanceDurations[i]
                 )
             )
         }
-        println("summed stop distance durations:\n$summedStopDistanceDurations")
-        return summedStopDistanceDurations.subList(1, summedStopDistanceDurations.size)
+//        println("summed stop distance durations:\n$summedStopDistanceDurations")
+        return summedStopDistanceDurations
     }
 
     private class DirectionResponse(
@@ -176,8 +175,9 @@ class DistanceMatrixRequest {
 //            )
             val list: List<GeoPoint> = mutableListOf(
                 GeoPoint(-7.5, 111.23),
-                GeoPoint(-7.6, 111.23),
-                GeoPoint(-7.7, 111.23)
+                GeoPoint(-7.6, 111.33),
+                GeoPoint(-7.7, 111.43),
+                GeoPoint(-7.8, 111.53),
             )
             val diff = dmr.getAllDistanceAndDurations(list)
 //            val diff = dmr.sumDistanceAndDurationStrings(durDist1, durDist2)
