@@ -75,17 +75,16 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val lat: Double? = intent?.getDoubleExtra("latitude", 0.0)
                 val lng: Double? = intent?.getDoubleExtra("longitude", 0.0)
                 if (lat != null && lng != null) {
+/*
+    The following line can be commented to prevent unnecessary updates to the database
                     val latLng = LatLng(lat, lng)
-                    remaining_stops.text = "Your location is: $latLng"
-//                    The following line can be commented to prevent unnecessary updates to the database
-//                    Firebase.firestore.document(tripId)
-//                        .update("location", GeoPoint(latLng.latitude, latLng.longitude))
-//                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14F))
-
+                    Firebase.firestore.document(tripId)
+                        .update("location", GeoPoint(latLng.latitude, latLng.longitude))
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14F))
+*/
                     tripRef.get()
                         .addOnSuccessListener { trip ->
                             val location = trip["location"] as GeoPoint
-                            Log.d("EZRA", "onReceive: location is $location")
                             CoroutineScope(IO).launch {
                                 if (stopLocations.get(0).longitude != 0.0) {
                                     getNextLocationETA(location)
@@ -102,19 +101,15 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val locationETAs =
                 distanceMatrixRequest.convertFromTimeLengthsToETAs(mutableListOf(currLocation) + stopLocations)
 
-            Log.d("EZRA", "getAllLocationsETA: $locationETAs")
+            tripRef.update("etas", locationETAs)
 
             withContext(Main) {
                 updateETAs(locationETAs)
             }
-
         }
 
 
         private suspend fun updateETAs(etas: MutableList<String>) {
-
-            Log.d("EZRA", "updateETAs: $etas")
-
             for (i in 0 until etas.size) {
                 (rvLocations.findViewHolderForAdapterPosition(i) as LocationInfoAdapter.LocationInfoViewHolder).itemView.tvETA.text =
                     etas[i]
