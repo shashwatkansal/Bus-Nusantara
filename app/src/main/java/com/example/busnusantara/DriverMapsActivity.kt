@@ -233,8 +233,8 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 rvLocations.adapter = LocationInfoAdapter(locationInfos)
                 rvLocations.layoutManager = LinearLayoutManager(this)
 
-                progress_circular.visibility = GONE
-                linearLayout.visibility = VISIBLE
+                progress_circular_d.visibility = GONE
+                linearLayout_d.visibility = VISIBLE
                 infoSheet.visibility = VISIBLE
             }
     }

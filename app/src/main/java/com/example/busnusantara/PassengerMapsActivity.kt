@@ -218,7 +218,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // Mark Passenger Location On Map
     private fun markPassengerLocationOnMap(pickupLocation: String) {
-        Firebase.firestore.collection(Collections.AGENTS.toString())
+        db.collection(Collections.AGENTS.toString())
             .whereEqualTo("locationBased", pickupLocation)
             .get().addOnSuccessListener { agents ->
                 if (!agents.isEmpty) {
@@ -283,8 +283,8 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         rvLocations.adapter = locationInfoAdapter
         rvLocations.layoutManager = LinearLayoutManager(this)
 
-        progress_circular.visibility = GONE
-        linearLayout.visibility = VISIBLE
+        progress_circular_p.visibility = GONE
+        linearLayout_p.visibility = VISIBLE
         infoSheet.visibility = VISIBLE
     }
 
