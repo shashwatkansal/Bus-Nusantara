@@ -77,24 +77,23 @@
                 android:id="@+id/pauseJourneyButton"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
+                android:layout_gravity="center"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/button"
                 android:backgroundTint="@color/softblue"
                 android:fontFamily="@font/montserrat_bold"
                 android:text="@string/pause_journey"
                 android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:tooltipText="Press if bus is stopping in less than 10 mins" />
+                android:textColor="@color/white"/>
         </LinearLayout>
 
         <TextView
             android:id="@+id/remaining_stops"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:fontFamily="@font/montserrat_bold"
             android:gravity="center"
-            android:paddingTop="50dp"
             android:text="@string/stops_remaining"
             android:textColor="@color/black"
             android:textSize="20sp" />

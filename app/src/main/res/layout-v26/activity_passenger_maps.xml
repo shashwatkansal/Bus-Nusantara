@@ -47,7 +47,6 @@
         android:visibility="gone"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="70dp"
@@ -91,23 +90,22 @@
             android:id="@+id/requestStopButton"
             android:layout_width="145dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
+            android:layout_gravity="center"
             android:layout_marginTop="10dp"
             android:background="@drawable/button"
             android:backgroundTint="@color/softblue"
             android:fontFamily="@font/montserrat_bold"
             android:text="@string/request_stop"
             android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:tooltipText="@string/request_stop_tooltip"/>
+            android:textColor="@color/white"/>
 
         <TextView
             android:id="@+id/remaining_stops"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:fontFamily="@font/montserrat_bold"
             android:gravity="center"
-            android:paddingTop="50dp"
             android:text="@string/stops_remaining"
             android:textColor="@color/black"
             android:textSize="20sp" />
