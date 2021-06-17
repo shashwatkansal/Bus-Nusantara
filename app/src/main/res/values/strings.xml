@@ -8,8 +8,6 @@
     <string name="bus_has_wifi">Bus Wifi</string>
     <string name="bus_type">Bus Type</string>
     <string name="bus_toilets">Has Toilets?</string>
-    <string name="bus_distance">Bus distance from you: </string>
-    <string name="bus_duration">Bus ETA: </string>
     <!--    End of to be translated -->
 
     <string name="destination_point">Destination</string>
@@ -21,8 +19,10 @@
     <string name="enter_destination">Enter your destination</string>
     <string name="enter_starting_location">Enter your starting location</string>
     <string name="find_route">Find if there is a route</string>
-    <string name="scan_qr_passenger">Please scan the QR Code on your ticket</string>
-    <string name="scan_qr_driver">Please scan the QR Code on the SPJ</string>
+    <string name="scan_qr_passenger">Please choose previous journey (if available) or
+        scan the QR Code on your ticket to input new journey</string>
+    <string name="scan_qr_driver">Please choose previous journey (if available) or
+        scan the QR Code on your SPJ to input new journey</string>
     <string name="next">Next</string>
     <string name="time_of_departure">Time of Departure</string>
     <string name="not_found">Not found</string>
@@ -59,9 +59,13 @@
     <string name="bus_location">Bus Location</string>
     <string name="bus_stopping_soon">Bus Stopping Soon</string>
     <string name="bus_not_stopping_soon">Bus not stopping soon</string>
+    <string name="bus_distance">Bus distance from you: </string>
+    <string name="bus_duration">Bus ETA: </string>
     <string name="the_next_stop_is">The next stop is:</string>
     <string name="the_final_destination_is">The final destination is</string>
     <string name="the_starting_location_is">The starting location is</string>
+    <string name="choose_bus_trip">Choose Bus Trip</string>
+    <string name="previous_journey">Previous journey</string>
     <plurals name="passenger_count">
         <item quantity="zero">no passengers</item>
         <item quantity="one">1 passenger</item>

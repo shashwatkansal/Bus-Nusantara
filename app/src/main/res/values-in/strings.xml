@@ -7,8 +7,10 @@
     <string name="trip_date">Tanggal</string>
     <string name="num_passengers">Jumlah Penumpang</string>
     <string name="bus_num">Nomor Seri Bus</string>
-    <string name="scan_qr_passenger">Silahkan memindai kode QR pada tiket perjalanan anda</string>
-    <string name="scan_qr_driver">Silahkan memindai kode QR pada SPJ</string>
+    <string name="scan_qr_passenger">Silahkan memilih perjalan lalu atau
+        memindai kode QR pada tiket perjalanan anda untuk perjalanan baru</string>
+    <string name="scan_qr_driver">Silahkan memilih perjalan lalu atau
+        memindai kode QR pada SPJ untuk perjalanan baru</string>
     <string name="next">Lanjut</string>
     <string name="enter_destination">Masukkan titik turun</string>
     <string name="enter_starting_location">Masukkan titik naik</string>
@@ -43,7 +45,7 @@
     <string name="resume">lanjut perjalanan</string>
     <string name="time"> Jam</string>
     <string name="welcome">Selamat Datang di Bus Nusantara</string>
-    <string name="confirm">konfirmasi</string>
+    <string name="confirm">Konfirmasi</string>
     <string name="app_desc">Lacak lokasi bus secara mudah dengan scan QR code pada tiket perjalanan.
         Temukan juga informasi lengkap mengenai perhentian bus dan perkiraan waktu tiba,
         selamat menikmati perjalanan anda!</string>
@@ -60,4 +62,11 @@
     <string name="bus_location">Bus saya</string>
     <string name="bus_stopping_soon">Bus akan segera berhenti</string>
     <string name="bus_not_stopping_soon">Bus tidak akan segera berhenti</string>
+    <string name="choose_bus_trip">Pilih Perjalanan</string>
+    <string name="previous_journey">Perjalanan sebelumnya</string>
+    <string name="bus_distance">Jarak bus dari posisi anda: </string>
+    <string name="bus_duration">Waktu hingga bus tiba: </string>
+    <string name="the_next_stop_is">Pemberhentian selanjutnya:</string>
+    <string name="the_final_destination_is">Tujuan turun:</string>
+    <string name="the_starting_location_is">TItik naik:</string>
 </resources>

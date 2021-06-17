@@ -24,9 +24,11 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.activity_driver_maps.*
+import kotlinx.android.synthetic.main.activity_driver_maps.infoSheet
+import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
 import kotlinx.android.synthetic.main.activity_passenger_maps.*
 import java.util.*
 import kotlinx.coroutines.CoroutineScope
@@ -38,6 +40,7 @@ import kotlinx.coroutines.withContext
 
 class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityPassengerMapsBinding
 
@@ -60,7 +63,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // get order details
         orderId = intent.getStringExtra("ORDER_ID") ?: ""
-        Firebase.firestore.document(orderId).get()
+        db.document(orderId).get()
             .addOnSuccessListener { order ->
                 if (order != null) {
                     tripRef = order["tripID"] as DocumentReference
@@ -118,7 +121,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun getPassengerBusStopAndMark() {
-        Firebase.firestore.document(orderId).get()
+        db.document(orderId).get()
             .addOnSuccessListener { order ->
                 if (order != null) {
                     val pickupLocation = order["pickupLocation"] as String
@@ -128,7 +131,6 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     // Mark the passenger's location on map
                     markPassengerLocationOnMap(pickupLocation)
-
 
                     /* Get the driver's location and mark it */
                     tripRef.get().addOnSuccessListener { trip ->
@@ -165,7 +167,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             // Mark all the stops on map
                             val routeDocRef = trip.data!!["routeID"] as DocumentReference
                             val routeID = routeDocRef.id
-                            Firebase.firestore.collection(Collections.ROUTES.toString())
+                            db.collection(Collections.ROUTES.toString())
                                 .document(routeID).get().addOnSuccessListener { route ->
                                     Log.d(TAG, "Getting route $route")
                                     if (route != null) {
@@ -216,7 +218,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // Mark Passenger Location On Map
     private fun markPassengerLocationOnMap(pickupLocation: String) {
-        Firebase.firestore.collection(Collections.AGENTS.toString())
+        db.collection(Collections.AGENTS.toString())
             .whereEqualTo("locationBased", pickupLocation)
             .get().addOnSuccessListener { agents ->
                 if (!agents.isEmpty) {
@@ -241,7 +243,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun addStopOnMap(stop: String) {
-        Firebase.firestore.collection(Collections.AGENTS.toString())
+        db.collection(Collections.AGENTS.toString())
             .whereEqualTo("locationBased", stop)
             .get().addOnSuccessListener { documents ->
                 Log.d(TAG, "Finding stop $stop agent")
@@ -281,8 +283,8 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         rvLocations.adapter = locationInfoAdapter
         rvLocations.layoutManager = LinearLayoutManager(this)
 
-        progress_circular.visibility = GONE
-        linearLayout.visibility = VISIBLE
+        progress_circular_p.visibility = GONE
+        linearLayout_p.visibility = VISIBLE
         infoSheet.visibility = VISIBLE
     }
 
