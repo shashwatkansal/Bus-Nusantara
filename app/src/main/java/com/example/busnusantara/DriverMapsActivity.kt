@@ -28,22 +28,24 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_driver_maps.*
 import kotlinx.android.synthetic.main.activity_driver_maps.infoSheet
 import kotlinx.android.synthetic.main.activity_driver_maps.remaining_stops
 import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
 import java.util.*
+import kotlin.collections.HashMap
 
 const val LOC_REQUEST_CODE = 1000
 
 class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityDriverMapsBinding
     private lateinit var tripId: String
+    private lateinit var tripRef: DocumentReference
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var mediaPlayer: MediaPlayer
     private val routeStops: MutableList<String> = mutableListOf()
@@ -77,6 +79,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // get trip ID from confirmation page
         tripId = getIntent().getStringExtra("TRIP_ID") ?: ""
+        tripRef = db.document(tripId)
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -151,7 +154,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun addRouteStops() {
-        Firebase.firestore.document(tripId).get()
+        tripRef.get()
             .continueWithTask { task ->
                 val document = task.result
                 val routeId = document.get("routeID") as DocumentReference
@@ -177,7 +180,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun addStopOnMap(stop: String) {
-        Firebase.firestore.collection(Collections.AGENTS.toString())
+        db.collection(Collections.AGENTS.toString())
             .whereEqualTo("locationBased", stop)
             .get().addOnSuccessListener { documents ->
                 Log.d(ContentValues.TAG, "Finding stop $stop agent")
@@ -207,30 +210,33 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             from(infoSheet).state = STATE_COLLAPSED
         }
 
-        val locationInfos = mutableListOf<LocationInfo>()
-        val tripIdRef = Firebase.firestore.document(tripId)
+        db.collection(Collections.ORDERS.toString())
+            .whereEqualTo("tripID", tripRef).get()
+            .addOnSuccessListener { documents ->
+                Log.d(ContentValues.TAG, "Finding orders for trip ID $tripId")
 
-        for (stop in routeStops) {
-            Firebase.firestore.collection(Collections.ORDERS.toString())
-                .whereEqualTo("tripID", tripIdRef)
-                .whereEqualTo("pickupLocation", stop)
-                .get().addOnSuccessListener { documents ->
-                    Log.d(ContentValues.TAG, "Finding orders for trip ID $tripId")
+                // Get the mapping from stop to the number of passengers waiting there
+                val passengersAtStop: HashMap<String, Int> = HashMap()
+                for (document in documents) {
+                    val stop = document.get("pickupLocation") as String
+                    val curPassengers = passengersAtStop.getOrDefault(stop, 0)
+                    val morePassengers = (document.getLong("numPassengers") ?: 0).toInt()
 
-                    var totalPassengers = 0
-                    for (document in documents) {
-                        totalPassengers += (document.getLong("numPassengers") ?: 0).toInt()
-                    }
-                    locationInfos.add(LocationInfo(stop, totalPassengers, Date()))
+                    Log.d(ContentValues.TAG, "Processing order for pickup location $stop " +
+                            "with $morePassengers passengers")
+                    passengersAtStop.put(stop, curPassengers + morePassengers)
                 }
-        }
 
-        rvLocations.adapter = LocationInfoAdapter(locationInfos)
-        rvLocations.layoutManager = LinearLayoutManager(this)
+                // Construct Location Info from the mapping
+                val locationInfos = routeStops.map {stop ->
+                    LocationInfo(stop, passengersAtStop.getOrDefault(stop, 0), Date()) }
+                rvLocations.adapter = LocationInfoAdapter(locationInfos)
+                rvLocations.layoutManager = LinearLayoutManager(this)
 
-        progress_circular.visibility = GONE
-        linearLayout.visibility = VISIBLE
-        infoSheet.visibility = VISIBLE
+                progress_circular_d.visibility = GONE
+                linearLayout_d.visibility = VISIBLE
+                infoSheet.visibility = VISIBLE
+            }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -239,24 +245,19 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             pauseJourneyButton.backgroundTintList = resources.getColorStateList(R.color.softblue)
             pauseJourneyButton.text = resources.getString(R.string.pause_journey)
             pauseJourneyButton.tooltipText = "Press if bus is stopping in less than 10 mins"
-            Firebase.firestore.document(tripId)
-                .update("impromptuStop", false)
+            tripRef.update("impromptuStop", false)
         } else {
             pauseJourneyButton.backgroundTintList =
                 resources.getColorStateList(R.color.light_orange)
             pauseJourneyButton.text = resources.getString(R.string.resume)
             pauseJourneyButton.tooltipText = "Press if bus is continuing the journey"
-            Firebase.firestore.document(tripId)
-                .update("impromptuStop", true)
-
-            Firebase.firestore.document(tripId)
-                .update("breakRequests", 0)
+            tripRef.update("impromptuStop", true)
+            tripRef.update("breakRequests", 0)
         }
         journeyPaused = !journeyPaused
     }
 
     private fun setStopRequestsCount() {
-        val tripRef = Firebase.firestore.document(tripId)
         tripRef.get().addOnSuccessListener { trip ->
             Log.d(ContentValues.TAG, "Finding trip for trip ID $tripId")
 
