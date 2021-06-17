@@ -1,5 +1,7 @@
 package com.example.busnusantara
 
+import android.graphics.Color
+import android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,12 +28,20 @@ class LocationInfoAdapter(
         holder.itemView.apply {
             val loc = locationInfo[position]
             tvLocation.text = loc.locationName
-            tvPassengerCount.text =
-                resources.getQuantityString(
-                    R.plurals.passenger_count,
-                    loc.passengerCount,
-                    loc.passengerCount
-                )
+            if (locationInfo[position].passengerCount == 0) {
+                tvLocation.paintFlags = tvLocation.paintFlags or STRIKE_THRU_TEXT_FLAG
+                tvLocation.setTextColor(Color.GRAY)
+                tvPassengerCount.setTextColor(Color.GRAY)
+            } else if (locationInfo[position].passengerCount == -1) {
+                tvPassengerCount.setText("Destination")
+            } else {
+                tvPassengerCount.text =
+                    resources.getQuantityString(
+                        R.plurals.passenger_count,
+                        loc.passengerCount,
+                        loc.passengerCount
+                    )
+            }
         }
     }
 
