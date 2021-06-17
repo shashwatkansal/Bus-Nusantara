@@ -78,7 +78,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 //                        .update("location", GeoPoint(latLng.latitude, latLng.longitude))
 //                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14F))
 
-                    Firebase.firestore.document(tripId).get()
+                    tripRef.get()
                         .addOnSuccessListener { trip ->
                             val location = trip["location"] as GeoPoint
                             Log.d("EZRA", "onReceive: location is $location")
