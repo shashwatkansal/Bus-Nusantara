@@ -43,7 +43,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var orderId: String
     private lateinit var tripRef: DocumentReference
-    private lateinit var busMarker: Marker
+    private var busMarker: Marker? = null
 
     private val distanceMatrixRequest = DistanceMatrixRequest()
     private var passengerLoc: LatLng? = null
@@ -150,7 +150,8 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                     )
                                 )
                             }
-                            addMarkerOnMap(
+
+                            busMarker = addMarkerOnMap(
                                 resources.getString(R.string.bus_location),
                                 incomingDriverLatLng,
                                 BitmapDescriptorFactory.HUE_AZURE
@@ -200,8 +201,8 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         title: String,
         incomingDriverLatLng: LatLng,
         color: Float = BitmapDescriptorFactory.HUE_RED
-    ) {
-        mMap.addMarker(
+    ): Marker? {
+        return mMap.addMarker(
             MarkerOptions()
                 .position(incomingDriverLatLng)
                 .icon(
@@ -303,8 +304,9 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
 
                 val newLocation = trip?.get("location") as GeoPoint
-                if (this::busMarker.isInitialized) {
-                    busMarker.position = geoPointToLatLng(newLocation)
+                val curMarker = busMarker
+                if (curMarker != null) {
+                    curMarker.position = geoPointToLatLng(newLocation)
                 }
                 val currPassengerLoc = passengerLoc
                 if (currPassengerLoc != null) {
