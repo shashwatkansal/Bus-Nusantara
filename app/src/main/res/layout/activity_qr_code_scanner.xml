@@ -77,6 +77,7 @@
 
     <Button
         android:id="@+id/btnContinue"
+        android:visibility="gone"
         android:layout_width="248dp"
         android:layout_height="43dp"
         android:layout_marginBottom="36dp"
