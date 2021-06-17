@@ -4,12 +4,15 @@ import android.content.ContentValues.TAG
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.busnusantara.database.Collections
 import com.example.busnusantara.databinding.ActivityPassengerMapsBinding
 import com.example.busnusantara.googleapi.buildRoute
+import com.example.busnusantara.googleapi.DistanceMatrixRequest
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -28,6 +31,11 @@ import kotlinx.android.synthetic.main.activity_driver_maps.infoSheet
 import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
 import kotlinx.android.synthetic.main.activity_passenger_maps.*
 import java.util.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -38,7 +46,10 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var orderId: String
     private lateinit var tripRef: DocumentReference
-    private lateinit var busMarker: Marker
+    private var busMarker: Marker? = null
+
+    private val distanceMatrixRequest = DistanceMatrixRequest()
+    private var passengerLoc: LatLng? = null
     private var stopRequested: Boolean = false
 
     private lateinit var locationInfoAdapter: LocationInfoEtaAdapter
@@ -109,10 +120,6 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     }
 
-    /**
-     * Marks the Passenger's bus stop (agent location)
-     * Camera focuses in to display the stop.
-     */
     private fun getPassengerBusStopAndMark() {
         db.document(orderId).get()
             .addOnSuccessListener { order ->
@@ -123,32 +130,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     Log.d(TAG, "pickupLocation is $pickupLocation")
 
                     // Mark the passenger's location on map
-                    db.collection(Collections.AGENTS.toString())
-                        .whereEqualTo("locationBased", pickupLocation)
-                        .get().addOnSuccessListener { agents ->
-                            if (!agents.isEmpty) {
-                                for (agent in agents) {
-                                    Log.d(TAG, "Getting Agent $agent")
-                                    val passengerLoc = agent?.getGeoPoint("coordinate")?.let {
-                                        geoPointToLatLng(
-                                            it
-                                        )
-                                    }
-                                    if (passengerLoc != null) {
-                                        mMap.addMarker(
-                                            MarkerOptions()
-                                                .position(passengerLoc)
-                                                .icon(
-                                                    BitmapDescriptorFactory.defaultMarker(
-                                                        BitmapDescriptorFactory.HUE_VIOLET
-                                                    )
-                                                ).title(resources.getString(R.string.your_stop))
-                                        )
-                                        mMap.moveCamera(CameraUpdateFactory.newLatLng(passengerLoc))
-                                    }
-                                }
-                            }
-                        }
+                    markPassengerLocationOnMap(pickupLocation)
 
                     /* Get the driver's location and mark it */
                     tripRef.get().addOnSuccessListener { trip ->
@@ -157,16 +139,26 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             val incomingDriverLocation = trip.data?.get("location") as GeoPoint
                             val incomingDriverLatLng = geoPointToLatLng(incomingDriverLocation)
 
-                            busMarker = mMap.addMarker(
-                                MarkerOptions()
-                                    .position(incomingDriverLatLng)
-                                    .icon(
-                                        BitmapDescriptorFactory.defaultMarker(
-                                            BitmapDescriptorFactory.HUE_AZURE
-                                        )
+                            var currPassengerLoc = passengerLoc
+                            CoroutineScope(IO).launch {
+                                while (currPassengerLoc == null) {
+                                    currPassengerLoc = passengerLoc
+                                }
+                                getETA(
+                                    incomingDriverLocation,
+                                    GeoPoint(
+                                        currPassengerLoc!!.latitude,
+                                        currPassengerLoc!!.longitude
                                     )
-                                    .title(resources.getString(R.string.bus_location))
+                                )
+                            }
+
+                            busMarker = addMarkerOnMap(
+                                resources.getString(R.string.bus_location),
+                                incomingDriverLatLng,
+                                BitmapDescriptorFactory.HUE_AZURE
                             )
+
                             mMap.animateCamera(
                                 CameraUpdateFactory
                                     .newLatLngZoom(incomingDriverLatLng, 10.0f)
@@ -179,15 +171,12 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                 .document(routeID).get().addOnSuccessListener { route ->
                                     Log.d(TAG, "Getting route $route")
                                     if (route != null) {
-                                        // Add start stop
-                                        routeStops = mutableListOf()
                                         var start = route.get("start") as String
-                                        routeStops.add(start)
-                                        addStopOnMap(start)
-
                                         Log.d(TAG, "Found start location $start")
                                         val stops = route.get("stops") as ArrayList<String>
                                         Log.d(TAG, "Found stops locations $stops")
+                                        addStopOnMap(start)
+                                        routeStops.add(start)
 
                                         for (stop in stops) {
                                             Log.d(TAG, "Adding stop $stop on map")
@@ -210,8 +199,47 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
     }
 
-    private fun getBusETA() {
-        /* TODO: Implement */
+    private fun addMarkerOnMap(
+        title: String,
+        incomingDriverLatLng: LatLng,
+        color: Float = BitmapDescriptorFactory.HUE_RED
+    ): Marker? {
+        return mMap.addMarker(
+            MarkerOptions()
+                .position(incomingDriverLatLng)
+                .icon(
+                    BitmapDescriptorFactory.defaultMarker(
+                        color
+                    )
+                )
+                .title(title)
+        )
+    }
+
+    // Mark Passenger Location On Map
+    private fun markPassengerLocationOnMap(pickupLocation: String) {
+        Firebase.firestore.collection(Collections.AGENTS.toString())
+            .whereEqualTo("locationBased", pickupLocation)
+            .get().addOnSuccessListener { agents ->
+                if (!agents.isEmpty) {
+                    for (agent in agents) {
+                        Log.d(TAG, "Getting Agent $agent")
+                        passengerLoc = agent?.getGeoPoint("coordinate")?.let {
+                            geoPointToLatLng(
+                                it
+                            )
+                        }
+                        if (passengerLoc != null) {
+                            addMarkerOnMap(
+                                "Your Start",
+                                passengerLoc!!,
+                                BitmapDescriptorFactory.HUE_ORANGE
+                            )
+                            mMap.moveCamera(CameraUpdateFactory.newLatLng(passengerLoc))
+                        }
+                    }
+                }
+            }
     }
 
     private fun addStopOnMap(stop: String) {
@@ -226,8 +254,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             val lat = coordinate.latitude
                             val lng = coordinate.longitude
                             val agent = LatLng(lat, lng)
-
-                            mMap.addMarker(MarkerOptions().position(agent).title(stop))
+                            addMarkerOnMap(stop, agent)
                         }
                     }
                 }
@@ -238,8 +265,9 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         return LatLng(geoPoint.latitude, geoPoint.longitude)
     }
 
+
     private fun setupInfoSheet() {
-        BottomSheetBehavior.from(infoSheet).peekHeight = 150
+        BottomSheetBehavior.from(infoSheet).peekHeight = 300
         BottomSheetBehavior.from(infoSheet).state = BottomSheetBehavior.STATE_COLLAPSED
 
         var hoursEta = 1
@@ -250,9 +278,14 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val date = cal.time
             hoursEta++
             LocationInfo(stop, 3, date)
+
         })
         rvLocations.adapter = locationInfoAdapter
         rvLocations.layoutManager = LinearLayoutManager(this)
+
+        progress_circular.visibility = GONE
+        linearLayout.visibility = VISIBLE
+        infoSheet.visibility = VISIBLE
     }
 
     private fun setImpromptuStopInfo() {
@@ -265,8 +298,6 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
             if (snapshot != null && snapshot.exists()) {
                 val trip = snapshot.data
-
-                // Handle Impromptu Stop Update
                 val stoppingSoon = trip?.get("impromptuStop") as Boolean
                 if (stoppingSoon) {
                     stopSoonText.text = getString(R.string.bus_stopping_soon)
@@ -274,16 +305,39 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     stopSoonText.text = getString(R.string.bus_not_stopping_soon)
                 }
 
-                // Handle Bus Location update
-                if (this::busMarker.isInitialized) {
-                    val busLocationGeoPoint = trip?.get("location") as GeoPoint
-                    val busLocationLatLng = geoPointToLatLng(busLocationGeoPoint)
-                    busMarker.position = busLocationLatLng
+                val newLocation = trip?.get("location") as GeoPoint
+                val curMarker = busMarker
+                if (curMarker != null) {
+                    curMarker.position = geoPointToLatLng(newLocation)
                 }
-
+                val currPassengerLoc = passengerLoc
+                if (currPassengerLoc != null) {
+                    CoroutineScope(IO).launch {
+                        getETA(
+                            newLocation,
+                            GeoPoint(currPassengerLoc.latitude, currPassengerLoc.longitude)
+                        )
+                    }
+                }
             } else {
                 Log.d("Impromptu stop", "Failed in getting trip data on listener")
             }
+        }
+    }
+
+    private fun updateETA(distance: String, duration: String) {
+        busDurationValue.text = duration
+    }
+
+    private suspend fun getETA(newLocation: GeoPoint, currPassengerLoc: GeoPoint) {
+        val (distance, duration) = distanceMatrixRequest
+            .getDistanceAndDuration(
+                newLocation,
+                currPassengerLoc
+            )
+
+        withContext(Main) {
+            updateETA(distance, duration)
         }
     }
 

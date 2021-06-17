@@ -4,6 +4,7 @@ import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.busnusantara.database.Collections
 import com.google.firebase.Timestamp
@@ -64,8 +65,11 @@ class ConfirmJourneyPassengerActivity : AppCompatActivity() {
                     val toiletSymbol = if (bus["toilets"] as Boolean)
                         R.drawable.ic_toilet else R.drawable.ic_notoilet
                     toiletIcon.setImageResource(toiletSymbol)
+                    confirmation_info.visibility = VISIBLE
+                    progress_circular.visibility = GONE
                 }
             }
+
     }
 
     private fun displayTripInformation() {

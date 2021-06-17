@@ -18,7 +18,6 @@ class HomeActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // TODO: Change Intent to SearchRoute with QR Code for production
         btnPassenger.setOnClickListener {
             intent.putExtra("SCAN_PASSENGER", true)
             startActivity(intent)
