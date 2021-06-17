@@ -2,12 +2,15 @@ package com.example.busnusantara
 
 import android.content.*
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -42,7 +45,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityDriverMapsBinding
     private lateinit var tripId: String
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var locationInfoAdapter: LocationInfoAdapter
+    private lateinit var mediaPlayer: MediaPlayer
     private val routeStops: MutableList<String> = mutableListOf()
     private var journeyPaused: Boolean = false
 
@@ -66,6 +69,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        mediaPlayer = MediaPlayer.create(this, R.raw.alarm_sound)
         setupPermissions()
 
         binding = ActivityDriverMapsBinding.inflate(layoutInflater)
@@ -149,7 +153,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun addRouteStops() {
         Firebase.firestore.document(tripId).get()
             .continueWithTask { task ->
-                val document = task.getResult()
+                val document = task.result
                 val routeId = document.get("routeID") as DocumentReference
                 routeId.get()
             }
@@ -183,8 +187,8 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 for (document in documents) {
                     val coordinate: GeoPoint? = document.getGeoPoint("coordinate")
                     if (coordinate != null) {
-                        val lat = coordinate.getLatitude()
-                        val lng = coordinate.getLongitude()
+                        val lat = coordinate.latitude
+                        val lng = coordinate.longitude
                         val agent = LatLng(lat, lng)
 
                         mMap.addMarker(MarkerOptions().position(agent).title(stop))
@@ -196,7 +200,8 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun setupInfoSheet() {
         // only do this if infoSheet is a bottomSheet
-        val params: CoordinatorLayout.LayoutParams = infoSheet.layoutParams as CoordinatorLayout.LayoutParams
+        val params: CoordinatorLayout.LayoutParams =
+            infoSheet.layoutParams as CoordinatorLayout.LayoutParams
         if (params.behavior is com.google.android.material.bottomsheet.BottomSheetBehavior) {
             from(infoSheet).peekHeight = 150
             from(infoSheet).state = STATE_COLLAPSED
@@ -205,7 +210,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val locationInfos = mutableListOf<LocationInfo>()
         val tripIdRef = Firebase.firestore.document(tripId)
 
-        for(stop in routeStops) {
+        for (stop in routeStops) {
             Firebase.firestore.collection(Collections.ORDERS.toString())
                 .whereEqualTo("tripID", tripIdRef)
                 .whereEqualTo("pickupLocation", stop)
@@ -222,6 +227,10 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         rvLocations.adapter = LocationInfoAdapter(locationInfos)
         rvLocations.layoutManager = LinearLayoutManager(this)
+
+        progress_circular.visibility = GONE
+        linearLayout.visibility = VISIBLE
+        infoSheet.visibility = VISIBLE
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -264,9 +273,13 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
             if (snapshot != null && snapshot.exists()) {
-                val trip = snapshot.getData()
+                val trip = snapshot.data
                 val requests = (trip?.get("breakRequests") as Long).toInt()
-                requestsCount.text = resources.getQuantityString(R.plurals.num_stop_requests, requests, requests)
+                requestsCount.text =
+                    resources.getQuantityString(R.plurals.num_stop_requests, requests, requests)
+                if (requests > 0) {
+                    mediaPlayer.start()
+                }
                 Log.d("Break Request", "break requests update: $requests")
             } else {
                 Log.d("Break Request", "Failed getting request number of trip")

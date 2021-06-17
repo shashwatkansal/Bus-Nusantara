@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white">
 
+    <ProgressBar
+        android:id="@+id/progress_circular"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:elevation="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="visible"/>
 
     <TextView
         android:id="@+id/tripInformationView"
@@ -35,6 +42,7 @@
         android:layout_marginBottom="32dp"
         android:background="@drawable/confirm_card_bg"
         android:elevation="25dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
@@ -242,8 +250,7 @@
             app:backgroundTint="@color/light_orange"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:tooltipText="@string/confirm_journey_tooltip"/>
+            app:layout_constraintStart_toStartOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

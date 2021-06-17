@@ -89,14 +89,3 @@ fun saveTripToDB(
 
     return saveToDB(trip, Collections.TRIPS)
 }
-
-fun updateBusLocation(busTripID: String, newLocation: GeoPoint) {
-    val collectionTrips = Collections.TRIPS.toString()
-
-    Firebase.firestore.collection(collectionTrips)
-        .document(busTripID)
-        .update("location", newLocation)
-        .addOnSuccessListener { _ ->
-            println("Bus Location of trip $busTripID updated to $newLocation")
-        }
-}

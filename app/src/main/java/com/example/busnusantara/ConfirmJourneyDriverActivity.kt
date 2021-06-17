@@ -3,6 +3,8 @@ package com.example.busnusantara
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
 import com.example.busnusantara.database.Collections
 import com.google.firebase.Timestamp
@@ -17,6 +19,7 @@ class ConfirmJourneyDriverActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_confirm_journey_driver)
 
         val tripId = getIntent().getStringExtra("ID") ?: ""
 
@@ -36,9 +39,10 @@ class ConfirmJourneyDriverActivity : AppCompatActivity() {
                 val document = task.getResult()
                 startPointField.text = document.get("start").toString()
                 destinationPointField.text = document.get("destination").toString()
+                progress_circular.visibility = GONE
+                confirmation_info.visibility = VISIBLE
             }
 
-        setContentView(R.layout.activity_confirm_journey_driver)
 
         btnToMap.setOnClickListener {
             val intent = Intent(this, DriverMapsActivity::class.java)
@@ -46,5 +50,7 @@ class ConfirmJourneyDriverActivity : AppCompatActivity() {
             intent.putExtra("TRIP_ID", tripId)
             startActivity(intent)
         }
+
+
     }
 }
