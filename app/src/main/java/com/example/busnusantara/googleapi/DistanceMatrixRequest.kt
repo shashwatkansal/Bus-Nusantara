@@ -1,5 +1,7 @@
 package com.example.busnusantara.googleapi
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.google.firebase.firestore.GeoPoint
 import com.google.gson.Gson
 import com.squareup.okhttp.OkHttpClient
@@ -7,6 +9,9 @@ import com.squareup.okhttp.Request
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class DistanceMatrixRequest {
@@ -110,26 +115,22 @@ class DistanceMatrixRequest {
         return summedStopDistanceDurations
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun convertFromTimeLengthsToETAs(stops: List<GeoPoint>): MutableList<String> {
         val stopDurations: MutableList<Pair<String, String>> = getAllDistanceAndDurations(stops)
         var stopETAs: MutableList<String> = mutableListOf()
-        val myTime = "14:10"
+        var myTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
         val df = SimpleDateFormat("HH:mm")
         val d = df.parse(myTime)
         val cal = Calendar.getInstance()
-        cal.time = d
-        cal.add(Calendar.MINUTE, 10)
-        val newTime: String = df.format(cal.time)
-        println(newTime)
 
         for ((_, time) in stopDurations) {
             val tokens = time.split(" ")
-            println(tokens)
             var hrs = 0
             var mins = tokens[0].toInt()
             if (tokens.size >= 3) {
                 hrs = mins
-                mins = tokens[2].toInt()
+                mins = tokens[2].toDouble().toInt()
             }
 
             cal.time = d

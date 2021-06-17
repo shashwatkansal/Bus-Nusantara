@@ -27,8 +27,16 @@ class LocationInfoAdapter(
             val loc = locationInfo[position]
             tvLocation.text = loc.locationName
             tvPassengerCount.text =
-                resources.getQuantityString(R.plurals.passenger_count, loc.passengerCount, loc.passengerCount)
+                resources.getQuantityString(
+                    R.plurals.passenger_count,
+                    loc.passengerCount,
+                    loc.passengerCount
+                )
         }
+    }
+
+    fun updateETAs(etas: List<String>) {
+
     }
 
     override fun getItemCount(): Int {

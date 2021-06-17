@@ -84,13 +84,21 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             val location = trip["location"] as GeoPoint
                             Log.d("EZRA", "onReceive: location is $location")
                             CoroutineScope(IO).launch {
-                                if(stopLocations.get(0).longitude != 0.0) {
+                                if (stopLocations.get(0).longitude != 0.0) {
                                     getNextLocationETA(location)
                                 }
                             }
                         }
                 }
             }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        private suspend fun getAllLocationsETA(currLocation: GeoPoint) {
+            val locationETAs =
+                distanceMatrixRequest.convertFromTimeLengthsToETAs(mutableListOf(currLocation) + stopLocations)
+
+
         }
 
         private suspend fun getNextLocationETA(currLocation: GeoPoint) {
@@ -120,7 +128,11 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val nextStop = routeStops.get(0)
                 val nextNumPassengers = passengersAtStop.getOrDefault(nextStop, 0)
                 busNextStopString.text = nextStop + ": " +
-                        resources.getQuantityString(R.plurals.passenger_count, nextNumPassengers, nextNumPassengers)
+                        resources.getQuantityString(
+                            R.plurals.passenger_count,
+                            nextNumPassengers,
+                            nextNumPassengers
+                        )
             }
         }
     }
@@ -262,6 +274,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun setupInfoSheet() {
         // only do this if infoSheet is a bottomSheet
         val params: CoordinatorLayout.LayoutParams =
@@ -282,14 +295,17 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     val curPassengers = passengersAtStop.getOrDefault(stop, 0)
                     val morePassengers = (document.getLong("numPassengers") ?: 0).toInt()
 
-                    Log.d(ContentValues.TAG, "Processing order for pickup location $stop " +
-                            "with $morePassengers passengers")
+                    Log.d(
+                        ContentValues.TAG, "Processing order for pickup location $stop " +
+                                "with $morePassengers passengers"
+                    )
                     passengersAtStop.put(stop, curPassengers + morePassengers)
                 }
 
                 // Construct Location Info from the mapping
-                val locationInfos = routeStops.map {stop ->
-                    LocationInfo(stop, passengersAtStop.getOrDefault(stop, 0), Date()) }
+                val locationInfos = routeStops.map { stop ->
+                    LocationInfo(stop, passengersAtStop.getOrDefault(stop, 0), Date())
+                }
                 rvLocations.adapter = LocationInfoAdapter(locationInfos)
                 rvLocations.layoutManager = LinearLayoutManager(this)
 
@@ -300,7 +316,11 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val nextStop = routeStops.get(0)
                 val nextNumPassengers = passengersAtStop.getOrDefault(nextStop, 0)
                 busNextStopString.text = nextStop + ": " +
-                        resources.getQuantityString(R.plurals.passenger_count, nextNumPassengers, nextNumPassengers)
+                        resources.getQuantityString(
+                            R.plurals.passenger_count,
+                            nextNumPassengers,
+                            nextNumPassengers
+                        )
             }
     }
 
