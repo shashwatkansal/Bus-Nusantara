@@ -39,6 +39,77 @@ class DistanceMatrixRequest {
         return Pair(distanceText, durationText)
     }
 
+    private fun sumDistanceAndDurationStrings(
+        prevDurDist: Pair<String, String>,
+        nextDurDist: Pair<String, String>? = null
+    ): Pair<String, String> {
+
+        val MINS_IN_HOUR = 60
+
+        if (nextDurDist == null) {
+            return prevDurDist
+        }
+
+        var prevDist = (prevDurDist.first.split(" ")[0]).toDouble()
+        var nextDist = (nextDurDist.first.split(" ")[0]).toDouble()
+
+        // Get Time from bus to previous stop.
+        val prevDurations = (prevDurDist.second.split(" "))
+
+
+        // No hours, only minutes
+        var prevHrs = 0.0
+        var prevMins = prevDurations[0].toDouble()
+        if (prevDurations.size >= 3) {
+            prevHrs = prevDurations[0].toDouble()
+            prevMins = prevDurations[2].toDouble()
+        }
+        val prevTime = prevHrs * MINS_IN_HOUR + prevMins
+
+        // Get Time from previous stop to next stop.
+        val nextDurations = (nextDurDist.second.split(" "))
+
+
+        // No hours, only minutes
+        var nextHrs = 0.0
+        var nextMins = prevDurations[0].toDouble()
+        if (nextDurations.size >= 3) {
+            nextHrs = nextDurations[0].toDouble()
+            nextMins = nextDurations[2].toDouble()
+        }
+        val nextTime = nextHrs * MINS_IN_HOUR + nextMins + prevTime
+
+        val (hrs, mins) = Pair(nextTime.toInt() / MINS_IN_HOUR, nextTime % MINS_IN_HOUR)
+
+
+        return Pair("${prevDist + nextDist} km", "$hrs hours $mins mins")
+    }
+
+    fun getAllDistanceAndDurations(stops: List<GeoPoint>): MutableList<Pair<String, String>> {
+        var stopDistanceDurations: MutableList<Pair<String, String>> = mutableListOf()
+        var summedStopDistanceDurations: MutableList<Pair<String, String>> = mutableListOf()
+        var prevLoc = stops[0]
+        for (i in stops.indices) {
+            val prevDurDist = DistanceMatrixRequest().getDistanceAndDuration(
+                prevLoc,
+                stops[i]
+            )
+            stopDistanceDurations.add(sumDistanceAndDurationStrings(prevDurDist))
+        }
+        println("stop distance durations:\n$stopDistanceDurations")
+        summedStopDistanceDurations.add(stopDistanceDurations[0])
+        for (i in 1 until stopDistanceDurations.size) {
+            summedStopDistanceDurations.add(
+                sumDistanceAndDurationStrings(
+                    stopDistanceDurations[i - 1],
+                    stopDistanceDurations[i]
+                )
+            )
+        }
+        println("summed stop distance durations:\n$summedStopDistanceDurations")
+        return summedStopDistanceDurations.subList(1, summedStopDistanceDurations.size)
+    }
+
     private class DirectionResponse(
         val destination_addresses: Array<String>,
         val origin_addresses: Array<String>,
@@ -94,12 +165,25 @@ class DistanceMatrixRequest {
         @Throws(IOException::class)
         @JvmStatic
         fun main(args: Array<String>) {
-            val (distance, duration) = DistanceMatrixRequest().getDistanceAndDuration(
-                GeoPoint(-7.5, 110.23),
-                GeoPoint(-7.9, 111.23)
+            val dmr = DistanceMatrixRequest()
+//            val durDist1 = dmr.getDistanceAndDuration(
+//                GeoPoint(-7.5, 110.23),
+//                GeoPoint(-7.9, 111.23)
+//            )
+//            val durDist2 = dmr.getDistanceAndDuration(
+//                GeoPoint(-7.5, 110.23),
+//                GeoPoint(-7.9, 111.23)
+//            )
+            val list: List<GeoPoint> = mutableListOf(
+                GeoPoint(-7.5, 111.23),
+                GeoPoint(-7.6, 111.23),
+                GeoPoint(-7.7, 111.23)
             )
-            println("> From JSON String - distance:\n${distance}")
-            println("> From JSON String - duration:\n${duration}")
+            val diff = dmr.getAllDistanceAndDurations(list)
+//            val diff = dmr.sumDistanceAndDurationStrings(durDist1, durDist2)
+//            println("> From JSON String:\n${durDist1}")
+//            println("> From JSON String:\n${durDist2}")
+            println("> From JSON String:\n${diff}")
         }
     }
 }
