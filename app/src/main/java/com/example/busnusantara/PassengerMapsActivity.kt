@@ -267,7 +267,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     private fun setupInfoSheet() {
-        BottomSheetBehavior.from(infoSheet).peekHeight = 300
+        BottomSheetBehavior.from(infoSheet).peekHeight = 400
         BottomSheetBehavior.from(infoSheet).state = BottomSheetBehavior.STATE_COLLAPSED
 
         var hoursEta = 1

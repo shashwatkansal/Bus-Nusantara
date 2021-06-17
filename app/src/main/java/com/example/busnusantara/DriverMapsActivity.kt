@@ -64,6 +64,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         GeoPoint(0.0, 0.0)
     )
     private var journeyPaused: Boolean = false
+    private val passengersAtStop: HashMap<String, Int> = HashMap()
 
     inner class LocationBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -83,7 +84,9 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             val location = trip["location"] as GeoPoint
                             Log.d("EZRA", "onReceive: location is $location")
                             CoroutineScope(IO).launch {
-                                getNextLocationETA(location)
+                                if(stopLocations.get(0).longitude != 0.0) {
+                                    getNextLocationETA(location)
+                                }
                             }
                         }
                 }
@@ -113,7 +116,11 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     if (routeStops.size > 1) resources.getString(R.string.the_next_stop_is) else resources.getString(
                         R.string.the_final_destination_is
                     )
-                busNextStopString.text = routeStops.get(0)
+
+                val nextStop = routeStops.get(0)
+                val nextNumPassengers = passengersAtStop.getOrDefault(nextStop, 0)
+                busNextStopString.text = nextStop + ": " +
+                        resources.getQuantityString(R.plurals.passenger_count, nextNumPassengers, nextNumPassengers)
             }
         }
     }
@@ -201,7 +208,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mMap.setMinZoomPreference(6.0f)
         mMap.setMaxZoomPreference(14.0f)
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(8.0f))
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(12.0f))
     }
 
     private fun addRouteStops() {
@@ -227,7 +234,6 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
                 }
 
-                busNextStopString.text = routeStops[0]
                 setupInfoSheet()
             }
     }
@@ -247,7 +253,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         val lng = coordinate.longitude
                         val agent = LatLng(lat, lng)
                         val index = routeStops.indexOf(stop)
-                        stopLocations.add(index, GeoPoint(lat, lng))
+                        stopLocations[index] = GeoPoint(lat, lng)
 
                         mMap.addMarker(MarkerOptions().position(agent).title(stop))
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(agent))
@@ -261,7 +267,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val params: CoordinatorLayout.LayoutParams =
             infoSheet.layoutParams as CoordinatorLayout.LayoutParams
         if (params.behavior is com.google.android.material.bottomsheet.BottomSheetBehavior) {
-            from(infoSheet).peekHeight = 300
+            from(infoSheet).peekHeight = 400
             from(infoSheet).state = STATE_COLLAPSED
         }
 
@@ -271,7 +277,6 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 Log.d(ContentValues.TAG, "Finding orders for trip ID $tripId")
 
                 // Get the mapping from stop to the number of passengers waiting there
-                val passengersAtStop: HashMap<String, Int> = HashMap()
                 for (document in documents) {
                     val stop = document.get("pickupLocation") as String
                     val curPassengers = passengersAtStop.getOrDefault(stop, 0)
@@ -291,6 +296,11 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 progress_circular_d.visibility = GONE
                 linearLayout_d.visibility = VISIBLE
                 infoSheet.visibility = VISIBLE
+
+                val nextStop = routeStops.get(0)
+                val nextNumPassengers = passengersAtStop.getOrDefault(nextStop, 0)
+                busNextStopString.text = nextStop + ": " +
+                        resources.getQuantityString(R.plurals.passenger_count, nextNumPassengers, nextNumPassengers)
             }
     }
 
