@@ -52,7 +52,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private var passengerLoc: LatLng? = null
     private var stopRequested: Boolean = false
 
-    private lateinit var locationInfoAdapter: LocationInfoEtaAdapter
+    private lateinit var locationInfoAdapter: LocationInfoAdapter
     private var routeStops: MutableList<String> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -267,16 +267,11 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     private fun setupInfoSheet() {
-        BottomSheetBehavior.from(infoSheet).peekHeight = 400
+        BottomSheetBehavior.from(infoSheet).peekHeight = 300
         BottomSheetBehavior.from(infoSheet).state = BottomSheetBehavior.STATE_COLLAPSED
 
         var hoursEta = 1
-        locationInfoAdapter = LocationInfoEtaAdapter(routeStops.map { stop ->
-            // HARDCODE current time + hoursEta
-            val cal = Calendar.getInstance()
-            cal.add(Calendar.HOUR_OF_DAY, hoursEta)
-            val date = cal.time
-            hoursEta++
+        locationInfoAdapter = LocationInfoAdapter(routeStops.map { stop ->
             LocationInfo(stop, 3, "Calculating")
 
         })
