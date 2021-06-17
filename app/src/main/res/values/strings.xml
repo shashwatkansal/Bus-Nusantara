@@ -59,6 +59,9 @@
     <string name="bus_location">Bus Location</string>
     <string name="bus_stopping_soon">Bus Stopping Soon</string>
     <string name="bus_not_stopping_soon">Bus not stopping soon</string>
+    <string name="the_next_stop_is">The next stop is:</string>
+    <string name="the_final_destination_is">The final destination is</string>
+    <string name="the_starting_location_is">The starting location is</string>
     <plurals name="passenger_count">
         <item quantity="zero">no passengers</item>
         <item quantity="one">1 passenger</item>
