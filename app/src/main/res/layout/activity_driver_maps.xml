@@ -13,7 +13,8 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
-        android:visibility="visible">
+        android:visibility="visible"
+        tools:visibility="invisible">
 
         <ProgressBar
             android:layout_width="match_parent"
@@ -46,7 +47,8 @@
         android:background="@drawable/rounded"
         android:orientation="vertical"
         android:visibility="gone"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        tools:visibility="visible">
 
 
         <ImageView
