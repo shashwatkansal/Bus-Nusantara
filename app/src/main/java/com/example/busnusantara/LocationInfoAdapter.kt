@@ -28,12 +28,18 @@ class LocationInfoAdapter(
         holder.itemView.apply {
             val loc = locationInfo[position]
             tvLocation.text = loc.locationName
-            if (locationInfo[position].passengerCount == 0) {
+            if (loc.passengerCount == 0) {
                 tvLocation.paintFlags = tvLocation.paintFlags or STRIKE_THRU_TEXT_FLAG
                 tvLocation.setTextColor(Color.GRAY)
                 tvPassengerCount.setTextColor(Color.GRAY)
+                tvPassengerCount.text =
+                    resources.getQuantityString(
+                        R.plurals.passenger_count,
+                        loc.passengerCount,
+                        loc.passengerCount
+                    )
             } else if (locationInfo[position].passengerCount == -1) {
-                tvPassengerCount.setText("Destination")
+                tvPassengerCount.text = resources.getString(R.string.destination_point)
             } else {
                 tvPassengerCount.text =
                     resources.getQuantityString(
