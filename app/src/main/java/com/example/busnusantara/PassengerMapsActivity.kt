@@ -1,5 +1,6 @@
 package com.example.busnusantara
 
+import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.os.Build
 import android.os.Bundle
@@ -8,6 +9,7 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.size
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.busnusantara.database.Collections
 import com.example.busnusantara.databinding.ActivityPassengerMapsBinding
@@ -30,6 +32,7 @@ import kotlinx.android.synthetic.main.activity_driver_maps.*
 import kotlinx.android.synthetic.main.activity_driver_maps.infoSheet
 import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
 import kotlinx.android.synthetic.main.activity_passenger_maps.*
+import kotlinx.android.synthetic.main.location_info.view.*
 import java.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -47,6 +50,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var orderId: String
     private lateinit var tripRef: DocumentReference
     private var busMarker: Marker? = null
+    private val passengersAtStop: HashMap<String, Int> = HashMap()
 
     private val distanceMatrixRequest = DistanceMatrixRequest()
     private var passengerLoc: LatLng? = null
@@ -266,21 +270,38 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun setupInfoSheet() {
         BottomSheetBehavior.from(infoSheet).peekHeight = 300
         BottomSheetBehavior.from(infoSheet).state = BottomSheetBehavior.STATE_COLLAPSED
 
-        var hoursEta = 1
-        locationInfoAdapter = LocationInfoAdapter(routeStops.map { stop ->
-            LocationInfo(stop, 3, "Calculating")
+        db.collection(Collections.ORDERS.toString())
+            .whereEqualTo("tripID", tripRef).get()
+            .addOnSuccessListener { documents ->
+                // Get the mapping from stop to the number of passengers waiting there
+                for (document in documents) {
+                    val stop = document.get("pickupLocation") as String
+                    val curPassengers = passengersAtStop.getOrDefault(stop, 0)
+                    val morePassengers = (document.getLong("numPassengers") ?: 0).toInt()
+                    passengersAtStop.put(stop, curPassengers + morePassengers)
+                }
 
-        })
-        rvLocations.adapter = locationInfoAdapter
-        rvLocations.layoutManager = LinearLayoutManager(this)
+                // Construct Location Info from the mapping
+                val locationInfos = routeStops.map { stop ->
+                    LocationInfo(stop, passengersAtStop.getOrDefault(stop, -1), "Calculating")
+                }
 
-        progress_circular_p.visibility = GONE
-        linearLayout_p.visibility = VISIBLE
-        infoSheet.visibility = VISIBLE
+                routeStops =
+                    routeStops.filter { name -> passengersAtStop.get(name) != 0 }
+                        .toMutableList()
+
+                rvLocations.adapter = LocationInfoAdapter(locationInfos)
+                rvLocations.layoutManager = LinearLayoutManager(this)
+
+                progress_circular_p.visibility = GONE
+                linearLayout_p.visibility = VISIBLE
+                infoSheet.visibility = VISIBLE
+            }
     }
 
     private fun setImpromptuStopInfo() {
@@ -305,6 +326,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (curMarker != null) {
                     curMarker.position = geoPointToLatLng(newLocation)
                 }
+
                 val currPassengerLoc = passengerLoc
                 if (currPassengerLoc != null) {
                     CoroutineScope(IO).launch {
@@ -313,12 +335,34 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             GeoPoint(currPassengerLoc.latitude, currPassengerLoc.longitude)
                         )
                     }
+
+                    val arrivalTimes = trip?.get("etas") as List<String>
+                    updateArrivalTimes(arrivalTimes)
                 }
             } else {
                 Log.d("Impromptu stop", "Failed in getting trip data on listener")
             }
         }
     }
+
+    private fun updateArrivalTimes(arrivalTimes: List<String>) {
+        var i = arrivalTimes.size - 1
+        var j = rvLocations.size - 1
+        var item =
+            (rvLocations.findViewHolderForAdapterPosition(j) as LocationInfoAdapter.LocationInfoViewHolder)
+
+        while (i >= 0) {
+            if (item.itemView.tvLocation.text in routeStops) {
+                item.itemView.tvETA.text = arrivalTimes[i]
+                i--
+            }
+            if (j > 0) {
+                item =
+                    (rvLocations.findViewHolderForAdapterPosition(j--) as LocationInfoAdapter.LocationInfoViewHolder)
+            }
+        }
+    }
+
 
     private fun updateETA(distance: String, duration: String) {
         busDurationValue.text = duration
@@ -335,5 +379,4 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             updateETA(distance, duration)
         }
     }
-
 }
