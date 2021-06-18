@@ -63,7 +63,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat_bold"
             android:gravity="center"
-            android:text="Your bus will arrive in"
+            android:text="@string/bus_arriving_in"
             android:textColor="@color/light_black"
             android:textSize="12sp" />
 
@@ -84,6 +84,7 @@
             android:layout_marginTop="50dp"
             android:fontFamily="@font/montserrat_bold"
             android:text=""
+            android:textAlignment="center"
             android:textColor="@color/light_black" />
 
         <Button

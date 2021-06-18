@@ -69,4 +69,5 @@
     <string name="the_next_stop_is">Pemberhentian selanjutnya:</string>
     <string name="the_final_destination_is">Tujuan turun:</string>
     <string name="the_starting_location_is">TItik naik:</string>
+    <string name="bus_arriving_in">Bus anda akan tiba dalam</string>
 </resources>

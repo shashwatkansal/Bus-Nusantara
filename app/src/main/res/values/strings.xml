@@ -66,6 +66,7 @@
     <string name="the_starting_location_is">The starting location is</string>
     <string name="choose_bus_trip">Choose Bus Trip</string>
     <string name="previous_journey">Previous journey</string>
+    <string name="bus_arriving_in">Your bus will arrive in</string>
     <plurals name="passenger_count">
         <item quantity="zero">no passengers</item>
         <item quantity="one">1 passenger</item>

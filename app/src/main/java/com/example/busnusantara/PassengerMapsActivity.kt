@@ -272,7 +272,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun setupInfoSheet() {
-        BottomSheetBehavior.from(infoSheet).peekHeight = 300
+        BottomSheetBehavior.from(infoSheet).peekHeight = 400
         BottomSheetBehavior.from(infoSheet).state = BottomSheetBehavior.STATE_COLLAPSED
 
         db.collection(Collections.ORDERS.toString())
