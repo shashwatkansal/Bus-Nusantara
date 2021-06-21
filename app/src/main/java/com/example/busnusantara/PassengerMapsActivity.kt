@@ -351,19 +351,22 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun updateArrivalTimes(arrivalTimes: List<String>) {
+        var seen = mutableListOf<LocationInfoAdapter.LocationInfoViewHolder>()
+        var j = rvLocations.adapter!!.itemCount - 1
         var i = arrivalTimes.size - 1
-        var j = rvLocations.size - 1
         var item =
-            (rvLocations.findViewHolderForAdapterPosition(j) as LocationInfoAdapter.LocationInfoViewHolder)
-
+            rvLocations.findViewHolderForAdapterPosition(j) as LocationInfoAdapter.LocationInfoViewHolder
         while (i >= 0) {
-            if (item.itemView.tvLocation.text in routeStops) {
-                item.itemView.tvETA.text = arrivalTimes[i]
-                i--
+            Log.d("EZRA", "loc is ${item.itemView.tvLocation.text}, j is $j")
+            if (item.itemView.tvLocation.text in routeStops && item !in seen) {
+                Log.d("EZRA", "eta is ${arrivalTimes[i]}, i is $i")
+                seen.add(item)
+                item.itemView.tvETA.text = arrivalTimes[i--]
             }
-            if (j > 0) {
+
+            if (i >= 0) {
                 item =
-                    (rvLocations.findViewHolderForAdapterPosition(j--) as LocationInfoAdapter.LocationInfoViewHolder)
+                    rvLocations.findViewHolderForAdapterPosition(j--) as LocationInfoAdapter.LocationInfoViewHolder
             }
         }
     }
