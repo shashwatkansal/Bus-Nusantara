@@ -272,7 +272,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun setupInfoSheet() {
-        BottomSheetBehavior.from(infoSheet).peekHeight = 400
+        BottomSheetBehavior.from(infoSheet).peekHeight = 300
         BottomSheetBehavior.from(infoSheet).state = BottomSheetBehavior.STATE_COLLAPSED
 
         db.collection(Collections.ORDERS.toString())
@@ -317,8 +317,13 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val stoppingSoon = trip?.get("impromptuStop") as Boolean
                 if (stoppingSoon) {
                     stopSoonText.text = getString(R.string.bus_stopping_soon)
+                    if (stopRequested) {
+                        toggleRequestButton(true)
+                    }
+                    requestStopButton.isClickable = false
                 } else {
                     stopSoonText.text = getString(R.string.bus_not_stopping_soon)
+                    requestStopButton.isClickable = true
                 }
 
                 val newLocation = trip?.get("location") as GeoPoint

@@ -333,7 +333,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val params: CoordinatorLayout.LayoutParams =
             infoSheet.layoutParams as CoordinatorLayout.LayoutParams
         if (params.behavior is com.google.android.material.bottomsheet.BottomSheetBehavior) {
-            from(infoSheet).peekHeight = 400
+            from(infoSheet).peekHeight = 300
             from(infoSheet).state = STATE_COLLAPSED
         }
 
