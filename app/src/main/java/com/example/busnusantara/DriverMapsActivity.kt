@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.busnusantara.database.Collections
 import com.example.busnusantara.databinding.ActivityDriverMapsBinding
 import com.example.busnusantara.googleapi.DistanceMatrixRequest
+import com.example.busnusantara.googleapi.buildRoute
 import com.example.busnusantara.services.TrackingService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -25,16 +26,15 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import kotlinx.android.synthetic.main.activity_driver_maps.*
-import kotlinx.android.synthetic.main.activity_driver_maps.infoSheet
-import kotlinx.android.synthetic.main.activity_driver_maps.remaining_stops
-import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
 import kotlinx.android.synthetic.main.location_info.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -53,18 +53,21 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityDriverMapsBinding
     private val distanceMatrixRequest = DistanceMatrixRequest()
     private lateinit var tripId: String
+    private var busMarker: Marker? = null
     private lateinit var tripRef: DocumentReference
-    private lateinit var adapter: LocationInfoAdapter
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var mediaPlayer: MediaPlayer
-    private var routeStops: MutableList<String> = mutableListOf()
-    private var stopLocations: MutableList<GeoPoint> = mutableListOf(
+    private var routeStopsName: MutableList<String> = mutableListOf()
+    private var oldRequestCount: Int = 0
+    private var nonEmptyRouteStopsName: MutableList<String> = mutableListOf()
+    private var routeStopsGeoPoint: MutableList<GeoPoint> = mutableListOf(
         GeoPoint(0.0, 0.0),
         GeoPoint(0.0, 0.0),
         GeoPoint(0.0, 0.0),
         GeoPoint(0.0, 0.0),
         GeoPoint(0.0, 0.0)
     )
+    private var nonEmptyRouteStopsGeoPoint: MutableList<GeoPoint> = routeStopsGeoPoint
     private var journeyPaused: Boolean = false
     private val passengersAtStop: HashMap<String, Int> = HashMap()
 
@@ -75,21 +78,48 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val lat: Double? = intent?.getDoubleExtra("latitude", 0.0)
                 val lng: Double? = intent?.getDoubleExtra("longitude", 0.0)
                 if (lat != null && lng != null) {
+/*
+    The following line can be commented to prevent unnecessary updates to the database
                     val latLng = LatLng(lat, lng)
-                    remaining_stops.text = "Your location is: $latLng"
-//                    The following line can be commented to prevent unnecessary updates to the database
-//                    Firebase.firestore.document(tripId)
-//                        .update("location", GeoPoint(latLng.latitude, latLng.longitude))
-//                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14F))
-
+                    Firebase.firestore.document(tripId)
+                        .update("location", GeoPoint(latLng.latitude, latLng.longitude))
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14F))
+*/
                     tripRef.get()
                         .addOnSuccessListener { trip ->
                             val location = trip["location"] as GeoPoint
-                            Log.d("EZRA", "onReceive: location is $location")
+                            if (busMarker == null) {
+                                busMarker = mMap.addMarker(
+                                    MarkerOptions().position(
+                                        LatLng(
+                                            location.latitude,
+                                            location.longitude
+                                        )
+                                    ).title("Bus").icon(
+                                        BitmapDescriptorFactory.defaultMarker(
+                                            BitmapDescriptorFactory.HUE_AZURE
+                                        )
+                                    )
+                                )
+                                mMap.moveCamera(
+                                    CameraUpdateFactory.newLatLngZoom(
+                                        LatLng(
+                                            location.latitude,
+                                            location.longitude
+                                        ), 10f
+                                    )
+                                )
+                            } else {
+                                busMarker!!.position = LatLng(location.latitude, location.longitude)
+                            }
                             CoroutineScope(IO).launch {
-                                if (stopLocations.get(0).longitude != 0.0) {
+                                if ((nonEmptyRouteStopsGeoPoint.size == 0 && routeStopsGeoPoint[0].longitude != 0.0) ||
+                                    nonEmptyRouteStopsGeoPoint[0].longitude != 0.0
+                                ) {
                                     getNextLocationETA(location)
-                                    getAllLocationsETA(location)
+                                    if (nonEmptyRouteStopsGeoPoint.size > 0) {
+                                        getAllLocationsETA(location)
+                                    }
                                 }
                             }
                         }
@@ -99,33 +129,47 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         @RequiresApi(Build.VERSION_CODES.O)
         private suspend fun getAllLocationsETA(currLocation: GeoPoint) {
-            val locationETAs =
-                distanceMatrixRequest.convertFromTimeLengthsToETAs(mutableListOf(currLocation) + stopLocations)
 
-            Log.d("EZRA", "getAllLocationsETA: $locationETAs")
+            val indices = mutableListOf<Int>()
+
+            nonEmptyRouteStopsGeoPoint =
+                routeStopsGeoPoint.filter { geoPoint ->
+                    val i = routeStopsGeoPoint.indexOf(geoPoint)
+
+                    val stop = routeStopsName[i]
+                    val res = stop in nonEmptyRouteStopsName
+                    if (res) {
+                        indices.add(i)
+                    }
+                    res
+                }.toMutableList()
+
+            val locationETAs =
+                distanceMatrixRequest.convertFromTimeLengthsToETAs(mutableListOf(currLocation) + nonEmptyRouteStopsGeoPoint)
+
+            tripRef.update("etas", locationETAs)
 
             withContext(Main) {
-                updateETAs(locationETAs)
+                updateETAs(locationETAs, indices)
             }
-
         }
 
 
-        private suspend fun updateETAs(etas: MutableList<String>) {
-
-            Log.d("EZRA", "updateETAs: $etas")
-
+        private suspend fun updateETAs(etas: MutableList<String>, indices: MutableList<Int>) {
             for (i in 0 until etas.size) {
-                (rvLocations.findViewHolderForAdapterPosition(i) as LocationInfoAdapter.LocationInfoViewHolder).itemView.tvETA.text =
-                    etas[i]
+                val item =
+                    (rvLocations.findViewHolderForAdapterPosition(indices[i]) as LocationInfoAdapter.LocationInfoViewHolder).itemView
+                item.tvETA.text = etas[i]
             }
         }
 
 
         private suspend fun getNextLocationETA(currLocation: GeoPoint) {
+            Log.d("EZRA", "current: $currLocation")
+
             val (distance, duration) = distanceMatrixRequest.getDistanceAndDuration(
                 currLocation,
-                stopLocations.get(0)
+                nonEmptyRouteStopsGeoPoint[0]
             )
 
             withContext(Main) {
@@ -135,25 +179,39 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         private suspend fun updateDriverETA(distance: String, duration: String) {
             val numDistance = (distance.split(" ")[0]).toDouble()
-            Log.d("EZRA", "updateDriverETA: ${routeStops[0]}: ${stopLocations[0]} $numDistance")
-            if (numDistance <= 1.5) {
-                Log.d("EZRA", "updateDriverETA: Arrived at destination ${routeStops.get(0)}")
-                stopLocations = stopLocations.drop(1).toMutableList()
-                routeStops = routeStops.drop(1).toMutableList()
-                Log.d("EZRA", "updateDriverETA: ${routeStops}")
-                busLocationAnnouncement.text =
-                    if (routeStops.size > 1) resources.getString(R.string.the_next_stop_is) else resources.getString(
-                        R.string.the_final_destination_is
-                    )
 
-                val nextStop = routeStops.get(0)
-                val nextNumPassengers = passengersAtStop.getOrDefault(nextStop, 0)
-                busNextStopString.text = nextStop + ": " +
-                        resources.getQuantityString(
-                            R.plurals.passenger_count,
-                            nextNumPassengers,
-                            nextNumPassengers
+            if (nonEmptyRouteStopsGeoPoint[0].latitude != 0.0) {
+                Log.d(
+                    "EZRA",
+                    "nextStop: ${nonEmptyRouteStopsName[0]}: ${nonEmptyRouteStopsGeoPoint[0]} $numDistance"
+                )
+            }
+            if (numDistance <= 1.2) {
+                Log.d(
+                    "EZRA",
+                    "updateDriverETA: Arrived at destination ${nonEmptyRouteStopsName[0]}"
+                )
+                nonEmptyRouteStopsGeoPoint = nonEmptyRouteStopsGeoPoint.drop(1).toMutableList()
+                nonEmptyRouteStopsName = nonEmptyRouteStopsName.drop(1).toMutableList()
+                if (nonEmptyRouteStopsName.size == 0) {
+                    unregisterReceiver(this)
+                    busLocationAnnouncement.text = "Arrived at"
+                } else {
+                    Log.d("EZRA", "updateDriverETA: ${nonEmptyRouteStopsName}")
+                    busLocationAnnouncement.text =
+                        if (nonEmptyRouteStopsName.size > 1) resources.getString(R.string.the_next_stop_is) else resources.getString(
+                            R.string.the_final_destination_is
                         )
+
+                    val nextStop = nonEmptyRouteStopsName[0]
+                    val nextNumPassengers = passengersAtStop.getOrDefault(nextStop, 0)
+                    busNextStopString.text = "$nextStop: " +
+                            resources.getQuantityString(
+                                R.plurals.passenger_count,
+                                nextNumPassengers,
+                                nextNumPassengers
+                            )
+                }
             }
         }
     }
@@ -257,13 +315,15 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     remaining_stops.text = resources.getString(R.string.route_not_found)
                 } else {
                     val stopsData = route["stops"] as List<*>
-                    val start = route["start"] as String
+                    var start = route["start"] as String
                     val destination = route["destination"] as String
                     val stops: List<String> =
                         listOf(start) + stopsData.filterIsInstance<String>() + destination
                     for (stop in stops) {
                         addStopOnMap(stop)
-                        routeStops.add(stop)
+                        routeStopsName.add(stop)
+                        buildRoute(start, stop, mMap)
+                        start = stop
                     }
                 }
 
@@ -285,11 +345,10 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         val lat = coordinate.latitude
                         val lng = coordinate.longitude
                         val agent = LatLng(lat, lng)
-                        val index = routeStops.indexOf(stop)
-                        stopLocations[index] = GeoPoint(lat, lng)
+                        val index = routeStopsName.indexOf(stop)
+                        routeStopsGeoPoint[index] = GeoPoint(lat, lng)
 
                         mMap.addMarker(MarkerOptions().position(agent).title(stop))
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(agent))
                     }
                 }
             }
@@ -301,7 +360,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val params: CoordinatorLayout.LayoutParams =
             infoSheet.layoutParams as CoordinatorLayout.LayoutParams
         if (params.behavior is com.google.android.material.bottomsheet.BottomSheetBehavior) {
-            from(infoSheet).peekHeight = 400
+            from(infoSheet).peekHeight = 300
             from(infoSheet).state = STATE_COLLAPSED
         }
 
@@ -324,20 +383,19 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
 
                 // Construct Location Info from the mapping
-                val locationInfos = routeStops.map { stop ->
-                    LocationInfo(stop, passengersAtStop.getOrDefault(stop, 0), "Calculating")
+                val locationInfos = routeStopsName.map { stop ->
+                    LocationInfo(stop, passengersAtStop.getOrDefault(stop, -1), "Calculating")
                 }
 
-                adapter = LocationInfoAdapter(locationInfos)
+                nonEmptyRouteStopsName =
+                    routeStopsName.filter { name -> passengersAtStop.get(name) != 0 }
+                        .toMutableList()
 
-                rvLocations.adapter = adapter
+                rvLocations.adapter = LocationInfoAdapter(locationInfos)
                 rvLocations.layoutManager = LinearLayoutManager(this)
 
-                progress_circular_d.visibility = GONE
-                linearLayout_d.visibility = VISIBLE
-                infoSheet.visibility = VISIBLE
 
-                val nextStop = routeStops.get(0)
+                val nextStop = routeStopsName.get(0)
                 val nextNumPassengers = passengersAtStop.getOrDefault(nextStop, 0)
                 busNextStopString.text = nextStop + ": " +
                         resources.getQuantityString(
@@ -345,7 +403,11 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             nextNumPassengers,
                             nextNumPassengers
                         )
+                progress_circular_d.visibility = GONE
+                linearLayout_d.visibility = VISIBLE
+                infoSheet.visibility = VISIBLE
             }
+
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -387,13 +449,19 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val requests = (trip?.get("breakRequests") as Long).toInt()
                 requestsCount.text =
                     resources.getQuantityString(R.plurals.num_stop_requests, requests, requests)
-                if (requests > 0) {
+                if (requests > 0 && requests > oldRequestCount) {
                     mediaPlayer.start()
                 }
+                oldRequestCount = requests
                 Log.d("Break Request", "break requests update: $requests")
             } else {
                 Log.d("Break Request", "Failed getting request number of trip")
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mediaPlayer.stop()
     }
 }

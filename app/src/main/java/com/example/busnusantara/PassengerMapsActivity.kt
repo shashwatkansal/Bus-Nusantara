@@ -26,10 +26,8 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
-import kotlinx.android.synthetic.main.activity_driver_maps.*
-import kotlinx.android.synthetic.main.activity_driver_maps.infoSheet
-import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
 import kotlinx.android.synthetic.main.activity_passenger_maps.*
+import kotlinx.android.synthetic.main.location_info.view.*
 import java.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -47,12 +45,13 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var orderId: String
     private lateinit var tripRef: DocumentReference
     private var busMarker: Marker? = null
+    private val passengersAtStop: HashMap<String, Int> = HashMap()
 
     private val distanceMatrixRequest = DistanceMatrixRequest()
     private var passengerLoc: LatLng? = null
     private var stopRequested: Boolean = false
 
-    private lateinit var locationInfoAdapter: LocationInfoEtaAdapter
+    private lateinit var locationInfoAdapter: LocationInfoAdapter
     private var routeStops: MutableList<String> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -266,26 +265,38 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun setupInfoSheet() {
-        BottomSheetBehavior.from(infoSheet).peekHeight = 400
+        BottomSheetBehavior.from(infoSheet).peekHeight = 300
         BottomSheetBehavior.from(infoSheet).state = BottomSheetBehavior.STATE_COLLAPSED
 
-        var hoursEta = 1
-        locationInfoAdapter = LocationInfoEtaAdapter(routeStops.map { stop ->
-            // HARDCODE current time + hoursEta
-            val cal = Calendar.getInstance()
-            cal.add(Calendar.HOUR_OF_DAY, hoursEta)
-            val date = cal.time
-            hoursEta++
-            LocationInfo(stop, 3, "Calculating")
+        db.collection(Collections.ORDERS.toString())
+            .whereEqualTo("tripID", tripRef).get()
+            .addOnSuccessListener { documents ->
+                // Get the mapping from stop to the number of passengers waiting there
+                for (document in documents) {
+                    val stop = document.get("pickupLocation") as String
+                    val curPassengers = passengersAtStop.getOrDefault(stop, 0)
+                    val morePassengers = (document.getLong("numPassengers") ?: 0).toInt()
+                    passengersAtStop.put(stop, curPassengers + morePassengers)
+                }
 
-        })
-        rvLocations.adapter = locationInfoAdapter
-        rvLocations.layoutManager = LinearLayoutManager(this)
+                // Construct Location Info from the mapping
+                val locationInfos = routeStops.map { stop ->
+                    LocationInfo(stop, passengersAtStop.getOrDefault(stop, -1), "Calculating")
+                }
 
-        progress_circular_p.visibility = GONE
-        linearLayout_p.visibility = VISIBLE
-        infoSheet.visibility = VISIBLE
+                routeStops =
+                    routeStops.filter { name -> passengersAtStop.get(name) != 0 }
+                        .toMutableList()
+
+                rvLocations.adapter = LocationInfoAdapter(locationInfos)
+                rvLocations.layoutManager = LinearLayoutManager(this)
+
+                progress_circular_p.visibility = GONE
+                linearLayout_p.visibility = VISIBLE
+                infoSheet.visibility = VISIBLE
+            }
     }
 
     private fun setImpromptuStopInfo() {
@@ -301,8 +312,13 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val stoppingSoon = trip?.get("impromptuStop") as Boolean
                 if (stoppingSoon) {
                     stopSoonText.text = getString(R.string.bus_stopping_soon)
+                    if (stopRequested) {
+                        toggleRequestButton(true)
+                    }
+                    requestStopButton.isClickable = false
                 } else {
                     stopSoonText.text = getString(R.string.bus_not_stopping_soon)
+                    requestStopButton.isClickable = true
                 }
 
                 val newLocation = trip?.get("location") as GeoPoint
@@ -310,6 +326,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (curMarker != null) {
                     curMarker.position = geoPointToLatLng(newLocation)
                 }
+
                 val currPassengerLoc = passengerLoc
                 if (currPassengerLoc != null) {
                     CoroutineScope(IO).launch {
@@ -318,12 +335,37 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             GeoPoint(currPassengerLoc.latitude, currPassengerLoc.longitude)
                         )
                     }
+
+                    val arrivalTimes = trip?.get("etas") as List<String>
+                    updateArrivalTimes(arrivalTimes)
                 }
             } else {
                 Log.d("Impromptu stop", "Failed in getting trip data on listener")
             }
         }
     }
+
+    private fun updateArrivalTimes(arrivalTimes: List<String>) {
+        var seen = mutableListOf<LocationInfoAdapter.LocationInfoViewHolder>()
+        var j = rvLocations.adapter!!.itemCount - 1
+        var i = arrivalTimes.size - 1
+        var item =
+            rvLocations.findViewHolderForAdapterPosition(j) as LocationInfoAdapter.LocationInfoViewHolder
+        while (i >= 0) {
+            Log.d("EZRA", "loc is ${item.itemView.tvLocation.text}, j is $j")
+            if (item.itemView.tvLocation.text in routeStops && item !in seen) {
+                Log.d("EZRA", "eta is ${arrivalTimes[i]}, i is $i")
+                seen.add(item)
+                item.itemView.tvETA.text = arrivalTimes[i--]
+            }
+
+            if (i >= 0) {
+                item =
+                    rvLocations.findViewHolderForAdapterPosition(j--) as LocationInfoAdapter.LocationInfoViewHolder
+            }
+        }
+    }
+
 
     private fun updateETA(distance: String, duration: String) {
         busDurationValue.text = duration
@@ -340,5 +382,4 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             updateETA(distance, duration)
         }
     }
-
 }

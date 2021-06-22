@@ -46,8 +46,7 @@ class ScanQRActivity : AppCompatActivity() {
         if(cachedId == "") {
             btnJourney.setVisibility(View.GONE)
         } else {
-            // TODO("setVisibility to View.VISIBLE")
-            btnJourney.setVisibility(View.GONE)
+            btnJourney.setVisibility(View.VISIBLE)
             btnJourney.setOnClickListener {
                 val intent = Intent(this@ScanQRActivity, nextActivity)
                 intent.putExtra("ID", cachedId)

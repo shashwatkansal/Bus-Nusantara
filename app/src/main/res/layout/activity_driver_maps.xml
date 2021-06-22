@@ -26,6 +26,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:visibility="gone"
         tools:layout_editor_absoluteX="112dp"
         tools:layout_editor_absoluteY="0dp">
 
@@ -43,8 +44,8 @@
         android:layout_height="match_parent"
         android:background="@drawable/rounded"
         android:orientation="vertical"
+        android:visibility="gone"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
-
 
         <ImageView
             android:id="@+id/imageView"
@@ -75,6 +76,7 @@
             android:textColor="@color/light_black"
             android:textSize="30sp" />
 
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -84,10 +86,11 @@
                 android:id="@+id/requestsCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
+                android:layout_gravity="center"
                 android:layout_marginTop="50dp"
                 android:fontFamily="@font/montserrat_bold"
                 android:text="Stop requests: 0"
+                android:textAlignment="center"
                 android:textColor="@color/light_black" />
 
             <Button
