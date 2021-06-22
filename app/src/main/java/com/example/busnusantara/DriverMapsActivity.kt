@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.busnusantara.database.Collections
 import com.example.busnusantara.databinding.ActivityDriverMapsBinding
 import com.example.busnusantara.googleapi.DistanceMatrixRequest
+import com.example.busnusantara.googleapi.buildRoute
 import com.example.busnusantara.services.TrackingService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -98,6 +99,14 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                         BitmapDescriptorFactory.defaultMarker(
                                             BitmapDescriptorFactory.HUE_AZURE
                                         )
+                                    )
+                                )
+                                mMap.moveCamera(
+                                    CameraUpdateFactory.newLatLngZoom(
+                                        LatLng(
+                                            location.latitude,
+                                            location.longitude
+                                        ), 10f
                                     )
                                 )
                             } else {
@@ -306,13 +315,15 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     remaining_stops.text = resources.getString(R.string.route_not_found)
                 } else {
                     val stopsData = route["stops"] as List<*>
-                    val start = route["start"] as String
+                    var start = route["start"] as String
                     val destination = route["destination"] as String
                     val stops: List<String> =
                         listOf(start) + stopsData.filterIsInstance<String>() + destination
                     for (stop in stops) {
                         addStopOnMap(stop)
                         routeStopsName.add(stop)
+                        buildRoute(start, stop, mMap)
+                        start = stop
                     }
                 }
 
@@ -338,7 +349,6 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         routeStopsGeoPoint[index] = GeoPoint(lat, lng)
 
                         mMap.addMarker(MarkerOptions().position(agent).title(stop))
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(agent))
                     }
                 }
             }
@@ -384,9 +394,6 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 rvLocations.adapter = LocationInfoAdapter(locationInfos)
                 rvLocations.layoutManager = LinearLayoutManager(this)
 
-                progress_circular_d.visibility = GONE
-                linearLayout_d.visibility = VISIBLE
-                infoSheet.visibility = VISIBLE
 
                 val nextStop = routeStopsName.get(0)
                 val nextNumPassengers = passengersAtStop.getOrDefault(nextStop, 0)
@@ -396,7 +403,11 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             nextNumPassengers,
                             nextNumPassengers
                         )
+                progress_circular_d.visibility = GONE
+                linearLayout_d.visibility = VISIBLE
+                infoSheet.visibility = VISIBLE
             }
+
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
