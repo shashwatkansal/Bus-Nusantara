@@ -57,6 +57,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var mediaPlayer: MediaPlayer
     private var routeStopsName: MutableList<String> = mutableListOf()
+    private var oldRequestCount: Int = 0
     private var nonEmptyRouteStopsName: MutableList<String> = mutableListOf()
     private var routeStopsGeoPoint: MutableList<GeoPoint> = mutableListOf(
         GeoPoint(0.0, 0.0),
@@ -421,13 +422,19 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val requests = (trip?.get("breakRequests") as Long).toInt()
                 requestsCount.text =
                     resources.getQuantityString(R.plurals.num_stop_requests, requests, requests)
-                if (requests > 0) {
+                if (requests > 0 && requests > oldRequestCount) {
                     mediaPlayer.start()
                 }
+                oldRequestCount = requests
                 Log.d("Break Request", "break requests update: $requests")
             } else {
                 Log.d("Break Request", "Failed getting request number of trip")
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mediaPlayer.stop()
     }
 }
