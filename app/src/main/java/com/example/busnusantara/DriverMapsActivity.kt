@@ -25,16 +25,15 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import kotlinx.android.synthetic.main.activity_driver_maps.*
-import kotlinx.android.synthetic.main.activity_driver_maps.infoSheet
-import kotlinx.android.synthetic.main.activity_driver_maps.remaining_stops
-import kotlinx.android.synthetic.main.activity_driver_maps.rvLocations
 import kotlinx.android.synthetic.main.location_info.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -53,6 +52,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityDriverMapsBinding
     private val distanceMatrixRequest = DistanceMatrixRequest()
     private lateinit var tripId: String
+    private var busMarker: Marker? = null
     private lateinit var tripRef: DocumentReference
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var mediaPlayer: MediaPlayer
@@ -87,6 +87,22 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     tripRef.get()
                         .addOnSuccessListener { trip ->
                             val location = trip["location"] as GeoPoint
+                            if (busMarker == null) {
+                                busMarker = mMap.addMarker(
+                                    MarkerOptions().position(
+                                        LatLng(
+                                            location.latitude,
+                                            location.longitude
+                                        )
+                                    ).title("Bus").icon(
+                                        BitmapDescriptorFactory.defaultMarker(
+                                            BitmapDescriptorFactory.HUE_AZURE
+                                        )
+                                    )
+                                )
+                            } else {
+                                busMarker!!.position = LatLng(location.latitude, location.longitude)
+                            }
                             CoroutineScope(IO).launch {
                                 if ((nonEmptyRouteStopsGeoPoint.size == 0 && routeStopsGeoPoint[0].longitude != 0.0) ||
                                     nonEmptyRouteStopsGeoPoint[0].longitude != 0.0
@@ -180,7 +196,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     val nextStop = nonEmptyRouteStopsName[0]
                     val nextNumPassengers = passengersAtStop.getOrDefault(nextStop, 0)
-                    busNextStopString.text = nextStop + ": " +
+                    busNextStopString.text = "$nextStop: " +
                             resources.getQuantityString(
                                 R.plurals.passenger_count,
                                 nextNumPassengers,
