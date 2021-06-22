@@ -13,8 +13,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
-        android:visibility="visible"
-        tools:visibility="invisible">
+        android:visibility="visible">
 
         <ProgressBar
             android:layout_width="match_parent"
@@ -27,8 +26,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:visibility="gone
-"
+        android:visibility="gone"
         tools:layout_editor_absoluteX="112dp"
         tools:layout_editor_absoluteY="0dp">
 
@@ -47,9 +45,7 @@
         android:background="@drawable/rounded"
         android:orientation="vertical"
         android:visibility="gone"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        tools:visibility="visible">
-
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <ImageView
             android:id="@+id/imageView"
@@ -79,6 +75,7 @@
             android:gravity="center"
             android:textColor="@color/light_black"
             android:textSize="30sp" />
+
 
         <LinearLayout
             android:layout_width="match_parent"

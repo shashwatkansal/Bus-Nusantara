@@ -13,8 +13,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
-        android:visibility="visible"
-        tools:visibility="invisible">
+        android:visibility="visible">
 
         <ProgressBar
             android:layout_width="match_parent"
@@ -51,8 +50,7 @@
         android:orientation="vertical"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="@+id/linearLayout"
-        app:layout_constraintTop_toTopOf="@+id/linearLayout"
-        tools:visibility="visible">
+        app:layout_constraintTop_toTopOf="@+id/linearLayout">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout"

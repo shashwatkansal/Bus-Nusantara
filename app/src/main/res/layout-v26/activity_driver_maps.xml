@@ -43,6 +43,7 @@
         android:layout_height="match_parent"
         android:background="@drawable/rounded"
         android:orientation="vertical"
+        android:visibility="gone"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
 
