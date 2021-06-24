@@ -42,6 +42,10 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityPassengerMapsBinding
 
+    //    FOR DEMO
+    private var busEntered = false
+    private var nextStopText = ""
+
     private lateinit var orderId: String
     private lateinit var tripRef: DocumentReference
     private var busMarker: Marker? = null
@@ -51,7 +55,6 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private var passengerLoc: LatLng? = null
     private var stopRequested: Boolean = false
 
-    private lateinit var locationInfoAdapter: LocationInfoAdapter
     private var routeStops: MutableList<String> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,7 +71,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     tripRef = order["tripID"] as DocumentReference
                     stopRequested = order["stopRequested"] as Boolean
                     if (stopRequested) {
-                        toggleRequestButton(false)
+                        toggleRequestButton(true)
                     }
                     Log.d(TAG, "tripRef is $tripRef")
 
@@ -313,7 +316,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (stoppingSoon) {
                     stopSoonText.text = getString(R.string.bus_stopping_soon)
                     if (stopRequested) {
-                        toggleRequestButton(true)
+                        toggleRequestButton(false)
                     }
                     requestStopButton.isClickable = false
                 } else {
@@ -337,6 +340,12 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
 
                     val arrivalTimes = trip?.get("etas") as List<String>
+
+//                    FOR DEMO
+                    if (!busEntered && arrivalTimes.size < 4) {
+                        busEntered = true
+                    }
+
                     updateArrivalTimes(arrivalTimes)
                 }
             } else {
@@ -363,12 +372,18 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 item =
                     rvLocations.findViewHolderForAdapterPosition(j--) as LocationInfoAdapter.LocationInfoViewHolder
             }
+            nextStopText = "${item.itemView.tvLocation.text} | ${arrivalTimes[0]}"
         }
     }
 
 
-    private fun updateETA(distance: String, duration: String) {
-        busDurationValue.text = duration
+    private fun updateETA(topText: String, bottomText: String) {
+        if (!topText.isNullOrBlank()) {
+            busDurationString.text = topText
+        }
+        if (!bottomText.isNullOrBlank()) {
+            busDurationValue.text = bottomText
+        }
     }
 
     private suspend fun getETA(newLocation: GeoPoint, currPassengerLoc: GeoPoint) {
@@ -379,7 +394,12 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             )
 
         withContext(Main) {
-            updateETA(distance, duration)
+//            FOR DEMO
+            if (busEntered) {
+                updateETA("The next stop is", nextStopText)
+            } else {
+                updateETA("Your bus will arrive in", duration)
+            }
         }
     }
 }

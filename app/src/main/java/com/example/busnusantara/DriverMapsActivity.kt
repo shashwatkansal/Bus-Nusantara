@@ -431,10 +431,6 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun setStopRequestsCount() {
         tripRef.get().addOnSuccessListener { trip ->
             Log.d(ContentValues.TAG, "Finding trip for trip ID $tripId")
-
-            val requests = if (trip == null) 0 else (trip["breakRequests"] as Long).toInt()
-            requestsCount.text =
-                resources.getQuantityString(R.plurals.num_stop_requests, requests, requests)
         }
 
         // add listener to changes on trip to update stop request count
@@ -447,8 +443,11 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if (snapshot != null && snapshot.exists()) {
                 val trip = snapshot.data
                 val requests = (trip?.get("breakRequests") as Long).toInt()
-                requestsCount.text =
-                    resources.getQuantityString(R.plurals.num_stop_requests, requests, requests)
+                when (requests) {
+                    0 -> requestsCount.text = resources.getString(R.string.nobody_toilet_request)
+                    1 -> requestsCount.text = "1 person is requesting toilet break"
+                    else -> requestsCount.text = "$requests people is requesting a toilet break"
+                }
                 if (requests > 0 && requests > oldRequestCount) {
                     mediaPlayer.start()
                 }

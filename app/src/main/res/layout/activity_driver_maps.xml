@@ -89,7 +89,7 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="50dp"
                 android:fontFamily="@font/montserrat_bold"
-                android:text="Stop requests: 0"
+                android:text="@string/nobody_toilet_request"
                 android:textAlignment="center"
                 android:textColor="@color/light_black" />
 

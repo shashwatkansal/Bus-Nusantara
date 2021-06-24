@@ -36,7 +36,7 @@
     <string name="need_camera">We need the camera permission</string>
     <string name="baseline">baseline</string>
     <string name="bus_nusantara">Bus Nusantara</string>
-    <string name="request_stop">Request Stop</string>
+    <string name="request_stop">Request toilet stop</string>
     <string name="requested">Requested</string>
     <string name="pause_journey">Pause journey</string>
     <string name="resume">Resume</string>
@@ -67,6 +67,7 @@
     <string name="choose_bus_trip">Choose Bus Trip</string>
     <string name="previous_journey">Previous journey</string>
     <string name="bus_arriving_in">Your bus will arrive in</string>
+    <string name="nobody_toilet_request">Nobody is requesting a toilet break</string>
     <plurals name="passenger_count">
         <item quantity="zero">no passengers</item>
         <item quantity="one">1 passenger</item>

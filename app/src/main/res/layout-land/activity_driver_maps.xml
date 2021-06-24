@@ -69,7 +69,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginBottom="16dp"
                 android:fontFamily="@font/montserrat_bold"
-                android:text="Stop requests: 0"
+                android:text="@string/nobody_toilet_request"
                 android:textColor="@color/light_black"
                 app:layout_constraintBottom_toTopOf="@+id/pauseJourneyButton"
                 app:layout_constraintStart_toStartOf="parent"
