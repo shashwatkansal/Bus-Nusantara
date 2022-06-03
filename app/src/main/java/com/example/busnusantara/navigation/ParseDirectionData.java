@@ -1,4 +1,4 @@
-package com.example.busnusantara.googleapi;
+package com.example.busnusantara.navigation;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class DirectionHelper {
+public class ParseDirectionData {
 
     public List<List<HashMap<String, String>>> parse(JSONObject jObject) {
 

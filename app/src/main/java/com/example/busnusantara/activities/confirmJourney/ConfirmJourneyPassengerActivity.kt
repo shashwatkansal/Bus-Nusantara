@@ -1,11 +1,14 @@
-package com.example.busnusantara
+package com.example.busnusantara.activities.confirmJourney
 
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View.*
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
+import com.example.busnusantara.activities.userMaps.PassengerMapsActivity
+import com.example.busnusantara.R
 import com.example.busnusantara.database.Collections
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentReference
@@ -29,7 +32,6 @@ class ConfirmJourneyPassengerActivity : AppCompatActivity() {
         // Display required information
         displayTripInformation()
         displayBusAmenities()
-
 
         btnToMap.setOnClickListener {
             val intent = Intent(this, PassengerMapsActivity::class.java)
@@ -56,7 +58,7 @@ class ConfirmJourneyPassengerActivity : AppCompatActivity() {
                     Log.e(TAG, "Duplicates of busNum exist in database!")
                 }
 
-                for (bus in buses) {
+                buses.forEach { bus ->
                     busTypePointField.text =
                         if (bus["executive"] as Boolean) "Executive Bus" else "Standard Bus"
 

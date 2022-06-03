@@ -1,11 +1,12 @@
-package com.example.busnusantara
+package com.example.busnusantara.activities.confirmJourney
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
+import com.example.busnusantara.activities.userMaps.DriverMapsActivity
+import com.example.busnusantara.R
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore

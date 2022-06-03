@@ -1,4 +1,4 @@
-package com.example.busnusantara
+package com.example.busnusantara.location
 
 import android.graphics.Color
 import android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.busnusantara.R
 import kotlinx.android.synthetic.main.location_info.view.*
 
 

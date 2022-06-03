@@ -1,9 +1,7 @@
-package com.example.busnusantara.googleapi
+package com.example.busnusantara.navigation
 
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.LatLng
 
-/* Please enter API KEY */
 private const val key = API_KEY
 
 fun buildRoute(

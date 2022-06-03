@@ -1,9 +1,8 @@
-package com.example.busnusantara.googleapi
+package com.example.busnusantara.navigation
 
 import android.graphics.Color
 import android.os.AsyncTask
 import android.util.Log
-import com.example.busnusantara.BuildConfig
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import org.json.JSONObject
@@ -27,6 +26,7 @@ class CalculatePathFromLocation(
         return try {
             var inputStream: InputStream? = null
             var connection: HttpURLConnection? = null
+
             try {
                 val directionUrl = URL(url)
                 connection = directionUrl.openConnection() as HttpURLConnection
@@ -47,20 +47,24 @@ class CalculatePathFromLocation(
                 inputStream!!.close()
                 connection!!.disconnect()
             }
+
             Log.e(tag, "Background Task data : $data")
+
             val jsonObject: JSONObject
-            var routes: List<List<HashMap<String?, String>>>? = null
+            val routes: List<List<HashMap<String?, String>>>?
             try {
                 jsonObject = JSONObject(data)
+
                 // Starts parsing data
-                val helper = DirectionHelper()
+                val helper = ParseDirectionData()
                 routes = helper.parse(jsonObject)
+
                 Log.e(tag, "Executing Routes : " /*, routes.toString()*/)
                 var points: ArrayList<LatLng?>
                 var lineOptions: PolylineOptions? = null
 
                 // Traversing through all the routes
-                for (i in routes.indices) {
+                routes.indices.forEach { i ->
                     points = ArrayList()
                     lineOptions = PolylineOptions()
 
@@ -77,24 +81,27 @@ class CalculatePathFromLocation(
                     }
 
                     // Adding all the points in the route to LineOptions
-                    lineOptions.addAll(points)
-                    lineOptions.width(10f)
-                    lineOptions.color(Color.BLUE)
+                    lineOptions!!.addAll(points)
+                    lineOptions!!.width(10f)
+                    lineOptions!!.color(Color.BLUE)
                     Log.e(tag, "PolylineOptions Decoded")
                 }
 
                 // Drawing polyline in the Google Map for the i-th route
                 lineOptions
+
             } catch (e: Exception) {
                 Log.e(tag, "Exception in Executing Routes : $e")
                 null
             }
+
         } catch (e: Exception) {
             Log.e(tag, "Background Task Exception : $e")
             null
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onPostExecute(polylineOptions: PolylineOptions?) {
         super.onPostExecute(polylineOptions)
         if (polylineOptions != null) {

@@ -1,8 +1,10 @@
-package com.example.busnusantara
+package com.example.busnusantara.activities
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.example.busnusantara.R
+import com.example.busnusantara.activities.qr.ScanQRActivity
 import kotlinx.android.synthetic.main.activity_home.*
 
 class HomeActivity : AppCompatActivity() {

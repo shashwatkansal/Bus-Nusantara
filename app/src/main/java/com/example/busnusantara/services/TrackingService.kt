@@ -8,10 +8,8 @@ import android.os.Looper
 import com.google.android.gms.location.*
 
 class TrackingService : Service() {
-
     var fusedLocationProviderClient: FusedLocationProviderClient? = null
     var locationCallback: LocationCallback? = null
-
 
     override fun onBind(intent: Intent?): IBinder? {
         return null

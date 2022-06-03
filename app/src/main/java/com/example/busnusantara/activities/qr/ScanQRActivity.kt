@@ -1,4 +1,4 @@
-package com.example.busnusantara
+package com.example.busnusantara.activities.qr
 
 import android.content.Context
 import android.content.Intent
@@ -12,24 +12,24 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.budiyev.android.codescanner.*
-import kotlinx.android.synthetic.main.activity_confirm_journey_driver.*
+import com.example.busnusantara.R
+import com.example.busnusantara.activities.confirmJourney.ConfirmJourneyDriverActivity
+import com.example.busnusantara.activities.confirmJourney.ConfirmJourneyPassengerActivity
 import kotlinx.android.synthetic.main.activity_qr_code_scanner.*
 
 
-private const val CAMERA_REQUEST_CODE = 101
-
 class ScanQRActivity : AppCompatActivity() {
-
     private lateinit var codeScanner: CodeScanner
     private var scanPassenger: Boolean = true
     private lateinit var nextActivity: Class<out AppCompatActivity>
     private lateinit var sharedPref: SharedPreferences
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_qr_code_scanner)
 
-        scanPassenger = getIntent().getBooleanExtra("SCAN_PASSENGER", true)
+        scanPassenger = intent.getBooleanExtra("SCAN_PASSENGER", true)
 
         tvQRScan.text = if (scanPassenger) {
             resources.getString(R.string.scan_qr_passenger)
@@ -38,15 +38,15 @@ class ScanQRActivity : AppCompatActivity() {
         }
 
         nextActivity = if (scanPassenger) ConfirmJourneyPassengerActivity::class.java
-            else ConfirmJourneyDriverActivity::class.java
+        else ConfirmJourneyDriverActivity::class.java
 
         // Set previous journey button based on cached ID
         sharedPref = this.getPreferences(Context.MODE_PRIVATE)
         val cachedId = getCachedId()
-        if(cachedId == "") {
-            btnJourney.setVisibility(View.GONE)
+        if (cachedId == "") {
+            btnJourney.visibility = View.GONE
         } else {
-            btnJourney.setVisibility(View.VISIBLE)
+            btnJourney.visibility = View.VISIBLE
             btnJourney.setOnClickListener {
                 val intent = Intent(this@ScanQRActivity, nextActivity)
                 intent.putExtra("ID", cachedId)
@@ -58,7 +58,8 @@ class ScanQRActivity : AppCompatActivity() {
         codeScanner()
 
         btnContinue.setOnClickListener {
-            val id = if (scanPassenger) "Orders/oolO6KVivO3Z445xu5cW" else "Trips/9c4hJnV6gc9FjlWCF6nH"
+            val id =
+                if (scanPassenger) "Orders/oolO6KVivO3Z445xu5cW" else "Trips/9c4hJnV6gc9FjlWCF6nH"
             putCachedId(id)
             val intent = Intent(this@ScanQRActivity, nextActivity)
             intent.putExtra("ID", id)
@@ -69,14 +70,13 @@ class ScanQRActivity : AppCompatActivity() {
     // get cached ID of previous QR code scan from shared preferences
     private fun getCachedId(): String {
         val key = if (scanPassenger) "cachedPassengerID" else "cachedDriverID"
-        val cachedId = sharedPref.getString(key, "")
-        return if(cachedId != null) cachedId else ""
+        return sharedPref.getString(key, "") ?: ""
     }
 
     // store ID to shared preferences
     private fun putCachedId(id: String) {
         val key = if (scanPassenger) "cachedPassengerID" else "cachedDriverID"
-        with (sharedPref.edit()) {
+        with(sharedPref.edit()) {
             putString(key, id)
             apply()
         }
@@ -88,7 +88,6 @@ class ScanQRActivity : AppCompatActivity() {
         codeScanner.apply {
             camera = CodeScanner.CAMERA_BACK
             formats = CodeScanner.ALL_FORMATS
-
             autoFocusMode = AutoFocusMode.SAFE
             scanMode = ScanMode.CONTINUOUS
             isAutoFocusEnabled = true
@@ -98,7 +97,8 @@ class ScanQRActivity : AppCompatActivity() {
             decodeCallback = DecodeCallback {
                 runOnUiThread {
                     val intent = Intent(
-                        this@ScanQRActivity, nextActivity)
+                        this@ScanQRActivity, nextActivity
+                    )
                     val id = it.text
                     putCachedId(id)
                     intent.putExtra("ID", id)
@@ -152,10 +152,17 @@ class ScanQRActivity : AppCompatActivity() {
         when (requestCode) {
             CAMERA_REQUEST_CODE -> {
                 if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, resources.getString(R.string.need_camera), Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(
+                        this,
+                        resources.getString(R.string.need_camera),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
+    }
+
+    companion object {
+        const val CAMERA_REQUEST_CODE = 101
     }
 }
