@@ -16,7 +16,7 @@ import java.util.*
 
 class ConfirmJourneyPassengerActivity : AppCompatActivity() {
 
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val db: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
     private lateinit var orderRef: DocumentReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,21 +55,24 @@ class ConfirmJourneyPassengerActivity : AppCompatActivity() {
                 if (buses.isEmpty || buses.size() > 1) {
                     Log.e(TAG, "Duplicates of busNum exist in database!")
                 }
+
                 for (bus in buses) {
                     busTypePointField.text =
-                        if (bus["executive"] as Boolean)
-                            "Executive Bus" else "Standard Bus"
-                    val wifiSymbol = if (bus["wifi"] as Boolean)
-                        R.drawable.wifi else R.drawable.no_wifi
+                        if (bus["executive"] as Boolean) "Executive Bus" else "Standard Bus"
+
+                    val wifiSymbol =
+                        if (bus["wifi"] as Boolean) R.drawable.wifi else R.drawable.no_wifi
                     wifiIcon.setImageResource(wifiSymbol)
-                    val toiletSymbol = if (bus["toilets"] as Boolean)
-                        R.drawable.ic_toilet else R.drawable.ic_notoilet
+
+                    val toiletSymbol =
+                        if (bus["toilets"] as Boolean) R.drawable.ic_toilet
+                        else R.drawable.ic_notoilet
+
                     toiletIcon.setImageResource(toiletSymbol)
                     confirmation_info.visibility = VISIBLE
                     progress_circular.visibility = GONE
                 }
             }
-
     }
 
     private fun displayTripInformation() {

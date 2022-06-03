@@ -22,7 +22,5 @@ class HomeActivity : AppCompatActivity() {
             intent.putExtra("SCAN_PASSENGER", true)
             startActivity(intent)
         }
-
     }
-
 }

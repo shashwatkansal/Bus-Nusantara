@@ -21,6 +21,7 @@ class CalculatePathFromLocation(
 
     private val tag = "GetPathFromLocation"
 
+    @Deprecated("Deprecated in Java")
     override fun doInBackground(vararg params: String?): PolylineOptions? {
         val data: String
         return try {
@@ -30,7 +31,7 @@ class CalculatePathFromLocation(
                 val directionUrl = URL(url)
                 connection = directionUrl.openConnection() as HttpURLConnection
                 connection.connect()
-                inputStream = connection!!.inputStream
+                inputStream = connection.inputStream
                 val bufferedReader = BufferedReader(InputStreamReader(inputStream))
                 val stringBuffer = StringBuffer()
                 var line: String? = ""
@@ -96,7 +97,7 @@ class CalculatePathFromLocation(
 
     override fun onPostExecute(polylineOptions: PolylineOptions?) {
         super.onPostExecute(polylineOptions)
-        if (resultCallback != null && polylineOptions != null) {
+        if (polylineOptions != null) {
             resultCallback.onPath(polylineOptions)
         }
     }

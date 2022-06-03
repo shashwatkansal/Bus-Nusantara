@@ -1,4 +1,3 @@
 package com.example.busnusantara.googleapi
 
-const val API_KEY = "AIzaSyBC-nMzE8259-wDrKlHCyRwagkhcQFEfyU"
-//const val API_KEY = "FAKE KEY TO ACTIVATE WHEN TESTING NON GMAPS ITEMS"
+const val API_KEY = "AIzaSyBkBJer5CioA1OGZEXTFpL8jazx3GyCl4s"

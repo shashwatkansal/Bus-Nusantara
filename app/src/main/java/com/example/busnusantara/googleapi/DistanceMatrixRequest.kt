@@ -8,14 +8,12 @@ import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.Request
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
 class DistanceMatrixRequest {
-    var client = OkHttpClient()
+    private var client = OkHttpClient()
 
     /**
      * Call Google Maps API to find the distance matrix
@@ -27,7 +25,7 @@ class DistanceMatrixRequest {
         val destination = "${destination.latitude},${destination.longitude}"
         val url =
             "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$origins&" +
-                    "destinations=$destination&language=en-EN&key=$KEY"
+                    "destinations=$destination&language=en-EN&key=$API_KEY"
         val request = Request.Builder()
             .url(url)
             .build()
@@ -41,7 +39,7 @@ class DistanceMatrixRequest {
         val gson = Gson()
         val directionResponse: DirectionResponse =
             gson.fromJson(response, DirectionResponse::class.java)
-        var directionResponseElements = directionResponse.rows[0].elements[0]
+        val directionResponseElements = directionResponse.rows[0].elements[0]
         val distanceText = directionResponseElements.distance.text
         val durationText = directionResponseElements.duration.text
         return Pair(distanceText, durationText)
@@ -58,8 +56,8 @@ class DistanceMatrixRequest {
             return prevDurDist
         }
 
-        var prevDist = (prevDurDist.first.split(" ")[0]).toDouble()
-        var nextDist = (nextDurDist.first.split(" ")[0]).toDouble()
+        val prevDist = (prevDurDist.first.split(" ")[0]).toDouble()
+        val nextDist = (nextDurDist.first.split(" ")[0]).toDouble()
 
         // Get Time from bus to previous stop.
         val prevDurations = (prevDurDist.second.split(" "))
@@ -78,23 +76,23 @@ class DistanceMatrixRequest {
         val nextDurations = (nextDurDist.second.split(" "))
 
         // No hours, only minutes
-        var nextHrs = 0.0
-        var nextMins = prevDurations[0].toDouble()
+        var nextHours = 0.0
+        var nextMinutes = prevDurations[0].toDouble()
         if (nextDurations.size >= 3) {
-            nextHrs = nextDurations[0].toDouble()
-            nextMins = nextDurations[2].toDouble()
+            nextHours = nextDurations[0].toDouble()
+            nextMinutes = nextDurations[2].toDouble()
         }
-        val nextTime = nextHrs * MINS_IN_HOUR + nextMins + prevTime
+        val nextTime = nextHours * MINS_IN_HOUR + nextMinutes + prevTime
 
         val (hrs, mins) = Pair(nextTime.toInt() / MINS_IN_HOUR, nextTime % MINS_IN_HOUR)
 
 
-        return Pair("${(prevDist + nextDist)} km", "${hrs} hours $mins mins")
+        return Pair("${(prevDist + nextDist)} km", "$hrs hours $mins mins")
     }
 
-    fun getAllDistanceAndDurations(stops: List<GeoPoint>): MutableList<Pair<String, String>> {
-        var stopDistanceDurations: MutableList<Pair<String, String>> = mutableListOf()
-        var summedStopDistanceDurations: MutableList<Pair<String, String>> = mutableListOf()
+    private fun getAllDistanceAndDurations(stops: List<GeoPoint>): MutableList<Pair<String, String>> {
+        val stopDistanceDurations: MutableList<Pair<String, String>> = mutableListOf()
+        val summedStopDistanceDurations: MutableList<Pair<String, String>> = mutableListOf()
         for (i in 1 until stops.size) {
             val prevDurDist = DistanceMatrixRequest().getDistanceAndDuration(
                 stops[i - 1],
@@ -118,8 +116,8 @@ class DistanceMatrixRequest {
     @RequiresApi(Build.VERSION_CODES.O)
     fun convertFromTimeLengthsToETAs(stops: List<GeoPoint>): MutableList<String> {
         val stopDurations: MutableList<Pair<String, String>> = getAllDistanceAndDurations(stops)
-        var stopETAs: MutableList<String> = mutableListOf()
-        var myTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
+        val stopETAs: MutableList<String> = mutableListOf()
+        val myTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
         val df = SimpleDateFormat("HH:mm")
         val d = df.parse(myTime)
         val cal = Calendar.getInstance()
@@ -133,7 +131,9 @@ class DistanceMatrixRequest {
                 mins = tokens[2].toDouble().toInt()
             }
 
-            cal.time = d
+            if (d != null) {
+                cal.time = d
+            }
             cal.add(Calendar.HOUR, hrs)
             cal.add(Calendar.MINUTE, mins)
             stopETAs.add(df.format(cal.time))
@@ -161,70 +161,4 @@ class DistanceMatrixRequest {
         val text: String,
         val value: String
     )
-
-    companion object {
-        private const val KEY = API_KEY
-        val resp = """
-            {
-               "destination_addresses" : [ "Jakarta, Indonesia" ],
-               "origin_addresses" : [
-                  "Jl. Tidar Sawe, Tidar Sel., Kec. Magelang Sel., Kota Magelang, Jawa Tengah 56125, Indonesia"
-               ],
-               "rows" : [
-                  {
-                     "elements" : [
-                        {
-                           "distance" : {
-                              "text" : "514 km",
-                              "value" : 513827
-                           },
-                           "duration" : {
-                              "text" : "7 hours 2 mins",
-                              "value" : 25326
-                           },
-                           "status" : "OK"
-                        }
-                     ]
-                  }
-               ],
-               "status" : "OK"
-            }
-        """.trimIndent()
-
-        /* *
-            For testing purposes only
-         */
-        @Throws(IOException::class)
-        @JvmStatic
-        fun main(args: Array<String>) {
-            val dmr = DistanceMatrixRequest()
-
-//            val durDist1 = dmr.getDistanceAndDuration(
-//                GeoPoint(-7.5, 110.23),
-//                GeoPoint(-7.9, 111.23)
-//            )
-
-//            val durDist2 = dmr.getDistanceAndDuration(
-//                GeoPoint(-7.5, 110.23),
-//                GeoPoint(-7.9, 111.23)
-//            )
-
-            val list: List<GeoPoint> = mutableListOf(
-                GeoPoint(-7.5, 111.23),
-                GeoPoint(-7.6, 111.33),
-                GeoPoint(-7.7, 111.43),
-                GeoPoint(-7.8, 111.53),
-            )
-
-            val times = dmr.convertFromTimeLengthsToETAs(list)
-            println(times)
-
-//            val diff = dmr.getAllDistanceAndDurations(list)
-//            val diff = dmr.sumDistanceAndDurationStrings(durDist1, durDist2)
-//            println("> From JSON String:\n${durDist1}")
-//            println("> From JSON String:\n${durDist2}")
-//            println("> From JSON String:\n${diff}")
-
-        }
-    }
 }

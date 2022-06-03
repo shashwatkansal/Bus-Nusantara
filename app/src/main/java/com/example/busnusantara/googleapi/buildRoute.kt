@@ -7,26 +7,6 @@ import com.google.android.gms.maps.model.LatLng
 private const val key = API_KEY
 
 fun buildRoute(
-    origin: LatLng,
-    dest: LatLng,
-    mMap: GoogleMap,
-) {
-    val strOrigin = "origin=" + origin.latitude + "," + origin.longitude
-    val strDest = "destination=" + dest.latitude + "," + dest.longitude
-    assembleUrlAndGetPath(strOrigin, strDest, mMap)
-}
-
-fun buildRoute(
-    origin: LatLng,
-    dest: String,
-    mMap: GoogleMap,
-) {
-    val strOrigin = "origin=" + origin.latitude + "," + origin.longitude
-    val strDest = "destination=$dest"
-    assembleUrlAndGetPath(strOrigin, strDest, mMap)
-}
-
-fun buildRoute(
     origin: String,
     dest: String,
     mMap: GoogleMap,

@@ -21,11 +21,11 @@ class ConfirmJourneyDriverActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_confirm_journey_driver)
 
-        val tripId = getIntent().getStringExtra("ID") ?: ""
+        val tripId = intent.getStringExtra("ID") ?: ""
 
         db.document(tripId).get()
             .continueWithTask { task ->
-                val document = task.getResult()
+                val document = task.result
                 val date = (document?.get("date") as Timestamp).toDate()
                 tripDateField.text =
                     SimpleDateFormat("E dd MMM yyyy", Locale.getDefault()).format(date)
@@ -36,7 +36,7 @@ class ConfirmJourneyDriverActivity : AppCompatActivity() {
                 routeId.get()
             }
             .addOnCompleteListener { task ->
-                val document = task.getResult()
+                val document = task.result
                 startPointField.text = document.get("start").toString()
                 destinationPointField.text = document.get("destination").toString()
                 progress_circular.visibility = GONE
@@ -50,7 +50,6 @@ class ConfirmJourneyDriverActivity : AppCompatActivity() {
             intent.putExtra("TRIP_ID", tripId)
             startActivity(intent)
         }
-
 
     }
 }

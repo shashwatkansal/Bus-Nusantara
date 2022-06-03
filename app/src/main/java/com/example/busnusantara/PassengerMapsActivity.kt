@@ -237,7 +237,8 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                 passengerLoc!!,
                                 BitmapDescriptorFactory.HUE_ORANGE
                             )
-                            mMap.moveCamera(CameraUpdateFactory.newLatLng(passengerLoc))
+                            passengerLoc?.let { CameraUpdateFactory.newLatLng(it) }
+                                ?.let { mMap.moveCamera(it) }
                         }
                     }
                 }
@@ -281,7 +282,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     val stop = document.get("pickupLocation") as String
                     val curPassengers = passengersAtStop.getOrDefault(stop, 0)
                     val morePassengers = (document.getLong("numPassengers") ?: 0).toInt()
-                    passengersAtStop.put(stop, curPassengers + morePassengers)
+                    passengersAtStop[stop] = curPassengers + morePassengers
                 }
 
                 // Construct Location Info from the mapping
@@ -290,7 +291,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
 
                 routeStops =
-                    routeStops.filter { name -> passengersAtStop.get(name) != 0 }
+                    routeStops.filter { name -> passengersAtStop[name] != 0 }
                         .toMutableList()
 
                 rvLocations.adapter = LocationInfoAdapter(locationInfos)
@@ -324,7 +325,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     requestStopButton.isClickable = true
                 }
 
-                val newLocation = trip?.get("location") as GeoPoint
+                val newLocation = trip["location"] as GeoPoint
                 val curMarker = busMarker
                 if (curMarker != null) {
                     curMarker.position = geoPointToLatLng(newLocation)
@@ -339,7 +340,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         )
                     }
 
-                    val arrivalTimes = trip?.get("etas") as List<String>
+                    val arrivalTimes = trip["etas"] as List<String>
 
 //                    FOR DEMO
                     if (!busEntered && arrivalTimes.size < 4) {
@@ -355,7 +356,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun updateArrivalTimes(arrivalTimes: List<String>) {
-        var seen = mutableListOf<LocationInfoAdapter.LocationInfoViewHolder>()
+        val seen = mutableListOf<LocationInfoAdapter.LocationInfoViewHolder>()
         var j = rvLocations.adapter!!.itemCount - 1
         var i = arrivalTimes.size - 1
         var item =
@@ -378,16 +379,16 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     private fun updateETA(topText: String, bottomText: String) {
-        if (!topText.isNullOrBlank()) {
+        if (topText.isNotBlank()) {
             busDurationString.text = topText
         }
-        if (!bottomText.isNullOrBlank()) {
+        if (bottomText.isNotBlank()) {
             busDurationValue.text = bottomText
         }
     }
 
     private suspend fun getETA(newLocation: GeoPoint, currPassengerLoc: GeoPoint) {
-        val (distance, duration) = distanceMatrixRequest
+        val (_, duration) = distanceMatrixRequest
             .getDistanceAndDuration(
                 newLocation,
                 currPassengerLoc

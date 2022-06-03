@@ -42,10 +42,14 @@ class TrackingService : Service() {
             interval = 800
             priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
         }
-        fusedLocationProviderClient?.requestLocationUpdates(
-            locRequest,
-            locationCallback,
-            Looper.myLooper()
-        )
+        Looper.myLooper()?.let { looper ->
+            locationCallback?.let { callback ->
+                fusedLocationProviderClient?.requestLocationUpdates(
+                    locRequest,
+                    callback,
+                    looper
+                )
+            }
+        }
     }
 }
