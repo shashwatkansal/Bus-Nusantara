@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "222604072875",
+    "firebase_url": "https://busnusantaraindo-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "busnusantaraindo",
     "storage_bucket": "busnusantaraindo.appspot.com"
   },
@@ -20,7 +21,7 @@
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBkBJer5CioA1OGZEXTFpL8jazx3GyCl4s"
+          "current_key": "AIzaSyCdr9RPe5hr3Dz0sWgG9myCvu8CoFRVxHA"
         }
       ],
       "services": {
