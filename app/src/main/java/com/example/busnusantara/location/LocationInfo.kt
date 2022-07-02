@@ -1,4 +1,4 @@
-package com.example.busnusantara
+package com.example.busnusantara.location
 
 data class LocationInfo(
     val locationName: String,

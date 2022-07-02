@@ -1,11 +1,12 @@
-package com.example.busnusantara
+package com.example.busnusantara.activities.confirmJourney
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
+import com.example.busnusantara.activities.userMaps.DriverMapsActivity
+import com.example.busnusantara.R
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -21,11 +22,11 @@ class ConfirmJourneyDriverActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_confirm_journey_driver)
 
-        val tripId = getIntent().getStringExtra("ID") ?: ""
+        val tripId = intent.getStringExtra("ID") ?: ""
 
         db.document(tripId).get()
             .continueWithTask { task ->
-                val document = task.getResult()
+                val document = task.result
                 val date = (document?.get("date") as Timestamp).toDate()
                 tripDateField.text =
                     SimpleDateFormat("E dd MMM yyyy", Locale.getDefault()).format(date)
@@ -36,7 +37,7 @@ class ConfirmJourneyDriverActivity : AppCompatActivity() {
                 routeId.get()
             }
             .addOnCompleteListener { task ->
-                val document = task.getResult()
+                val document = task.result
                 startPointField.text = document.get("start").toString()
                 destinationPointField.text = document.get("destination").toString()
                 progress_circular.visibility = GONE
@@ -50,7 +51,6 @@ class ConfirmJourneyDriverActivity : AppCompatActivity() {
             intent.putExtra("TRIP_ID", tripId)
             startActivity(intent)
         }
-
 
     }
 }

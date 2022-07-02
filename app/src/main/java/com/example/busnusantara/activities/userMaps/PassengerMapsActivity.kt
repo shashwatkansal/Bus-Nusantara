@@ -1,4 +1,4 @@
-package com.example.busnusantara
+package com.example.busnusantara.activities.userMaps
 
 import android.content.ContentValues.TAG
 import android.os.Build
@@ -9,10 +9,13 @@ import android.view.View.VISIBLE
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.busnusantara.R
 import com.example.busnusantara.database.Collections
 import com.example.busnusantara.databinding.ActivityPassengerMapsBinding
-import com.example.busnusantara.googleapi.buildRoute
-import com.example.busnusantara.googleapi.DistanceMatrixRequest
+import com.example.busnusantara.location.LocationInfo
+import com.example.busnusantara.location.LocationInfoAdapter
+import com.example.busnusantara.navigation.DistanceMatrixRequest
+import com.example.busnusantara.navigation.buildRoute
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -28,7 +31,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import kotlinx.android.synthetic.main.activity_passenger_maps.*
 import kotlinx.android.synthetic.main.location_info.view.*
-import java.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -237,7 +239,8 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                 passengerLoc!!,
                                 BitmapDescriptorFactory.HUE_ORANGE
                             )
-                            mMap.moveCamera(CameraUpdateFactory.newLatLng(passengerLoc))
+                            passengerLoc?.let { CameraUpdateFactory.newLatLng(it) }
+                                ?.let { mMap.moveCamera(it) }
                         }
                     }
                 }
@@ -281,7 +284,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     val stop = document.get("pickupLocation") as String
                     val curPassengers = passengersAtStop.getOrDefault(stop, 0)
                     val morePassengers = (document.getLong("numPassengers") ?: 0).toInt()
-                    passengersAtStop.put(stop, curPassengers + morePassengers)
+                    passengersAtStop[stop] = curPassengers + morePassengers
                 }
 
                 // Construct Location Info from the mapping
@@ -290,7 +293,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
 
                 routeStops =
-                    routeStops.filter { name -> passengersAtStop.get(name) != 0 }
+                    routeStops.filter { name -> passengersAtStop[name] != 0 }
                         .toMutableList()
 
                 rvLocations.adapter = LocationInfoAdapter(locationInfos)
@@ -324,7 +327,7 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     requestStopButton.isClickable = true
                 }
 
-                val newLocation = trip?.get("location") as GeoPoint
+                val newLocation = trip["location"] as GeoPoint
                 val curMarker = busMarker
                 if (curMarker != null) {
                     curMarker.position = geoPointToLatLng(newLocation)
@@ -339,9 +342,9 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         )
                     }
 
-                    val arrivalTimes = trip?.get("etas") as List<String>
+                    val arrivalTimes = trip["etas"] as List<String>
 
-//                    FOR DEMO
+                    // FOR DEMO
                     if (!busEntered && arrivalTimes.size < 4) {
                         busEntered = true
                     }
@@ -355,11 +358,12 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun updateArrivalTimes(arrivalTimes: List<String>) {
-        var seen = mutableListOf<LocationInfoAdapter.LocationInfoViewHolder>()
+        val seen = mutableListOf<LocationInfoAdapter.LocationInfoViewHolder>()
         var j = rvLocations.adapter!!.itemCount - 1
         var i = arrivalTimes.size - 1
-        var item =
-            rvLocations.findViewHolderForAdapterPosition(j) as LocationInfoAdapter.LocationInfoViewHolder
+        var item = rvLocations.findViewHolderForAdapterPosition(j)
+                as LocationInfoAdapter.LocationInfoViewHolder
+
         while (i >= 0) {
             Log.d("EZRA", "loc is ${item.itemView.tvLocation.text}, j is $j")
             if (item.itemView.tvLocation.text in routeStops && item !in seen) {
@@ -369,36 +373,36 @@ class PassengerMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
             if (i >= 0) {
-                item =
-                    rvLocations.findViewHolderForAdapterPosition(j--) as LocationInfoAdapter.LocationInfoViewHolder
+                item = rvLocations.findViewHolderForAdapterPosition(j--)
+                        as LocationInfoAdapter.LocationInfoViewHolder
             }
             nextStopText = "${item.itemView.tvLocation.text} | ${arrivalTimes[0]}"
         }
     }
 
 
-    private fun updateETA(topText: String, bottomText: String) {
-        if (!topText.isNullOrBlank()) {
+    private fun String.updateETA(topText: String) {
+        if (topText.isNotBlank()) {
             busDurationString.text = topText
         }
-        if (!bottomText.isNullOrBlank()) {
-            busDurationValue.text = bottomText
+        if (isNotBlank()) {
+            busDurationValue.text = this
         }
     }
 
     private suspend fun getETA(newLocation: GeoPoint, currPassengerLoc: GeoPoint) {
-        val (distance, duration) = distanceMatrixRequest
+        val (_, duration) = distanceMatrixRequest
             .getDistanceAndDuration(
                 newLocation,
                 currPassengerLoc
             )
 
         withContext(Main) {
-//            FOR DEMO
+            // For DEMO
             if (busEntered) {
-                updateETA("The next stop is", nextStopText)
+                nextStopText.updateETA("The next stop is")
             } else {
-                updateETA("Your bus will arrive in", duration)
+                duration.updateETA("Your bus will arrive in")
             }
         }
     }

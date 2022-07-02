@@ -42,32 +42,32 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".HomeActivity"
+            android:name=".activities.HomeActivity"
             android:parentActivityName=".InfoActivity" />
         <activity
-            android:name=".SearchRoute"
-            android:parentActivityName=".HomeActivity" />
+            android:name=".activities.userMaps.SearchRoute"
+            android:parentActivityName=".activities.HomeActivity" />
         <activity
-            android:name=".ScanQRActivity"
-            android:parentActivityName=".SearchRoute" />
+            android:name=".activities.qr.ScanQRActivity"
+            android:parentActivityName=".activities.userMaps.SearchRoute" />
         <activity
-            android:name=".ConfirmJourneyPassengerActivity"
-            android:parentActivityName=".ScanQRActivity"
+            android:name="com.example.busnusantara.activities.confirmJourney.ConfirmJourneyPassengerActivity"
+            android:parentActivityName=".activities.qr.ScanQRActivity"
             android:screenOrientation="portrait"
             android:configChanges="orientation"/>
         <activity
-            android:name=".ConfirmJourneyDriverActivity"
-            android:parentActivityName=".HomeActivity" />
+            android:name="com.example.busnusantara.activities.confirmJourney.ConfirmJourneyDriverActivity"
+            android:parentActivityName=".activities.HomeActivity" />
         <activity
-            android:name=".PassengerMapsActivity"
+            android:name="com.example.busnusantara.activities.userMaps.PassengerMapsActivity"
             android:label="@string/title_activity_passenger_maps"
-            android:parentActivityName=".ConfirmJourneyPassengerActivity"
+            android:parentActivityName="com.example.busnusantara.activities.confirmJourney.ConfirmJourneyPassengerActivity"
             android:screenOrientation="portrait"
             android:configChanges="orientation"/>
         <activity
-            android:name=".DriverMapsActivity"
+            android:name="com.example.busnusantara.activities.userMaps.DriverMapsActivity"
             android:label="@string/title_activity_passenger_maps"
-            android:parentActivityName=".ConfirmJourneyDriverActivity" />
+            android:parentActivityName="com.example.busnusantara.activities.confirmJourney.ConfirmJourneyDriverActivity" />
 
         <service android:name=".services.TrackingService" />
     </application>

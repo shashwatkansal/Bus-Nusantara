@@ -1,4 +1,4 @@
-package com.example.busnusantara
+package com.example.busnusantara.activities.userMaps
 
 import android.content.*
 import android.content.pm.PackageManager
@@ -15,10 +15,13 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.busnusantara.R
 import com.example.busnusantara.database.Collections
 import com.example.busnusantara.databinding.ActivityDriverMapsBinding
-import com.example.busnusantara.googleapi.DistanceMatrixRequest
-import com.example.busnusantara.googleapi.buildRoute
+import com.example.busnusantara.location.LocationInfo
+import com.example.busnusantara.location.LocationInfoAdapter
+import com.example.busnusantara.navigation.DistanceMatrixRequest
+import com.example.busnusantara.navigation.buildRoute
 import com.example.busnusantara.services.TrackingService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -30,7 +33,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.material.bottomsheet.BottomSheetBehavior.*
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
+import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
@@ -41,8 +45,6 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
-import kotlin.collections.HashMap
 
 const val LOC_REQUEST_CODE = 1000
 
@@ -77,16 +79,12 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if (intent?.action.equals("ACT_LOC")) {
                 val lat: Double? = intent?.getDoubleExtra("latitude", 0.0)
                 val lng: Double? = intent?.getDoubleExtra("longitude", 0.0)
+
                 if (lat != null && lng != null) {
-/*
-    The following line can be commented to prevent unnecessary updates to the database
-                    val latLng = LatLng(lat, lng)
-                    Firebase.firestore.document(tripId)
-                        .update("location", GeoPoint(latLng.latitude, latLng.longitude))
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14F))
-*/
                     tripRef.get()
                         .addOnSuccessListener { trip ->
+
+                            // Get bus location and centre map there
                             val location = trip["location"] as GeoPoint
                             if (busMarker == null) {
                                 busMarker = mMap.addMarker(
@@ -112,6 +110,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             } else {
                                 busMarker!!.position = LatLng(location.latitude, location.longitude)
                             }
+
                             CoroutineScope(IO).launch {
                                 if ((nonEmptyRouteStopsGeoPoint.size == 0 && routeStopsGeoPoint[0].longitude != 0.0) ||
                                     nonEmptyRouteStopsGeoPoint[0].longitude != 0.0
@@ -129,23 +128,23 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         @RequiresApi(Build.VERSION_CODES.O)
         private suspend fun getAllLocationsETA(currLocation: GeoPoint) {
-
             val indices = mutableListOf<Int>()
 
             nonEmptyRouteStopsGeoPoint =
                 routeStopsGeoPoint.filter { geoPoint ->
-                    val i = routeStopsGeoPoint.indexOf(geoPoint)
-
-                    val stop = routeStopsName[i]
+                    val idx = routeStopsGeoPoint.indexOf(geoPoint)
+                    val stop = routeStopsName[idx]
                     val res = stop in nonEmptyRouteStopsName
                     if (res) {
-                        indices.add(i)
+                        indices.add(idx)
                     }
                     res
                 }.toMutableList()
 
             val locationETAs =
-                distanceMatrixRequest.convertFromTimeLengthsToETAs(mutableListOf(currLocation) + nonEmptyRouteStopsGeoPoint)
+                distanceMatrixRequest.convertFromTimeLengthsToETAs(
+                    mutableListOf(currLocation) + nonEmptyRouteStopsGeoPoint
+                )
 
             tripRef.update("etas", locationETAs)
 
@@ -154,30 +153,29 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-
-        private suspend fun updateETAs(etas: MutableList<String>, indices: MutableList<Int>) {
+        private fun updateETAs(etas: MutableList<String>, indices: MutableList<Int>) {
             for (i in 0 until etas.size) {
                 val item =
-                    (rvLocations.findViewHolderForAdapterPosition(indices[i]) as LocationInfoAdapter.LocationInfoViewHolder).itemView
+                    (rvLocations.findViewHolderForAdapterPosition(indices[i])
+                            as LocationInfoAdapter.LocationInfoViewHolder).itemView
                 item.tvETA.text = etas[i]
             }
         }
 
-
         private suspend fun getNextLocationETA(currLocation: GeoPoint) {
             Log.d("EZRA", "current: $currLocation")
 
-            val (distance, duration) = distanceMatrixRequest.getDistanceAndDuration(
+            val (distance, _) = distanceMatrixRequest.getDistanceAndDuration(
                 currLocation,
                 nonEmptyRouteStopsGeoPoint[0]
             )
 
             withContext(Main) {
-                updateDriverETA(distance, duration)
+                updateDriverETA(distance)
             }
         }
 
-        private suspend fun updateDriverETA(distance: String, duration: String) {
+        private fun updateDriverETA(distance: String) {
             val numDistance = (distance.split(" ")[0]).toDouble()
 
             if (nonEmptyRouteStopsGeoPoint[0].latitude != 0.0) {
@@ -186,6 +184,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     "nextStop: ${nonEmptyRouteStopsName[0]}: ${nonEmptyRouteStopsGeoPoint[0]} $numDistance"
                 )
             }
+
             if (numDistance <= 1.2) {
                 Log.d(
                     "EZRA",
@@ -197,7 +196,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     unregisterReceiver(this)
                     busLocationAnnouncement.text = "Arrived at"
                 } else {
-                    Log.d("EZRA", "updateDriverETA: ${nonEmptyRouteStopsName}")
+                    Log.d("EZRA", "updateDriverETA: $nonEmptyRouteStopsName")
                     busLocationAnnouncement.text =
                         if (nonEmptyRouteStopsName.size > 1) resources.getString(R.string.the_next_stop_is) else resources.getString(
                             R.string.the_final_destination_is
@@ -205,12 +204,12 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     val nextStop = nonEmptyRouteStopsName[0]
                     val nextNumPassengers = passengersAtStop.getOrDefault(nextStop, 0)
-                    busNextStopString.text = "$nextStop: " +
+                    ("$nextStop: " +
                             resources.getQuantityString(
                                 R.plurals.passenger_count,
                                 nextNumPassengers,
                                 nextNumPassengers
-                            )
+                            )).also { busNextStopString.text = it }
                 }
             }
         }
@@ -226,7 +225,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(binding.root)
 
         // get trip ID from confirmation page
-        tripId = getIntent().getStringExtra("TRIP_ID") ?: ""
+        tripId = intent.getStringExtra("TRIP_ID") ?: ""
         tripRef = db.document(tripId)
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -294,9 +293,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-
         addRouteStops()
-
         mMap.setMinZoomPreference(6.0f)
         mMap.setMaxZoomPreference(14.0f)
         mMap.animateCamera(CameraUpdateFactory.zoomTo(12.0f))
@@ -319,14 +316,14 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     val destination = route["destination"] as String
                     val stops: List<String> =
                         listOf(start) + stopsData.filterIsInstance<String>() + destination
-                    for (stop in stops) {
+
+                    stops.forEach { stop ->
                         addStopOnMap(stop)
                         routeStopsName.add(stop)
                         buildRoute(start, stop, mMap)
                         start = stop
                     }
                 }
-
                 setupInfoSheet()
             }
     }
@@ -334,20 +331,22 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun addStopOnMap(stop: String) {
         db.collection(Collections.AGENTS.toString())
             .whereEqualTo("locationBased", stop)
-            .get().addOnSuccessListener { documents ->
+            .get()
+            .addOnSuccessListener { documents ->
                 Log.d(ContentValues.TAG, "Finding stop $stop agent")
                 if (documents.isEmpty) {
                     remaining_stops.text = resources.getString(R.string.stop_not_found)
                 }
-                for (document in documents) {
+                documents.forEach { document ->
                     val coordinate: GeoPoint? = document.getGeoPoint("coordinate")
+
                     if (coordinate != null) {
                         val lat = coordinate.latitude
                         val lng = coordinate.longitude
                         val agent = LatLng(lat, lng)
                         val index = routeStopsName.indexOf(stop)
-                        routeStopsGeoPoint[index] = GeoPoint(lat, lng)
 
+                        routeStopsGeoPoint[index] = GeoPoint(lat, lng)
                         mMap.addMarker(MarkerOptions().position(agent).title(stop))
                     }
                 }
@@ -359,13 +358,15 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // only do this if infoSheet is a bottomSheet
         val params: CoordinatorLayout.LayoutParams =
             infoSheet.layoutParams as CoordinatorLayout.LayoutParams
+
         if (params.behavior is com.google.android.material.bottomsheet.BottomSheetBehavior) {
             from(infoSheet).peekHeight = 300
             from(infoSheet).state = STATE_COLLAPSED
         }
 
         db.collection(Collections.ORDERS.toString())
-            .whereEqualTo("tripID", tripRef).get()
+            .whereEqualTo("tripID", tripRef)
+            .get()
             .addOnSuccessListener { documents ->
                 Log.d(ContentValues.TAG, "Finding orders for trip ID $tripId")
 
@@ -379,23 +380,25 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         ContentValues.TAG, "Processing order for pickup location $stop " +
                                 "with $morePassengers passengers"
                     )
-                    passengersAtStop.put(stop, curPassengers + morePassengers)
+                    passengersAtStop[stop] = curPassengers + morePassengers
                 }
 
                 // Construct Location Info from the mapping
                 val locationInfos = routeStopsName.map { stop ->
-                    LocationInfo(stop, passengersAtStop.getOrDefault(stop, -1), "Calculating")
+                    LocationInfo(
+                        stop, passengersAtStop.getOrDefault(stop, -1),
+                        "Calculating"
+                    )
                 }
 
-                nonEmptyRouteStopsName =
-                    routeStopsName.filter { name -> passengersAtStop.get(name) != 0 }
-                        .toMutableList()
+                nonEmptyRouteStopsName = routeStopsName
+                    .filter { name -> passengersAtStop[name] != 0 }
+                    .toMutableList()
 
                 rvLocations.adapter = LocationInfoAdapter(locationInfos)
                 rvLocations.layoutManager = LinearLayoutManager(this)
 
-
-                val nextStop = routeStopsName.get(0)
+                val nextStop = routeStopsName[0]
                 val nextNumPassengers = passengersAtStop.getOrDefault(nextStop, 0)
                 busNextStopString.text = nextStop + ": " +
                         resources.getQuantityString(
@@ -403,6 +406,7 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             nextNumPassengers,
                             nextNumPassengers
                         )
+
                 progress_circular_d.visibility = GONE
                 linearLayout_d.visibility = VISIBLE
                 infoSheet.visibility = VISIBLE
@@ -413,13 +417,14 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun toggleRequestButton() {
         if (journeyPaused) {
-            pauseJourneyButton.backgroundTintList = resources.getColorStateList(R.color.softblue)
+            resources.getColorStateList(R.color.softblue)
+                .also { pauseJourneyButton.backgroundTintList = it }
             pauseJourneyButton.text = resources.getString(R.string.pause_journey)
             pauseJourneyButton.tooltipText = "Press if bus is stopping in less than 10 mins"
             tripRef.update("impromptuStop", false)
         } else {
-            pauseJourneyButton.backgroundTintList =
-                resources.getColorStateList(R.color.light_orange)
+            resources.getColorStateList(R.color.light_orange)
+                .also { pauseJourneyButton.backgroundTintList = it }
             pauseJourneyButton.text = resources.getString(R.string.resume)
             pauseJourneyButton.tooltipText = "Press if bus is continuing the journey"
             tripRef.update("impromptuStop", true)
@@ -448,9 +453,11 @@ class DriverMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     1 -> requestsCount.text = "1 person is requesting toilet break"
                     else -> requestsCount.text = "$requests people is requesting a toilet break"
                 }
+
                 if (requests > 0 && requests > oldRequestCount) {
                     mediaPlayer.start()
                 }
+
                 oldRequestCount = requests
                 Log.d("Break Request", "break requests update: $requests")
             } else {

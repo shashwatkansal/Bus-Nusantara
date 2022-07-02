@@ -1,11 +1,14 @@
-package com.example.busnusantara
+package com.example.busnusantara.activities.confirmJourney
 
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View.*
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
+import com.example.busnusantara.activities.userMaps.PassengerMapsActivity
+import com.example.busnusantara.R
 import com.example.busnusantara.database.Collections
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentReference
@@ -16,7 +19,7 @@ import java.util.*
 
 class ConfirmJourneyPassengerActivity : AppCompatActivity() {
 
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val db: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
     private lateinit var orderRef: DocumentReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +32,6 @@ class ConfirmJourneyPassengerActivity : AppCompatActivity() {
         // Display required information
         displayTripInformation()
         displayBusAmenities()
-
 
         btnToMap.setOnClickListener {
             val intent = Intent(this, PassengerMapsActivity::class.java)
@@ -55,21 +57,24 @@ class ConfirmJourneyPassengerActivity : AppCompatActivity() {
                 if (buses.isEmpty || buses.size() > 1) {
                     Log.e(TAG, "Duplicates of busNum exist in database!")
                 }
-                for (bus in buses) {
+
+                buses.forEach { bus ->
                     busTypePointField.text =
-                        if (bus["executive"] as Boolean)
-                            "Executive Bus" else "Standard Bus"
-                    val wifiSymbol = if (bus["wifi"] as Boolean)
-                        R.drawable.wifi else R.drawable.no_wifi
+                        if (bus["executive"] as Boolean) "Executive Bus" else "Standard Bus"
+
+                    val wifiSymbol =
+                        if (bus["wifi"] as Boolean) R.drawable.wifi else R.drawable.no_wifi
                     wifiIcon.setImageResource(wifiSymbol)
-                    val toiletSymbol = if (bus["toilets"] as Boolean)
-                        R.drawable.ic_toilet else R.drawable.ic_notoilet
+
+                    val toiletSymbol =
+                        if (bus["toilets"] as Boolean) R.drawable.ic_toilet
+                        else R.drawable.ic_notoilet
+
                     toiletIcon.setImageResource(toiletSymbol)
                     confirmation_info.visibility = VISIBLE
                     progress_circular.visibility = GONE
                 }
             }
-
     }
 
     private fun displayTripInformation() {
